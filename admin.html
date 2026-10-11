@@ -1277,7 +1277,7 @@ async function finishSale(){
 function newSale(){ if(!pay||!pay.done) return; pay=null; cart=[]; $("#pdvDesc").value=""; closeModal(); renderPdv(); gRenderAll(); $("#pdvQ").focus(); }
 function fillCupom(v){
   let el=$("#cupom"); if(!el){ el=document.createElement("div"); el.id="cupom"; el.className="cupom"; document.body.appendChild(el); }
-  el.innerHTML=`<div class="c"><b>POP BRILHO</b><br>Materiais de Limpeza<br>${esc(cfg.endereco||"")}<br>WhatsApp ${esc(cfg.whatsapp||"")}</div><hr>
+  el.innerHTML=`<div class="c"><b>POP BRILHO</b><br>Materiais de Limpeza<br>CNPJ 67.905.362/0001-00<br>${esc(cfg.endereco||"")}<br>WhatsApp ${esc(cfg.whatsapp||"")}</div><hr>
   <div class="c"><b>CUPOM NÃO FISCAL</b><br>Venda nº ${v.numero} · ${new Date(v.hora).toLocaleString("pt-BR")}${v.operador?"<br>Operador: "+esc(v.operador):""}</div><hr>
   <table>${v.itens.map(i=>`<tr><td colspan="2">${esc(i.produto)}</td></tr><tr><td>${qfmt(i.qtd)} x ${brl(i.preco)}</td><td class="r">${brl(i.qtd*i.preco)}</td></tr>`).join("")}</table><hr>
   <table><tr><td>Subtotal</td><td class="r">${brl(v.subtotal)}</td></tr>${v.desconto?`<tr><td>Desconto</td><td class="r">-${brl(v.desconto)}</td></tr>`:""}<tr><td><b>TOTAL</b></td><td class="r"><b>${brl(v.total)}</b></td></tr>
@@ -1347,7 +1347,7 @@ function openFechar(){
 function fillFechCupom(c){
   let el=$("#cupom"); if(!el){ el=document.createElement("div"); el.id="cupom"; el.className="cupom"; document.body.appendChild(el); }
   const r=c.resumo;
-  el.innerHTML=`<div class="c"><b>POP BRILHO</b><br>FECHAMENTO DE CAIXA</div><hr>Abertura: ${new Date(c.abertura).toLocaleString("pt-BR")}<br>Fechamento: ${new Date(c.fechamento).toLocaleString("pt-BR")}${c.operador?"<br>Operador: "+esc(c.operador):""}<hr>
+  el.innerHTML=`<div class="c"><b>POP BRILHO</b><br>CNPJ 67.905.362/0001-00<br>FECHAMENTO DE CAIXA</div><hr>Abertura: ${new Date(c.abertura).toLocaleString("pt-BR")}<br>Fechamento: ${new Date(c.fechamento).toLocaleString("pt-BR")}${c.operador?"<br>Operador: "+esc(c.operador):""}<hr>
   <table><tr><td>Vendas</td><td class="r">${r.vendas}</td></tr><tr><td>Dinheiro</td><td class="r">${brl(r.por.dinheiro)}</td></tr><tr><td>Pix</td><td class="r">${brl(r.por.pix)}</td></tr><tr><td>Débito</td><td class="r">${brl(r.por.debito)}</td></tr><tr><td>Crédito</td><td class="r">${brl(r.por.credito)}</td></tr><tr><td>Fiado</td><td class="r">${brl(r.por.fiado||0)}</td></tr>${r.recT?`<tr><td>Receb. fiado</td><td class="r">${brl(r.recT)}</td></tr>`:""}<tr><td><b>Total</b></td><td class="r"><b>${brl(r.total)}</b></td></tr></table><hr>
   <table><tr><td>Fundo de troco</td><td class="r">${brl(c.fundo)}</td></tr><tr><td>Suprimentos</td><td class="r">${brl(r.sup)}</td></tr><tr><td>Sangrias</td><td class="r">-${brl(r.san)}</td></tr><tr><td>Esperado</td><td class="r">${brl(r.esperado)}</td></tr><tr><td>Contado</td><td class="r">${brl(c.contado)}</td></tr><tr><td><b>Diferença</b></td><td class="r"><b>${brl(c.diferenca)}</b></td></tr></table>`;
 }
