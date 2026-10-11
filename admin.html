@@ -160,6 +160,20 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
 
 #cliBody td:nth-child(2),#cliBody td:nth-child(3),#cliBody td:nth-child(4) .sub{white-space:nowrap}
 #cliBody .inl,#fBody .inl{flex-wrap:nowrap}
+/* ===== menu lateral (abas na vertical) ===== */
+#vApp .wrap{max-width:1320px}
+#vApp main.wrap{display:grid;grid-template-columns:200px minmax(0,1fr);gap:20px;align-items:start}
+#vApp main.wrap>section{grid-column:2;min-width:0;padding-top:18px}
+#vApp .tabs{grid-column:1;grid-row:1/span 30;flex-direction:column;flex-wrap:nowrap;gap:6px;position:sticky;top:84px;margin:18px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px}
+#vApp .tab{text-align:left;border:0;border-radius:12px;padding:11px 14px;background:transparent;font-size:15px}
+#vApp .tab:hover{background:var(--soft)}
+#vApp .tab[aria-selected="true"]{background:var(--ink);color:#fff}
+@media (max-width:760px){
+  #vApp main.wrap{grid-template-columns:minmax(0,1fr);gap:0}
+  #vApp main.wrap>section{grid-column:1;padding-top:0}
+  #vApp .tabs{grid-row:auto;position:static;flex-direction:row;overflow-x:auto;margin:14px 0;padding:6px}
+  #vApp .tab{white-space:nowrap;flex:0 0 auto}
+}
 /* ===== PDV ===== */
 .cxbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--ink);color:#fff;border-radius:16px;padding:10px 14px;margin-bottom:14px}
 .cxbar span{flex:1;min-width:200px;font-size:14px}
