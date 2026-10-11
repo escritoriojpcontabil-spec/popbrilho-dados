@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="POP BRILHO: material de limpeza com entrega rápida na Região Metropolitana do Recife.">
+<link rel="icon" href="logo.jpg">
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Site POP BRILHO</title>
+<title>POP BRILHO | Material de limpeza</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: site institucional de uma página — topo fixo, abertura com vitrine, faixas alternadas (linhas, empresas, como comprar, entrega, dúvidas, contato) */
@@ -41,6 +42,7 @@ h2{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,44px);lin
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
 header .wrap{display:flex;align-items:center;gap:20px;padding-block:12px}
 .logo{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.02em;line-height:1;display:flex;align-items:baseline;gap:6px;text-decoration:none;margin-right:auto}
+.logo img{height:58px;width:auto;display:block;border-radius:12px}
 .logo .pop{background:var(--cobalt);color:var(--cobalt-ink);padding:2px 9px 4px;border-radius:999px}
 .logo .sp{color:var(--cobalt)}
 nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-weight:600;font-size:15px}
@@ -58,7 +60,8 @@ header .btn{padding:10px 18px}
 .hero .ctas{display:flex;flex-wrap:wrap;gap:12px;padding-bottom:56px}
 .hero .btn.sec{color:#fff}
 .shelf{display:flex;align-items:flex-end;justify-content:center;gap:4px;position:relative}
-.shelf svg{flex:1;max-width:120px;height:auto;display:block}
+.shelf svg{flex:1 1 0;min-width:0;max-width:120px;height:auto;display:block}
+.hero .wrap>*,.about>*,.biz .wrap>*,.ship>*,.contact .wrap>*{min-width:0}
 .bub{position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,.4);pointer-events:none}
 .facts{background:var(--ink);color:var(--bg)}
 .facts .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding-block:22px}
@@ -152,7 +155,9 @@ details p{margin:10px 0 0;color:var(--muted)}
 .pcard{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .pcard .pic{background:var(--soft);border-radius:12px;height:150px;display:flex;align-items:flex-end;justify-content:center;padding-top:10px;position:relative}
 .pcard .pic svg{height:130px;width:auto}
-.badge{position:absolute;top:8px;left:8px;background:var(--citrus);color:var(--citrus-ink);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:999px}
+.pcard .pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:8px;border-radius:12px;background:#fff}
+.pcard .pic.has-foto .draw{visibility:hidden}
+.badge{position:absolute;z-index:1;top:8px;left:8px;background:var(--citrus);color:var(--citrus-ink);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:999px}
 .pcard h4{font-family:var(--display);font-weight:700;font-size:17px;line-height:1.15;margin:0}
 .meta{font-size:13px;color:var(--muted)}
 .price{display:flex;align-items:baseline;gap:8px;margin-top:auto;font-variant-numeric:tabular-nums}
@@ -229,7 +234,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 <body>
 <header>
   <div class="wrap">
-    <a class="logo" href="#inicio" aria-label="POP BRILHO, início"><span class="pop">POP</span><span>BRILHO</span><span class="sp">✦</span></a>
+    <a class="logo" href="#inicio"><img src="logo.jpg" alt="POP BRILHO – Materiais de limpeza" width="600" height="386"></a>
     <nav id="nav" aria-label="Menu principal">
       <ul>
         <li><a href="#sobre">Quem somos</a></li>
@@ -264,8 +269,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 </section>
 <div class="facts">
   <div class="wrap">
-    <div><b>+ de 18</b>produtos em estoque</div>
-    <div><b>R$ 120</b>frete grátis a partir de</div>
+    <div><b>Produtos</b>para casa e empresa</div>
+    <div><b class="v-fg0">R$ 120</b>frete grátis a partir de</div>
     <div><b>5 L</b>galões para empresas</div>
     <div><b>Pix</b>cartão ou dinheiro</div>
   </div>
@@ -311,7 +316,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <div style="min-width:0">
         <div class="s-tools">
           <input id="q" type="search" placeholder="Buscar detergente, desinfetante, água sanitária…" aria-label="Buscar produtos">
-          <select id="sort" aria-label="Ordenar produtos"><option value="pop">Mais vendidos</option><option value="asc">Menor preço</option><option value="desc">Maior preço</option></select>
+          <select id="sort" aria-label="Ordenar produtos"><option value="pop">Destaques</option><option value="asc">Menor preço</option><option value="desc">Maior preço</option></select>
         </div>
         <div class="cats" id="cats"></div>
         <p class="found" id="found"></p>
@@ -386,13 +391,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <table>
           <thead><tr><th>Cidade</th><th>Prazo</th><th>Taxa</th></tr></thead>
           <tbody>
-            <tr><td>Paulista</td><td>Mesmo dia</td><td>R$ 10,00</td></tr>
-            <tr><td>Olinda</td><td>Mesmo dia</td><td>R$ 10,00</td></tr>
-            <tr><td>Recife</td><td>Até 1 dia útil</td><td>R$ 10,00</td></tr>
+            <tr><td>Paulista</td><td>Mesmo dia</td><td class="v-ft">R$ 10,00</td></tr>
+            <tr><td>Olinda</td><td>Mesmo dia</td><td class="v-ft">R$ 10,00</td></tr>
+            <tr><td>Recife</td><td>Até 1 dia útil</td><td class="v-ft">R$ 10,00</td></tr>
           </tbody>
         </table>
       </div>
-      <p class="note">Frete grátis em pedidos a partir de R$ 120,00.</p>
+      <p class="note">Frete grátis em pedidos a partir de <span class="v-fg">R$ 120,00</span>.</p>
     </div>
   </div>
 </section>
@@ -402,7 +407,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     <p class="eyebrow">Dúvidas frequentes</p>
     <h2>Perguntas que sempre recebemos.</h2>
     <div class="faq">
-      <details open><summary>Qual o valor mínimo do pedido?</summary><p>Não há valor mínimo. Pedidos a partir de R$ 120,00 têm frete grátis.</p></details>
+      <details open><summary>Qual o valor mínimo do pedido?</summary><p>Não há valor mínimo. Pedidos a partir de <span class="v-fg">R$ 120,00</span> têm frete grátis.</p></details>
       <details><summary>Quais formas de pagamento vocês aceitam?</summary><p>Pix, cartão de crédito ou débito na entrega e dinheiro.</p></details>
       <details><summary>Vocês emitem nota fiscal?</summary><p>Sim. Para empresas, informe o CNPJ no momento do pedido.</p></details>
       <details><summary>Posso trocar um produto?</summary><p>Sim. Se o produto chegar com defeito ou avariado, trocamos sem custo. Fale com a gente pelo WhatsApp em até 7 dias.</p></details>
@@ -422,7 +427,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <a class="btn pri" id="zapBtn" href="#" target="_blank" rel="noopener">Chamar no WhatsApp</a>
         <button class="copy" id="copy" type="button">Copiar número</button>
       </div>
-      <div><div class="lbl">Endereço</div><div>Paulista – PE</div></div>
+      <div><div class="lbl">Endereço</div><div id="endereco">Paulista – PE</div></div>
     </div>
   </div>
 </section>
@@ -430,13 +435,15 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 <footer>
   <div class="wrap">
     <span>© 2026 POP BRILHO · Material de limpeza</span>
-    <a href="#loja">Loja online</a>
+    <span style="display:flex;gap:18px"><a href="#loja">Loja online</a><a href="admin.html">Área do lojista</a></span>
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-// ===== CONFIGURAÇÃO (edite aqui) =====
-const WHATSAPP = "5581999999999";   // DDI + DDD + número, só dígitos
+// Os dados da loja (produtos, WhatsApp, frete) vêm da planilha produtos.xlsx.
+// Os valores abaixo só são usados se a planilha não for encontrada.
+let WHATSAPP = "5581999999999";
 
 const cap="#0d1b3d", lab="#fff";
 function art(shape,col,h){
@@ -469,11 +476,19 @@ const LINES=[
 ];
 document.getElementById("lines").innerHTML=LINES.map(([n,d,s,c])=>`<a class="line" href="#loja" data-c="${n}"><div class="ic">${art(s,c,84)}</div><div><h3>${n}</h3><p>${d}</p></div></a>`).join("");
 
-// WhatsApp
-const fmt="+"+WHATSAPP.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/,"$1 ($2) $3-$4");
-document.getElementById("zap").textContent=fmt;
-document.getElementById("zapBtn").href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Olá, POP BRILHO! Vim pelo site e gostaria de atendimento.")}`;
-document.getElementById("bizBtn").href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Olá, POP BRILHO! Quero um orçamento para minha empresa/condomínio.")}`;
+// WhatsApp e contato
+let fmt="";
+function applyConfig(){
+  fmt="+"+WHATSAPP.replace(/^(\d{2})(\d{2})(\d{4,5})(\d{4})$/,"$1 ($2) $3-$4");
+  document.getElementById("zap").textContent=fmt;
+  document.getElementById("zapBtn").href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Olá, POP BRILHO! Vim pelo site e gostaria de atendimento.")}`;
+  document.getElementById("bizBtn").href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Olá, POP BRILHO! Quero um orçamento para minha empresa/condomínio.")}`;
+  const money=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  document.querySelectorAll(".v-fg").forEach(e=>e.textContent=money(FRETE_GRATIS));
+  document.querySelectorAll(".v-fg0").forEach(e=>e.textContent=money(FRETE_GRATIS).replace(/,00$/,""));
+  document.querySelectorAll(".v-ft").forEach(e=>e.textContent=money(FRETE));
+  if(ENDERECO) document.getElementById("endereco").textContent=ENDERECO;
+}
 const cp=document.getElementById("copy");
 cp.addEventListener("click",()=>{
   const ok=()=>{cp.textContent="Número copiado";setTimeout(()=>cp.textContent="Copiar número",1500);};
@@ -482,9 +497,8 @@ cp.addEventListener("click",()=>{
 });
 
 // ===== LOJA =====
-const FRETE = 10.00, FRETE_GRATIS = 120.00;
-const CATS = ["Todos","Cozinha","Roupas","Pisos e banheiro","Desinfecção","Utensílios","Kits"];
-const P = [
+let FRETE = 10.00, FRETE_GRATIS = 120.00, ENDERECO = "";
+let P = [
  {id:1,n:"Detergente Neutro",c:"Cozinha",v:"500 ml",p:2.49,shape:"bottle",col:"#f5c518",pop:10},
  {id:2,n:"Detergente Limão",c:"Cozinha",v:"500 ml",p:2.69,shape:"bottle",col:"#8bd13a",pop:9},
  {id:3,n:"Desengordurante Cozinha",c:"Cozinha",v:"500 ml",p:12.90,shape:"spray",col:"#ff7a2b",pop:6},
@@ -504,6 +518,11 @@ const P = [
  {id:17,n:"Luva Látex Média",c:"Utensílios",v:"1 par",p:6.90,shape:"glove",col:"#ffd23a",pop:4},
  {id:18,n:"Kit Faxina Completa",c:"Kits",v:"8 itens",p:49.90,old:58.70,shape:"kit",col:"#1747d6",pop:8,b:"-15%"},
 ];
+let CATS=[];
+const norm=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const buildCats=()=>{CATS=["Todos",...new Set(P.map(p=>p.c))];};
+buildCats();
 const brl=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const $=s=>document.querySelector(s);
 let cat="Todos", q="", sort="pop", cart={};
@@ -511,19 +530,18 @@ try{cart=JSON.parse(localStorage.getItem("pb-cart")||"{}")||{};}catch(e){cart={}
 for(const id in cart){ if(!P.some(p=>p.id==id)) delete cart[id]; }
 const save=()=>{try{localStorage.setItem("pb-cart",JSON.stringify(cart));}catch(e){}};
 
-function renderCats(){ $("#cats").innerHTML=CATS.map(c=>`<button type="button" class="cat" aria-pressed="${c===cat}" data-c="${c}">${c}</button>`).join(""); }
+function renderCats(){ $("#cats").innerHTML=CATS.map(c=>`<button type="button" class="cat" aria-pressed="${c===cat}" data-c="${esc(c)}">${esc(c)}</button>`).join(""); }
 function renderGrid(){
-  const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
   let list=P.filter(p=>(cat==="Todos"||p.c===cat)&&norm(p.n+" "+p.c).includes(norm(q)));
   list.sort(sort==="asc"?(a,b)=>a.p-b.p:sort==="desc"?(a,b)=>b.p-a.p:(a,b)=>b.pop-a.pop);
   $("#found").textContent=list.length+(list.length===1?" produto":" produtos");
   $("#grid").innerHTML=list.length?list.map(p=>`
    <article class="pcard">
-     <div class="pic">${p.b?`<span class="badge">${p.b}</span>`:""}${art(p.shape,p.col,130)}</div>
-     <h4>${p.n}</h4>
-     <div class="meta">${p.v} · ${p.c}</div>
+     <div class="pic${p.foto?" has-foto":""}">${p.b?`<span class="badge">${esc(p.b)}</span>`:""}${p.foto?`<img src="fotos/${encodeURIComponent(p.foto)}" alt="${esc(p.n)}" loading="lazy" onerror="this.parentNode.classList.remove('has-foto');this.remove()">`:""}<span class="draw">${art(p.shape,p.col,130)}</span></div>
+     <h4>${esc(p.n)}</h4>
+     <div class="meta">${esc([p.v,p.c].filter(Boolean).join(" · "))}</div>
      <div class="price"><b>${brl(p.p)}</b>${p.old?`<s>${brl(p.old)}</s>`:""}</div>
-     <button type="button" class="add" data-id="${p.id}">Adicionar</button>
+     <button type="button" class="add" data-id="${esc(p.id)}">Adicionar</button>
    </article>`).join(""):`<div class="empty">Nenhum produto encontrado para essa busca.</div>`;
 }
 function totals(){
@@ -536,9 +554,9 @@ function renderCart(){
   const ids=Object.keys(cart), t=totals();
   $("#count").textContent=t.n;
   $("#items").innerHTML=ids.length?ids.map(id=>{const p=P.find(x=>x.id==id);return `
-    <div class="it"><span class="nm">${p.n} <span class="meta">(${p.v})</span></span><span class="sub">${brl(p.p*cart[id])}</span>
-    <div class="qty"><button type="button" data-d="-1" data-id="${id}" aria-label="Diminuir">−</button><span>${cart[id]}</span><button type="button" data-d="1" data-id="${id}" aria-label="Aumentar">+</button></div>
-    <button type="button" class="rm" data-rm="${id}">Remover</button></div>`}).join(""):`<p class="meta" style="margin:0">Sua sacola está vazia. Toque em "Adicionar" nos produtos para começar.</p>`;
+    <div class="it"><span class="nm">${esc(p.n)}${p.v?` <span class="meta">(${esc(p.v)})</span>`:""}</span><span class="sub">${brl(p.p*cart[id])}</span>
+    <div class="qty"><button type="button" data-d="-1" data-id="${esc(id)}" aria-label="Diminuir">−</button><span>${cart[id]}</span><button type="button" data-d="1" data-id="${esc(id)}" aria-label="Aumentar">+</button></div>
+    <button type="button" class="rm" data-rm="${esc(id)}">Remover</button></div>`}).join(""):`<p class="meta" style="margin:0">Sua sacola está vazia. Toque em "Adicionar" nos produtos para começar.</p>`;
   $("#free").innerHTML=(t.sub>=FRETE_GRATIS?"<b>Você ganhou frete grátis!</b>":`Faltam <b>${brl(FRETE_GRATIS-t.sub)}</b> para frete grátis`)+`<div class="track"><i style="width:${Math.min(100,t.sub/FRETE_GRATIS*100)}%"></i></div>`;
   $("#sum").innerHTML=`<span>Subtotal</span><span>${brl(t.sub)}</span><span>Entrega</span><span>${t.frete?brl(t.frete):"Grátis"}</span><span class="tot">Total</span><span class="tot">${brl(t.tot)}</span>`;
   updateLink();
@@ -548,7 +566,7 @@ function updateLink(){
   const ok=t.n>0&&nome&&end;
   go.setAttribute("aria-disabled",ok?"false":"true");
   if(!ok){go.href="#";return;}
-  const lines=Object.keys(cart).map(id=>{const p=P.find(x=>x.id==id);return `• ${cart[id]}x ${p.n} (${p.v}) — ${brl(p.p*cart[id])}`});
+  const lines=Object.keys(cart).map(id=>{const p=P.find(x=>x.id==id);return `• ${cart[id]}x ${p.n}${p.v?` (${p.v})`:""} — ${brl(p.p*cart[id])}`});
   const msg=`*Pedido POP BRILHO*\n\n${lines.join("\n")}\n\nSubtotal: ${brl(t.sub)}\nEntrega: ${t.frete?brl(t.frete):"Grátis"}\n*Total: ${brl(t.tot)}*\n\nNome: ${nome}\nEndereço: ${end}\nPagamento: ${$("#pag").value}`;
   go.href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
 }
@@ -584,7 +602,46 @@ const closeC=()=>{$("#cart").classList.remove("open");$("#backdrop").classList.r
 $("#openCart").addEventListener("click",()=>{ if(mobile()) openC(); else { document.getElementById("loja").scrollIntoView(); setTimeout(()=>$("#nome").focus({preventScroll:true}),400);} });
 $("#closeCart").addEventListener("click",closeC);
 $("#backdrop").addEventListener("click",closeC);
-renderCats(); renderGrid(); renderCart();
+applyConfig(); renderCats(); renderGrid(); renderCart();
+
+// ===== Leitura da planilha produtos.xlsx =====
+const SHAPES=[[/kit/i,"kit"],[/esponja/i,"sponge"],[/luva/i,"glove"],[/pano|flanela/i,"cloth"],[/barra/i,"bar"],[/gal[aã]o|\b5 ?l\b/i,"galao"],[/spray|multiuso|vidro|gel|desengordurante|limpador/i,"spray"],[/\b[2-4] ?l\b|sanit[aá]ria|amaciante|lava.?roupa/i,"jug"]];
+const COLS=["#f5c518","#2f6bff","#20b38a","#ff6fa8","#2fc1d6","#9a6bff","#ff7a2b","#8bd13a"];
+const guessShape=t=>{for(const [r,sh] of SHAPES) if(r.test(t)) return sh; return "bottle";};
+const num=v=>{if(typeof v==="number")return v; v=String(v||"").replace(/[R$\s]/g,""); if(!v)return 0; if(v.includes(","))v=v.replace(/\./g,"").replace(",","."); return parseFloat(v)||0;};
+async function loadSheet(){
+  if(!window.XLSX) return;
+  try{
+    const r=await fetch("produtos.xlsx",{cache:"no-store"}); if(!r.ok) return;
+    const wb=XLSX.read(await r.arrayBuffer(),{type:"array"});
+    const sh=wb.SheetNames.find(n=>norm(n)==="produtos")||wb.SheetNames[0];
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sh],{defval:""});
+    const get=(o,k)=>{const f=Object.keys(o).find(x=>norm(x)===k);return f===undefined?"":o[f];};
+    const list=[];
+    rows.forEach((o,i)=>{
+      const n=String(get(o,"nome")).trim(), p=num(get(o,"preco"));
+      if(!n||!p||/^n/i.test(String(get(o,"ativo")).trim())) return;
+      const v=String(get(o,"tamanho")).trim();
+      list.push({id:n,n,c:String(get(o,"categoria")).trim()||"Outros",v,p,old:num(get(o,"preco antigo")),b:String(get(o,"selo")).trim(),foto:String(get(o,"foto")).trim(),pop:-i,shape:guessShape(n+" "+v),col:COLS[i%COLS.length]});
+    });
+    if(list.length){ P=list; buildCats(); }
+    const cs=wb.SheetNames.find(n=>norm(n).startsWith("config"));
+    if(cs){
+      XLSX.utils.sheet_to_json(wb.Sheets[cs],{header:1,defval:""}).forEach(([k,v])=>{
+        k=norm(k); if(v===""||v==null) return;
+        if(k.startsWith("whats")){let d=String(v).replace(/\D/g,""); if(d.length<=11) d="55"+d; WHATSAPP=d;}
+        else if(k.startsWith("taxa")) FRETE=num(v);
+        else if(k.startsWith("frete")) FRETE_GRATIS=num(v);
+        else if(k.startsWith("ender")) ENDERECO=String(v).trim();
+      });
+    }
+    for(const id in cart){ if(!P.some(p=>p.id==id)) delete cart[id]; }
+    if(!CATS.includes(cat)) cat="Todos";
+    document.querySelectorAll("#lines .line").forEach(a=>a.hidden=!P.some(p=>p.c===a.dataset.c));
+    save(); applyConfig(); renderCats(); renderGrid(); renderCart();
+  }catch(e){ console.warn("Não foi possível ler produtos.xlsx", e); }
+}
+loadSheet();
 
 // menu celular
 const menu=document.getElementById("menu"),nav=document.getElementById("nav");

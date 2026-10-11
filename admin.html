@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Painel POP BRILHO</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Painel do lojista: login → lista de produtos com editor lateral → barra fixa "Publicar alterações" */
+:root{
+  --bg:#f3f6fb; --surface:#ffffff; --ink:#0d1b3d; --muted:#56617a; --line:#dce3ef;
+  --cobalt:#1747d6; --cobalt-ink:#ffffff; --citrus:#d7f23a; --citrus-ink:#0d1b3d; --soft:#e8eefb;
+  --ok:#14805a; --ok-bg:#e3f5ec; --warn:#a15c00; --warn-bg:#fff3dc; --bad:#c0362c; --bad-bg:#fde8e6;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--citrus);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:16px}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;margin:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;white-space:nowrap}
+.btn.pri{background:var(--cobalt);color:var(--cobalt-ink)}
+.btn.lime{background:var(--citrus);color:var(--citrus-ink)}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn.danger{background:var(--bad-bg);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.field{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600}
+.field input,.field select,.field textarea{padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-weight:400;font-size:15px;width:100%}
+.field small{font-weight:400;color:var(--muted)}
+.msg{padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600}
+.msg.ok{background:var(--ok-bg);color:var(--ok)} .msg.bad{background:var(--bad-bg);color:var(--bad)} .msg.info{background:var(--soft);color:var(--ink)}
+
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.lcard{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:28px 24px;display:flex;flex-direction:column;gap:14px}
+.lcard img{width:210px;max-width:70%;align-self:center;border-radius:14px}
+.lcard h1{font-size:24px;text-align:center}
+.lcard p{margin:0;color:var(--muted);font-size:14px;text-align:center}
+.linkbtn{background:none;border:0;color:var(--cobalt);text-decoration:underline;font-size:14px;padding:4px;align-self:center}
+details.help{font-size:13px;color:var(--muted);background:var(--soft);border-radius:12px;padding:10px 12px}
+details.help summary{font-weight:700;color:var(--ink);cursor:pointer}
+details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
+
+/* topo do painel */
+.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;padding-block:10px}
+.top img{height:46px;border-radius:10px}
+.top h1{font-size:18px;margin-right:auto}
+.top h1 span{display:block;font-family:var(--body);font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0}
+.tabs{display:flex;gap:6px;margin:18px 0 14px}
+.tab{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:700}
+.tab[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* lista */
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tools input{flex:1;min-width:180px;padding:10px 14px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}
+.count{color:var(--muted);font-size:14px;margin-bottom:8px}
+.list{display:flex;flex-direction:column;gap:8px;padding-bottom:110px}
+.row{display:grid;grid-template-columns:64px 1fr auto auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.row.off{opacity:.55}
+.thumb{width:64px;height:64px;border-radius:12px;background:var(--soft);display:grid;place-items:center;overflow:hidden;color:var(--muted);font-size:11px;text-align:center}
+.thumb img{width:100%;height:100%;object-fit:contain;background:#fff}
+.info{min-width:0}
+.info b{display:block;font-size:15px;overflow-wrap:anywhere}
+.info span{font-size:13px;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--soft)}
+.chip.off{background:var(--bad-bg);color:var(--bad)}
+.chip.sel{background:var(--citrus);color:var(--citrus-ink)}
+.chip.new{background:var(--warn-bg);color:var(--warn)}
+.price{font-family:var(--display);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;text-align:right}
+.price s{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted)}
+.acts{display:flex;gap:4px}
+.ic{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:16px}
+.empty{padding:40px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:16px}
+
+/* configurações */
+.cfg{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:720px;margin-bottom:120px}
+
+/* editor */
+.shade{position:fixed;inset:0;background:rgba(5,10,25,.45);z-index:40}
+.editor{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--surface);z-index:41;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.15)}
+.ed-h{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.ed-h h2{font-size:20px}
+.ed-b{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.ed-f{padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
+.ed-f .btn.pri{flex:1}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.photo{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
+.photo .pv{width:120px;height:120px;border-radius:14px;background:var(--soft);display:grid;place-items:center;overflow:hidden;color:var(--muted);font-size:12px;text-align:center;padding:6px}
+.photo .pv img{width:100%;height:100%;object-fit:contain;background:#fff}
+.photo .pb{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.switch{display:flex;align-items:center;gap:10px;font-weight:600}
+.switch input{width:20px;height:20px;accent-color:var(--cobalt)}
+.confirm{background:var(--bad-bg);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;color:var(--bad);font-weight:600;font-size:14px}
+.confirm div{display:flex;gap:8px}
+
+/* barra de publicação */
+.pub{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ink);color:#fff;padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px))}
+.pub .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pub span{flex:1;min-width:200px;font-size:14px}
+.pub .btn.ghost{background:rgba(255,255,255,.12);color:#fff}
+
+@media (max-width:640px){
+  .row{grid-template-columns:56px 1fr auto;gap:10px}
+  .thumb{width:56px;height:56px}
+  .acts{grid-column:1/-1;justify-content:flex-end}
+  .cfg,.two{grid-template-columns:1fr}
+  .top img{height:38px}
+  .top .btn{padding:8px 10px;font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<section class="login" id="vLogin" hidden>
+  <form class="lcard" id="fLogin" autocomplete="off">
+    <img src="logo.jpg" alt="POP BRILHO – Materiais de limpeza">
+    <h1>Área do lojista</h1>
+    <p>Entre com sua senha para editar produtos, preços e fotos da loja.</p>
+    <label class="field" for="lPass">Senha
+      <input id="lPass" type="password" autocomplete="current-password" required>
+    </label>
+    <div class="msg bad" id="lErr" hidden></div>
+    <button class="btn pri" type="submit">Entrar</button>
+    <button class="linkbtn" type="button" id="toSetup">Esqueci a senha / primeiro acesso neste computador</button>
+  </form>
+</section>
+
+<!-- ===== PRIMEIRO ACESSO ===== -->
+<section class="login" id="vSetup" hidden>
+  <form class="lcard" id="fSetup" autocomplete="off">
+    <img src="logo.jpg" alt="POP BRILHO – Materiais de limpeza">
+    <h1>Configurar acesso</h1>
+    <p>Faça isso uma vez em cada computador ou celular que for usar.</p>
+    <label class="field" for="sToken">Chave de acesso do GitHub
+      <input id="sToken" type="password" placeholder="github_pat_…" required>
+      <small>É ela que permite salvar as mudanças na loja. Veja abaixo como gerar.</small>
+    </label>
+    <label class="field" for="sPass">Crie uma senha para o painel
+      <input id="sPass" type="password" autocomplete="new-password" minlength="6" required>
+    </label>
+    <label class="field" for="sPass2">Repita a senha
+      <input id="sPass2" type="password" autocomplete="new-password" minlength="6" required>
+    </label>
+    <div class="msg bad" id="sErr" hidden></div>
+    <button class="btn pri" type="submit" id="sBtn">Salvar e entrar</button>
+    <button class="linkbtn" type="button" id="toLogin" hidden>Voltar para o login</button>
+    <details class="help">
+      <summary>Como gerar a chave de acesso</summary>
+      <ol>
+        <li>No GitHub, clique na sua foto (canto superior direito) → <b>Settings</b>.</li>
+        <li>No fim do menu da esquerda: <b>Developer settings</b> → <b>Personal access tokens</b> → <b>Fine-grained tokens</b>.</li>
+        <li>Clique em <b>Generate new token</b>. Nome: <i>Painel POP BRILHO</i>. Em validade, escolha o maior prazo.</li>
+        <li>Em <b>Repository access</b>, marque <b>Only select repositories</b> e escolha <b>popbrilho-dados</b>.</li>
+        <li>Em <b>Permissions → Repository permissions</b>, procure <b>Contents</b> e mude para <b>Read and write</b>.</li>
+        <li>Clique em <b>Generate token</b>, copie o código que começa com <i>github_pat_</i> e cole acima.</li>
+      </ol>
+    </details>
+  </form>
+</section>
+
+<!-- ===== PAINEL ===== -->
+<div id="vApp" hidden>
+  <header class="top">
+    <div class="wrap">
+      <img src="logo.jpg" alt="POP BRILHO">
+      <h1>Painel da loja<span id="who">Conectado</span></h1>
+      <a class="btn ghost" href="./" target="_blank" rel="noopener">Ver site</a>
+      <button class="btn ghost" id="logout" type="button">Sair</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="prod" type="button">Produtos</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="cfg" type="button">Dados da loja</button>
+    </div>
+
+    <section id="tProd">
+      <div class="tools">
+        <input id="q" type="search" placeholder="Buscar produto" aria-label="Buscar produto">
+        <button class="btn lime" id="add" type="button">+ Novo produto</button>
+      </div>
+      <div class="msg info" id="loadMsg">Carregando produtos…</div>
+      <div class="count" id="count"></div>
+      <div class="list" id="list"></div>
+    </section>
+
+    <section id="tCfg" hidden>
+      <div class="cfg">
+        <label class="field" for="cZap">WhatsApp da loja
+          <input id="cZap" inputmode="numeric" placeholder="5581988887777">
+          <small>Só números: 55 + DDD + número.</small>
+        </label>
+        <label class="field" for="cEnd">Endereço
+          <input id="cEnd" placeholder="Rua, número – Bairro, Cidade – PE">
+        </label>
+        <label class="field" for="cTaxa">Taxa de entrega (R$)
+          <input id="cTaxa" inputmode="decimal" placeholder="10,00">
+        </label>
+        <label class="field" for="cFrete">Frete grátis a partir de (R$)
+          <input id="cFrete" inputmode="decimal" placeholder="120,00">
+        </label>
+      </div>
+    </section>
+  </main>
+
+  <div class="pub" id="pub" hidden>
+    <div class="wrap">
+      <span id="pubTxt"></span>
+      <button class="btn ghost" id="discard" type="button">Descartar</button>
+      <button class="btn lime" id="publish" type="button">Publicar no site</button>
+    </div>
+  </div>
+
+  <div class="shade" id="shade" hidden></div>
+  <aside class="editor" id="editor" hidden aria-labelledby="edTitle">
+    <div class="ed-h"><h2 id="edTitle">Editar produto</h2><button class="ic" id="edClose" type="button" aria-label="Fechar">×</button></div>
+    <form class="ed-b" id="fEd" autocomplete="off">
+      <div class="photo">
+        <div class="pv" id="pv">Sem foto</div>
+        <div class="pb">
+          <label class="btn pri" for="eFile" style="cursor:pointer">Escolher foto</label>
+          <input id="eFile" type="file" accept="image/*" hidden>
+          <button class="btn ghost" id="eNoPhoto" type="button">Remover foto</button>
+          <small style="color:var(--muted);font-size:12px">A foto é ajustada automaticamente. Prefira fundo branco.</small>
+        </div>
+      </div>
+      <label class="switch" for="eAtivo"><input id="eAtivo" type="checkbox"> Mostrar na loja</label>
+      <label class="field" for="eNome">Nome do produto *<input id="eNome" required maxlength="80"></label>
+      <div class="two">
+        <label class="field" for="eCat">Categoria<input id="eCat" list="cats" maxlength="40"></label>
+        <label class="field" for="eTam">Tamanho<input id="eTam" placeholder="500 ml, 2 L, 4 un." maxlength="30"></label>
+      </div>
+      <div class="two">
+        <label class="field" for="ePreco">Preço (R$) *<input id="ePreco" inputmode="decimal" required placeholder="9,90"></label>
+        <label class="field" for="eAntigo">Preço antigo (R$)<input id="eAntigo" inputmode="decimal" placeholder="opcional, aparece riscado"></label>
+      </div>
+      <label class="field" for="eSelo">Selo<input id="eSelo" list="selos" placeholder="Oferta, Novo, Mais vendido…" maxlength="20"></label>
+      <div class="msg bad" id="eErr" hidden></div>
+      <div class="confirm" id="delBox" hidden>
+        Excluir este produto da loja?
+        <div><button class="btn danger" id="delYes" type="button" style="background:var(--bad);color:#fff">Sim, excluir</button><button class="btn ghost" id="delNo" type="button">Cancelar</button></div>
+      </div>
+    </form>
+    <div class="ed-f">
+      <button class="btn danger" id="eDel" type="button">Excluir</button>
+      <button class="btn pri" id="eSave" type="button">Aplicar</button>
+    </div>
+  </aside>
+  <datalist id="cats"></datalist>
+  <datalist id="selos"><option value="Oferta"><option value="Novo"><option value="Mais vendido"><option value="Empresas"><option value="Promoção"></datalist>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ===== Configuração do repositório =====
+const OWNER="escritoriojpcontabil-spec", REPO="popbrilho-dados", BRANCH="main";
+const API=`https://api.github.com/repos/${OWNER}/${REPO}`;
+const KEY="pb-admin-cred";
+
+const $=s=>document.querySelector(s);
+const show=id=>["#vLogin","#vSetup","#vApp"].forEach(v=>$(v).hidden=(v!==id));
+const norm=s=>String(s??"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const brl=v=>(+v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const num=v=>{if(typeof v==="number")return v;v=String(v??"").replace(/[R$\s]/g,"");if(!v)return 0;if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");return parseFloat(v)||0;};
+const fmtNum=v=>v?String(v.toFixed(2)).replace(".",","):"";
+const slug=s=>norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"produto";
+const b64=buf=>{let s="",a=new Uint8Array(buf);for(let i=0;i<a.length;i+=0x8000)s+=String.fromCharCode.apply(null,a.subarray(i,i+0x8000));return btoa(s);};
+const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+
+// ===== Credenciais: a chave do GitHub fica guardada neste navegador, criptografada com a senha =====
+async function deriveKey(pass,salt){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:200000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function saveCred(token,pass){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const data=await crypto.subtle.encrypt({name:"AES-GCM",iv},await deriveKey(pass,salt),new TextEncoder().encode(token));
+  localStorage.setItem(KEY,JSON.stringify({salt:b64(salt),iv:b64(iv),data:b64(data)}));
+}
+async function openCred(pass){
+  const c=JSON.parse(localStorage.getItem(KEY));
+  const dec=await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(c.iv)},await deriveKey(pass,ub64(c.salt)),ub64(c.data));
+  return new TextDecoder().decode(dec);
+}
+const hasCred=()=>{try{return !!localStorage.getItem(KEY);}catch(e){return false;}};
+
+let TOKEN="";
+async function gh(path,opt={}){
+  const r=await fetch(API+path,{...opt,headers:{"Authorization":"Bearer "+TOKEN,"Accept":opt.accept||"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(opt.body?{"Content-Type":"application/json"}:{})}});
+  if(!r.ok){const e=new Error("GitHub "+r.status);e.status=r.status;try{e.detail=(await r.json()).message;}catch(_){}throw e;}
+  return r;
+}
+async function checkToken(){
+  const r=await gh("");const j=await r.json();
+  if(!j.permissions||!j.permissions.push){const e=new Error("sem permissão");e.status=403;throw e;}
+  return j;
+}
+const tokenError=e=>e.status===401?"Chave de acesso inválida ou vencida. Gere uma nova no GitHub e configure de novo."
+  :(e.status===403||e.status===404)?"A chave não tem permissão para o repositório popbrilho-dados. Confira o passo 4 e 5 da ajuda (Contents: Read and write)."
+  :"Não foi possível falar com o GitHub. Verifique sua internet e tente de novo.";
+
+// ===== Login / primeiro acesso =====
+$("#fLogin").addEventListener("submit",async e=>{
+  e.preventDefault();const err=$("#lErr");err.hidden=true;
+  try{TOKEN=await openCred($("#lPass").value);}catch(_){err.textContent="Senha incorreta.";err.hidden=false;return;}
+  try{await checkToken();}catch(x){err.textContent=tokenError(x);err.hidden=false;return;}
+  sessionStorage.setItem("pb-t",TOKEN);$("#lPass").value="";enterApp();
+});
+$("#fSetup").addEventListener("submit",async e=>{
+  e.preventDefault();const err=$("#sErr");err.hidden=true;
+  const t=$("#sToken").value.trim(),p=$("#sPass").value,p2=$("#sPass2").value;
+  if(p.length<6){err.textContent="A senha precisa ter pelo menos 6 caracteres.";err.hidden=false;return;}
+  if(p!==p2){err.textContent="As duas senhas não são iguais.";err.hidden=false;return;}
+  $("#sBtn").disabled=true;$("#sBtn").textContent="Verificando…";
+  TOKEN=t;
+  try{await checkToken();await saveCred(t,p);sessionStorage.setItem("pb-t",t);["#sToken","#sPass","#sPass2"].forEach(i=>$(i).value="");enterApp();}
+  catch(x){err.textContent=x.status?tokenError(x):"Não foi possível salvar o acesso neste navegador (modo anônimo?).";err.hidden=false;}
+  finally{$("#sBtn").disabled=false;$("#sBtn").textContent="Salvar e entrar";}
+});
+$("#toSetup").addEventListener("click",()=>{$("#toLogin").hidden=!hasCred();show("#vSetup");});
+$("#toLogin").addEventListener("click",()=>show("#vLogin"));
+$("#logout").addEventListener("click",()=>{
+  if(dirty() && !$("#logout").dataset.sure){$("#logout").dataset.sure="1";$("#logout").textContent="Sair sem publicar?";setTimeout(()=>{delete $("#logout").dataset.sure;$("#logout").textContent="Sair";},3000);return;}
+  sessionStorage.removeItem("pb-t");TOKEN="";location.reload();
+});
+
+// ===== Dados =====
+const HEAD=["Ativo","Nome","Categoria","Tamanho","Preço","Preço antigo","Selo","Foto"];
+let wbOrig=null, xlsxSha=null, items=[], cfg={whatsapp:"",taxa:10,frete:120,endereco:""}, saved="", pending={}, editIdx=-1, editPhoto=undefined;
+const snap=()=>JSON.stringify({items,cfg});
+const dirty=()=>snap()!==saved||Object.keys(pending).length>0;
+
+async function loadData(){
+  const m=$("#loadMsg");m.hidden=false;m.className="msg info";m.textContent="Carregando produtos…";
+  try{
+    let buf=null;
+    try{
+      const meta=await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`)).json();
+      xlsxSha=meta.sha;
+      buf=await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`,{accept:"application/vnd.github.raw"})).arrayBuffer();
+    }catch(e){ if(e.status!==404) throw e; }
+    items=[];
+    if(buf){
+      wbOrig=XLSX.read(buf,{type:"array"});
+      const sh=wbOrig.SheetNames.find(n=>norm(n)==="produtos")||wbOrig.SheetNames[0];
+      const rows=XLSX.utils.sheet_to_json(wbOrig.Sheets[sh],{defval:""});
+      const get=(o,k)=>{const f=Object.keys(o).find(x=>norm(x)===k);return f===undefined?"":o[f];};
+      rows.forEach(o=>{
+        const nome=String(get(o,"nome")).trim(); if(!nome) return;
+        items.push({ativo:!/^n/i.test(String(get(o,"ativo")).trim()),nome,cat:String(get(o,"categoria")).trim(),tam:String(get(o,"tamanho")).trim(),preco:num(get(o,"preco")),antigo:num(get(o,"preco antigo")),selo:String(get(o,"selo")).trim(),foto:String(get(o,"foto")).trim()});
+      });
+      const cs=wbOrig.SheetNames.find(n=>norm(n).startsWith("config"));
+      if(cs) XLSX.utils.sheet_to_json(wbOrig.Sheets[cs],{header:1,defval:""}).forEach(([k,v])=>{
+        k=norm(k);
+        if(k.startsWith("whats")) cfg.whatsapp=String(v).replace(/\D/g,"");
+        else if(k.startsWith("taxa")) cfg.taxa=num(v);
+        else if(k.startsWith("frete")) cfg.frete=num(v);
+        else if(k.startsWith("ender")) cfg.endereco=String(v).trim();
+      });
+    }
+    saved=snap(); pending={};
+    fillCfg(); render(); m.hidden=true;
+  }catch(e){ m.className="msg bad"; m.textContent="Não foi possível carregar os produtos. "+(e.status?tokenError(e):"Verifique sua internet e recarregue a página."); }
+}
+
+// ===== Lista =====
+const RAW=`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/fotos/`;
+const photoSrc=f=>pending["fotos/"+f]?pending["fotos/"+f].url:RAW+encodeURIComponent(f)+"?v="+Date.now().toString(36).slice(0,-3);
+function render(){
+  const q=norm($("#q").value);
+  const vis=items.map((it,i)=>({it,i})).filter(({it})=>!q||norm(it.nome+" "+it.cat).includes(q));
+  $("#count").textContent=`${items.length} produtos · ${items.filter(i=>i.ativo).length} na loja`;
+  $("#list").innerHTML=vis.length?vis.map(({it,i})=>`
+    <div class="row${it.ativo?"":" off"}">
+      <div class="thumb">${it.foto?`<img src="${esc(photoSrc(it.foto))}" alt="" loading="lazy" onerror="this.replaceWith('Foto não encontrada')">`:"Sem foto"}</div>
+      <div class="info"><b>${esc(it.nome)}</b><span>${esc([it.tam,it.cat].filter(Boolean).join(" · "))}</span>
+        <div class="chips">${it.ativo?"":'<span class="chip off">Fora da loja</span>'}${it.selo?`<span class="chip sel">${esc(it.selo)}</span>`:""}${it.foto&&pending["fotos/"+it.foto]?'<span class="chip new">Foto nova</span>':""}</div></div>
+      <div class="price">${brl(it.preco)}${it.antigo?`<s>${brl(it.antigo)}</s>`:""}</div>
+      <div class="acts">
+        <button class="ic" type="button" data-up="${i}" aria-label="Subir" ${i===0||q?"disabled":""}>↑</button>
+        <button class="ic" type="button" data-down="${i}" aria-label="Descer" ${i===items.length-1||q?"disabled":""}>↓</button>
+        <button class="btn ghost" type="button" data-edit="${i}">Editar</button>
+      </div>
+    </div>`).join(""):`<div class="empty">${items.length?"Nenhum produto encontrado.":"Nenhum produto ainda. Clique em “+ Novo produto”."}</div>`;
+  $("#cats").innerHTML=[...new Set(items.map(i=>i.cat).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join("");
+  updatePub();
+}
+$("#q").addEventListener("input",render);
+$("#list").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.edit!==undefined) openEditor(+b.dataset.edit);
+  else if(b.dataset.up!==undefined){const i=+b.dataset.up;[items[i-1],items[i]]=[items[i],items[i-1]];render();}
+  else if(b.dataset.down!==undefined){const i=+b.dataset.down;[items[i+1],items[i]]=[items[i],items[i+1]];render();}
+});
+$("#add").addEventListener("click",()=>openEditor(-1));
+
+// ===== Editor =====
+function setPv(src){ $("#pv").innerHTML=src?`<img src="${esc(src)}" alt="Prévia da foto">`:"Sem foto"; }
+function openEditor(i){
+  editIdx=i; editPhoto=undefined;
+  const it=i>=0?items[i]:{ativo:true,nome:"",cat:"",tam:"",preco:0,antigo:0,selo:"",foto:""};
+  $("#edTitle").textContent=i>=0?"Editar produto":"Novo produto";
+  $("#eAtivo").checked=it.ativo; $("#eNome").value=it.nome; $("#eCat").value=it.cat; $("#eTam").value=it.tam;
+  $("#ePreco").value=fmtNum(it.preco); $("#eAntigo").value=fmtNum(it.antigo); $("#eSelo").value=it.selo;
+  setPv(it.foto?photoSrc(it.foto):""); $("#eErr").hidden=true; $("#delBox").hidden=true; $("#eDel").hidden=i<0;
+  $("#shade").hidden=false; $("#editor").hidden=false; setTimeout(()=>$("#eNome").focus(),50);
+}
+function closeEditor(){ $("#shade").hidden=true; $("#editor").hidden=true; $("#eFile").value=""; }
+$("#edClose").addEventListener("click",closeEditor);
+$("#shade").addEventListener("click",closeEditor);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#editor").hidden)closeEditor();});
+
+function resizeImage(file){
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{
+      const max=900, k=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+      const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg",0.85));
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error("img"));};
+    img.src=url;
+  });
+}
+$("#eFile").addEventListener("change",async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{ const d=await resizeImage(f); editPhoto=d; setPv(d); }
+  catch(_){ const er=$("#eErr"); er.textContent="Não consegui abrir essa imagem. Use uma foto JPG ou PNG."; er.hidden=false; }
+});
+$("#eNoPhoto").addEventListener("click",()=>{editPhoto=null;setPv("");});
+$("#eSave").addEventListener("click",()=>{
+  const er=$("#eErr"); er.hidden=true;
+  const nome=$("#eNome").value.trim(), preco=num($("#ePreco").value), antigo=num($("#eAntigo").value);
+  if(!nome){er.textContent="Preencha o nome do produto.";er.hidden=false;return;}
+  if(!(preco>0)){er.textContent="Preencha um preço válido, por exemplo 9,90.";er.hidden=false;return;}
+  if(items.some((it,j)=>j!==editIdx&&norm(it.nome)===norm(nome))){er.textContent="Já existe um produto com esse nome.";er.hidden=false;return;}
+  const it=editIdx>=0?items[editIdx]:{foto:""};
+  Object.assign(it,{ativo:$("#eAtivo").checked,nome,cat:$("#eCat").value.trim(),tam:$("#eTam").value.trim(),preco,antigo:antigo>preco?antigo:0,selo:$("#eSelo").value.trim()});
+  if(editPhoto===null){ if(it.foto&&pending["fotos/"+it.foto]) delete pending["fotos/"+it.foto]; it.foto=""; }
+  else if(editPhoto){
+    if(it.foto&&pending["fotos/"+it.foto]) delete pending["fotos/"+it.foto];
+    const name=`${slug(nome)}-${Date.now().toString(36)}.jpg`;
+    pending["fotos/"+name]={url:editPhoto,b64:editPhoto.split(",")[1]}; it.foto=name;
+  }
+  if(editIdx<0) items.push(it);
+  closeEditor(); render();
+});
+$("#eDel").addEventListener("click",()=>{$("#delBox").hidden=false;});
+$("#delNo").addEventListener("click",()=>{$("#delBox").hidden=true;});
+$("#delYes").addEventListener("click",()=>{
+  const it=items[editIdx]; if(it.foto&&pending["fotos/"+it.foto]) delete pending["fotos/"+it.foto];
+  items.splice(editIdx,1); closeEditor(); render();
+});
+
+// ===== Dados da loja =====
+function fillCfg(){ $("#cZap").value=cfg.whatsapp; $("#cEnd").value=cfg.endereco; $("#cTaxa").value=fmtNum(cfg.taxa); $("#cFrete").value=fmtNum(cfg.frete); }
+["#cZap","#cEnd","#cTaxa","#cFrete"].forEach(id=>$(id).addEventListener("input",()=>{
+  cfg.whatsapp=$("#cZap").value.replace(/\D/g,""); cfg.endereco=$("#cEnd").value.trim(); cfg.taxa=num($("#cTaxa").value); cfg.frete=num($("#cFrete").value); updatePub();
+}));
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
+  $("#tProd").hidden=t.dataset.tab!=="prod"; $("#tCfg").hidden=t.dataset.tab!=="cfg";
+}));
+
+// ===== Publicar =====
+function updatePub(msg){
+  const d=dirty(); $("#pub").hidden=!d&&!msg;
+  const n=Object.keys(pending).length;
+  $("#pubTxt").textContent=msg||`Você tem alterações que ainda não estão no site${n?` (incluindo ${n} foto${n>1?"s":""} nova${n>1?"s":""})`:""}.`;
+  $("#publish").hidden=!d; $("#discard").hidden=!d;
+}
+function buildWorkbook(){
+  const wb=XLSX.utils.book_new();
+  const keep=wbOrig&&wbOrig.SheetNames.find(n=>norm(n)==="como usar");
+  if(keep) XLSX.utils.book_append_sheet(wb,wbOrig.Sheets[keep],keep);
+  const rows=[HEAD,...items.map(i=>[i.ativo?"Sim":"Não",i.nome,i.cat,i.tam,i.preco,i.antigo||"",i.selo,i.foto])];
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  for(let r=2;r<=rows.length;r++){["E","F"].forEach(c=>{const cell=ws[c+r];if(cell&&typeof cell.v==="number")cell.z='"R$" #,##0.00';});}
+  ws["!cols"]=[8,32,18,14,12,14,14,30].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws,"Produtos");
+  const c=XLSX.utils.aoa_to_sheet([["Item","Valor","Observação"],["WhatsApp",cfg.whatsapp,"Só números, com 55 + DDD"],["Taxa de entrega",cfg.taxa,"Valor cobrado quando o pedido não tem frete grátis"],["Frete grátis a partir de",cfg.frete,"Pedidos a partir deste valor não pagam entrega"],["Endereço",cfg.endereco,"Aparece na seção Contato do site"]]);
+  if(c.B2) c.B2.t="s";
+  c["!cols"]=[{wch:26},{wch:22},{wch:52}];
+  XLSX.utils.book_append_sheet(wb,c,"Configurações");
+  return XLSX.write(wb,{type:"base64",bookType:"xlsx"});
+}
+async function put(path,content,sha,message){
+  const body={message,content,branch:BRANCH}; if(sha) body.sha=sha;
+  return (await gh("/contents/"+path.split("/").map(encodeURIComponent).join("/"),{method:"PUT",body:JSON.stringify(body)})).json();
+}
+$("#publish").addEventListener("click",async()=>{
+  const b=$("#publish"); b.disabled=true; $("#discard").disabled=true;
+  try{
+    const used=new Set(items.map(i=>i.foto).filter(Boolean));
+    const photos=Object.entries(pending).filter(([p])=>used.has(p.slice(6)));
+    let k=0;
+    for(const [path,ph] of photos){ k++; updatePub(`Enviando foto ${k} de ${photos.length}…`); await put(path,ph.b64,null,"Foto: "+path.slice(6)); }
+    updatePub("Salvando produtos…");
+    try{ const meta=await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`)).json(); xlsxSha=meta.sha; }catch(e){ if(e.status!==404) throw e; xlsxSha=null; }
+    const res=await put("produtos.xlsx",buildWorkbook(),xlsxSha,"Atualiza produtos pelo painel");
+    xlsxSha=res.content&&res.content.sha;
+    pending={}; saved=snap(); render();
+    updatePub("Publicado! O site atualiza em 1 a 2 minutos (se não mudar, aperte Ctrl+F5 no site).");
+    $("#pub").style.background="var(--ok)";
+    setTimeout(()=>{$("#pub").style.background="";updatePub();},6000);
+  }catch(e){
+    updatePub(e.status===409?"Outra pessoa salvou ao mesmo tempo. Recarregue a página e refaça a última mudança."
+      :e.status?("Não foi possível publicar. "+tokenError(e)):"Sem conexão. Verifique a internet e clique em Publicar de novo.");
+    $("#publish").hidden=false;
+  }finally{ b.disabled=false; $("#discard").disabled=false; }
+});
+$("#discard").addEventListener("click",()=>{
+  if(!$("#discard").dataset.sure){$("#discard").dataset.sure="1";$("#discard").textContent="Confirmar descarte";setTimeout(()=>{delete $("#discard").dataset.sure;$("#discard").textContent="Descartar";},3000);return;}
+  delete $("#discard").dataset.sure; $("#discard").textContent="Descartar"; loadData();
+});
+window.addEventListener("beforeunload",e=>{ if(TOKEN&&dirty()){ e.preventDefault(); e.returnValue=""; } });
+
+// ===== Início =====
+function enterApp(){ show("#vApp"); loadData(); }
+(async()=>{
+  const t=sessionStorage.getItem("pb-t");
+  if(t){ TOKEN=t; try{ await checkToken(); enterApp(); return; }catch(_){ sessionStorage.removeItem("pb-t"); } }
+  if(hasCred()) show("#vLogin"); else { $("#toLogin").hidden=true; show("#vSetup"); }
+})();
+</script>
+</body>
+</html>
