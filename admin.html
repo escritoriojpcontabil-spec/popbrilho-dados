@@ -158,6 +158,8 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
   .vrow .vsub{display:none}
 }
 
+#cliBody td:nth-child(2),#cliBody td:nth-child(3),#cliBody td:nth-child(4) .sub{white-space:nowrap}
+#cliBody .inl,#fBody .inl{flex-wrap:nowrap}
 /* ===== PDV ===== */
 .cxbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--ink);color:#fff;border-radius:16px;padding:10px 14px;margin-bottom:14px}
 .cxbar span{flex:1;min-width:200px;font-size:14px}
@@ -290,6 +292,7 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
       <button class="tab" role="tab" aria-selected="false" data-tab="cmp" type="button">Notas de compra</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="ven" type="button">Vendas</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="fia" type="button">Fiado</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="cli" type="button">Clientes</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cfg" type="button">Dados da loja</button>
     </div>
 
@@ -406,6 +409,21 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
         </div>
         <div class="gbar"><input id="vq" type="search" placeholder="Buscar venda por cliente ou número" aria-label="Buscar venda"></div>
         <div class="tblw"><table class="tbl"><thead><tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Itens</th><th class="n">Total</th><th>Pagamento</th><th>NF</th><th></th></tr></thead><tbody id="vBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- ===== CLIENTES ===== -->
+    <section id="tCli" data-panel="cli" hidden>
+      <div class="msg info gmsg"></div>
+      <div class="gbody" hidden>
+        <div id="cliForm"></div>
+        <div id="cliFicha"></div>
+        <div class="gbar">
+          <input id="cq" type="search" placeholder="Buscar por nome, CPF ou telefone" aria-label="Buscar cliente">
+          <select id="cf" aria-label="Filtrar clientes"><option value="">Todos</option><option value="deve">Devendo</option><option value="vencido">Com conta vencida</option><option value="limite">Acima do limite</option></select>
+          <button class="btn lime" id="cliNew" type="button">+ Novo cliente</button>
+        </div>
+        <div class="tblw"><table class="tbl"><thead><tr><th>Cliente</th><th>CPF</th><th>WhatsApp</th><th>Fiador</th><th class="n">Limite</th><th class="n">Deve</th><th>Situação</th><th></th></tr></thead><tbody id="cliBody"></tbody></table></div>
       </div>
     </section>
 
@@ -705,7 +723,7 @@ function fillCfg(){ $("#cZap").value=cfg.whatsapp; $("#cEnd").value=cfg.endereco
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
   document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
   document.querySelectorAll("[data-panel]").forEach(sec=>sec.hidden=sec.dataset.panel!==t.dataset.tab);
-  if(["pdv","est","cmp","ven","fia"].includes(t.dataset.tab)){ if(window.gEnsure) gEnsure(); if(window.gRenderAll) gRenderAll(); if(t.dataset.tab==="pdv"&&window.cx&&cx()) setTimeout(()=>$("#pdvQ").focus(),50); }
+  if(["pdv","est","cmp","ven","fia","cli"].includes(t.dataset.tab)){ if(window.gEnsure) gEnsure(); if(window.gRenderAll) gRenderAll(); if(t.dataset.tab==="pdv"&&window.cx&&cx()) setTimeout(()=>$("#pdvQ").focus(),50); }
 }));
 
 // ===== Publicar =====
@@ -767,7 +785,7 @@ window.addEventListener("beforeunload",e=>{ if(TOKEN&&dirty()){ e.preventDefault
 // ======================================================================
 const GREPO="popbrilho-gestao", GAPI=`https://api.github.com/repos/${OWNER}/${GREPO}`, GFILE="gestao.json";
 let G=null, gSha=null, gState="idle", gQueue=Promise.resolve();
-const gEmpty=()=>({versao:1,estoque:{},movimentos:[],compras:[],vendas:[],vinculos:{},caixas:[],caixaAberto:null,pdv:{}});
+const gEmpty=()=>({versao:1,estoque:{},movimentos:[],compras:[],vendas:[],vinculos:{},caixas:[],caixaAberto:null,pdv:{},clientes:[]});
 const qfmt=v=>(+v||0).toLocaleString("pt-BR",{maximumFractionDigits:3});
 const dfmt=s=>{if(!s)return"";const d=new Date(s.length===10?s+"T12:00:00":s);return isNaN(d)?s:d.toLocaleDateString("pt-BR");};
 const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);};
@@ -1022,12 +1040,14 @@ $("#vSave").addEventListener("click",async()=>{
   }
   delete b.dataset.sure;
   let fia=null;
-  if($("#vPag").value==="Fiado (pagar depois)"){ fia=fRead("vf"); if(!fia.cliente){err.textContent="Venda fiado: informe o nome do cliente.";err.hidden=false;return;} }
+  if($("#vPag").value==="Fiado (pagar depois)"){ fia=fRead("vf"); if(!fia.cliente){err.textContent="Venda fiado: informe o nome do cliente.";err.hidden=false;return;}
+    const tot=r2(its.reduce((s,r)=>s+r.qtd*r.preco,0)), al=cliAlertas(fia.cliente,tot);
+    if(al.length&&b.dataset.aviso!==fia.cliente+tot){ b.dataset.aviso=fia.cliente+tot; err.textContent=al.join("\n")+"\nClique de novo para registrar mesmo assim."; err.hidden=false; return; } delete b.dataset.aviso; }
   const backup=JSON.stringify(G);
   const numero=(G.vendas.reduce((m,v)=>Math.max(m,v.numero||0),0))+1;
   const venda={id:uid(),numero,data:$("#vData").value||today(),cliente:$("#vCli").value.trim(),doc:$("#vDoc").value.trim(),pagamento:$("#vPag").value,nf:$("#vNf").value.trim(),obs:$("#vObs").value.trim(),
     itens:its.map(r=>({produto:r.produto,qtd:r.qtd,preco:r.preco,custo:G.estoque[r.produto]?.custo||0})),total:+its.reduce((s,r)=>s+r.qtd*r.preco,0).toFixed(2),status:"ativa"};
-  if(fia){ venda.cliente=venda.cliente||fia.cliente; venda.fiado={...fia,valor:venda.total,recebimentos:[],quitadoEm:null}; }
+  if(fia){ const cid=cliGarantir(fia.cliente,fia.tel); const cn=G.clientes.find(x=>x.id===cid).nome; venda.cliente=venda.cliente||cn; venda.clienteId=cid; venda.fiado={...fia,cliente:cn,clienteId:cid,valor:venda.total,recebimentos:[],quitadoEm:null}; }
   its.forEach(r=>{const e2=est(r.produto); e2.qtd=+(e2.qtd-r.qtd).toFixed(3); mov("saida",r.produto,-r.qtd,`Venda ${numero}${venda.nf?" · NF "+venda.nf:""}`);});
   G.vendas.unshift(venda);
   b.disabled=true; b.textContent="Salvando…";
@@ -1068,7 +1088,7 @@ $("#vBody").addEventListener("click",async e=>{
 });
 function alertRow(t){ const m=document.createElement("div"); m.className="msg bad"; m.style.marginBottom="10px"; m.textContent=t; $("#tVen .gbody").prepend(m); setTimeout(()=>m.remove(),8000); }
 
-function gRenderAll(){ if(!G) return; renderPdv(); renderFia(); renderEst(); renderCmp(); renderVen(); if(!vRows.length){ $("#vData").value=today(); vNewRow(); } else renderVForm(); }
+function gRenderAll(){ if(!G) return; ensureClientes(); renderCli(); renderPdv(); renderFia(); renderEst(); renderCmp(); renderVen(); if(!vRows.length){ $("#vData").value=today(); vNewRow(); } else renderVForm(); }
 window.gRename=(oldN,newN)=>{
   if(!G||!G.estoque[oldN]||G.estoque[newN]) return;
   G.estoque[newN]=G.estoque[oldN]; delete G.estoque[oldN];
@@ -1219,7 +1239,8 @@ function confirmLine(){
   if(!(v>0)){er.textContent="Informe o valor.";er.hidden=false;return;}
   if(pay.forma!=="dinheiro"&&v>rest+0.001){er.textContent=`O valor no ${FORMAS[pay.forma]} não pode passar do que falta (${brl(rest)}). Troco só no dinheiro.`;er.hidden=false;return;}
   let fx={};
-  if(pay.forma==="fiado"){ fx=fRead("pf"); if(!fx.cliente){er.textContent="Informe o nome do cliente.";er.hidden=false;return;} if(pay.linhas.some(l=>l.forma==="fiado")){er.textContent="Esta venda já tem uma parte fiado.";er.hidden=false;return;} }
+  if(pay.forma==="fiado"){ fx=fRead("pf"); if(!fx.cliente){er.textContent="Informe o nome do cliente.";er.hidden=false;return;} if(pay.linhas.some(l=>l.forma==="fiado")){er.textContent="Esta venda já tem uma parte fiado.";er.hidden=false;return;}
+    const al=cliAlertas(fx.cliente,r2(v)); if(al.length&&pay.aviso!==fx.cliente+v){ pay.aviso=fx.cliente+v; er.textContent=al.join("\n")+"\nToque em Confirmar fiado de novo para vender mesmo assim."; er.className="msg bad gerr"; er.hidden=false; return; } }
   pay.linhas.push({...fx,forma:pay.forma,valor:r2(v),parcelas:pay.forma==="credito"?+($("#pParc")?.value||1):1,aut:$("#pAut")?.value.trim()||""});
   if(falta()<=0) finishSale(); else { pay.forma=pay.forma==="dinheiro"?"pix":pay.forma; drawPay(); }
 }
@@ -1241,7 +1262,7 @@ async function finishSale(){
     itens:cart.map(l=>({produto:l.produto,qtd:l.qtd,preco:l.preco,custo:G.estoque[l.produto]?.custo||0})),subtotal:sub,desconto:desc,total,
     pagamentos:pay.linhas.map(({cliente,tel,venc,...l})=>l),troco,pagamento:[...new Set(pay.linhas.map(l=>FORMAS[l.forma]+(l.parcelas>1?` ${l.parcelas}x`:"")))].join(" + "),status:"ativa"};
   const fl=pay.linhas.find(l=>l.forma==="fiado");
-  if(fl){ venda.cliente=fl.cliente; venda.fiado={cliente:fl.cliente,tel:fl.tel,venc:fl.venc,valor:fl.valor,recebimentos:[],quitadoEm:null}; }
+  if(fl){ const cid=cliGarantir(fl.cliente,fl.tel); const cn=G.clientes.find(x=>x.id===cid).nome; venda.cliente=cn; venda.clienteId=cid; venda.fiado={cliente:cn,clienteId:cid,tel:fl.tel,venc:fl.venc,valor:fl.valor,recebimentos:[],quitadoEm:null}; }
   cart.forEach(l=>{ const e2=est(l.produto); e2.qtd=+(e2.qtd-l.qtd).toFixed(3); mov("saida",l.produto,-l.qtd,`PDV venda ${numero}`); });
   G.vendas.unshift(venda);
   pay.done=true;
@@ -1368,15 +1389,23 @@ const addDays=(d,n)=>{const x=new Date(d+"T12:00:00");x.setDate(x.getDate()+n);r
 const fPago=f=>r2((f.recebimentos||[]).reduce((s,r)=>s+r.valor,0));
 const fSaldo=f=>Math.max(r2(f.valor-fPago(f)),0);
 const fiados=()=>G.vendas.filter(v=>v.fiado&&v.status!=="cancelada");
-const fClientes=()=>[...new Set(G.vendas.filter(v=>v.fiado).map(v=>v.fiado.cliente))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
-const telOf=n=>{const v=G.vendas.find(x=>x.fiado&&x.fiado.cliente===n&&x.fiado.tel);return v?v.fiado.tel:"";};
+const fClientes=()=>(G.clientes||[]).map(c=>c.nome).sort((a,b)=>a.localeCompare(b,"pt-BR"));
+const telOf=n=>{const c=cliByName(n);return c?c.tel:"";};
 function fFields(prefix,valor){
   return `<label class="field wide" for="${prefix}Cli">Nome do cliente *<input id="${prefix}Cli" list="fCliList" maxlength="60" placeholder="Nome de quem vai pagar depois"></label>
    <label class="field" for="${prefix}Tel">WhatsApp<input id="${prefix}Tel" inputmode="tel" maxlength="16" placeholder="(81) 9…"></label>
    <label class="field" for="${prefix}Venc">Pagar até<input id="${prefix}Venc" type="date" value="${addDays(today(),30)}"></label>
-   <datalist id="fCliList">${fClientes().map(c=>`<option value="${esc(c)}">`).join("")}</datalist>`;
+   <datalist id="fCliList">${fClientes().map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
+   <div class="sub" id="${prefix}Info" style="grid-column:1/-1"></div>`;
 }
-function fBind(prefix){ const c=$("#"+prefix+"Cli"); if(c) c.addEventListener("change",()=>{const t=telOf(c.value.trim()); if(t&&!$("#"+prefix+"Tel").value) $("#"+prefix+"Tel").value=t;}); }
+function fBind(prefix){ const c=$("#"+prefix+"Cli"); if(!c) return;
+  const upd=()=>{ const n=c.value.trim(), cl=n&&cliByName(n), info=$("#"+prefix+"Info"); if(!info) return;
+    if(!n){ info.innerHTML=""; return; }
+    if(!cl){ info.innerHTML='<span class="pill mute">Cliente novo</span> será cadastrado automaticamente. Complete o cadastro depois na aba Clientes.'; return; }
+    if(cl.tel&&!$("#"+prefix+"Tel").value) $("#"+prefix+"Tel").value=telFmt(cl.tel);
+    const d=cliDeve(cl), [st,k]=cliSit(cl);
+    info.innerHTML=`<span class="pill ${k}">${st}</span> Deve ${brl(d)}${cl.limite?` · limite ${brl(cl.limite)} · disponível ${brl(Math.max(cl.limite-d,0))}`:" · sem limite definido"}${cl.fiador?.nome?` · fiador: ${esc(cl.fiador.nome)}`:""}`; };
+  c.addEventListener("change",upd); c.addEventListener("input",upd); upd(); }
 function fRead(prefix){ return {cliente:$("#"+prefix+"Cli").value.trim(),tel:$("#"+prefix+"Tel").value.replace(/\D/g,""),venc:$("#"+prefix+"Venc").value||addDays(today(),30)}; }
 let fOpen=null;
 function renderFia(){
@@ -1436,6 +1465,142 @@ function vFiadoToggle(){
   else if(!on&&box) box.remove();
 }
 $("#vPag").addEventListener("change",vFiadoToggle);
+
+
+// ======================================================================
+// CLIENTES — cadastro, fiador, limite de fiado e ficha
+// ======================================================================
+const digits=s=>String(s||"").replace(/\D/g,"");
+function cpfOk(c){c=digits(c);if(c.length!==11||/^(\d)\1+$/.test(c))return false;for(const t of [9,10]){let s=0;for(let i=0;i<t;i++)s+=+c[i]*(t+1-i);if(((s*10)%11)%10!==+c[t])return false;}return true;}
+const cpfFmt=c=>{c=digits(c);return c.length===11?c.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,"$1.$2.$3-$4"):c;};
+const telFmt=t=>{t=digits(t).replace(/^55(?=\d{10,11}$)/,"");return t.length===11?t.replace(/(\d{2})(\d{5})(\d{4})/,"($1) $2-$3"):t.length===10?t.replace(/(\d{2})(\d{4})(\d{4})/,"($1) $2-$3"):t;};
+function ensureClientes(){
+  if(!G.clientes) G.clientes=[];
+  G.vendas.filter(v=>v.fiado).forEach(v=>{
+    const F=v.fiado; let c=F.clienteId&&G.clientes.find(x=>x.id===F.clienteId);
+    if(!c) c=G.clientes.find(x=>norm(x.nome)===norm(F.cliente));
+    if(!c){ c={id:uid(),nome:F.cliente,cpf:"",tel:F.tel||"",end:"",nasc:"",obs:"",limite:0,fiador:{nome:"",cpf:"",tel:"",end:""},criadoEm:new Date().toISOString()}; G.clientes.push(c); }
+    if(!c.tel&&F.tel) c.tel=F.tel; F.clienteId=c.id;
+  });
+}
+const cliByName=n=>G.clientes.find(c=>norm(c.nome)===norm(n));
+const cliVendas=c=>G.vendas.filter(v=>v.fiado?v.fiado.clienteId===c.id:(v.clienteId===c.id||(v.cliente&&norm(v.cliente)===norm(c.nome))));
+const cliDeve=c=>r2(G.vendas.filter(v=>v.fiado&&v.status!=="cancelada"&&v.fiado.clienteId===c.id).reduce((s,v)=>s+fSaldo(v.fiado),0));
+const cliVencido=c=>G.vendas.some(v=>v.fiado&&v.status!=="cancelada"&&v.fiado.clienteId===c.id&&fSaldo(v.fiado)>0&&v.fiado.venc<today());
+function cliSit(c){const d=cliDeve(c);if(cliVencido(c))return["Conta vencida","bad"];if(c.limite&&d>c.limite)return["Acima do limite","bad"];if(d>0)return["Devendo","warn"];return["Em dia","ok"];}
+// usado no PDV e na aba Vendas antes de vender fiado
+function cliAlertas(nome,valor){
+  const c=cliByName(nome); if(!c) return [];
+  const a=[], d=cliDeve(c);
+  if(cliVencido(c)) a.push(`${c.nome} tem conta vencida (deve ${brl(d)}).`);
+  if(c.limite&&d+valor>c.limite+0.001) a.push(`Com esta compra, ${c.nome} passa do limite de fiado: deve ${brl(d)} + ${brl(valor)} = ${brl(d+valor)}, limite ${brl(c.limite)}.`);
+  return a;
+}
+function cliGarantir(nome,tel){ // devolve o id, cadastrando se for cliente novo
+  let c=cliByName(nome);
+  if(!c){ c={id:uid(),nome,cpf:"",tel:tel||"",end:"",nasc:"",obs:"",limite:0,fiador:{nome:"",cpf:"",tel:"",end:""},criadoEm:new Date().toISOString()}; G.clientes.push(c); }
+  else if(tel&&!c.tel) c.tel=tel;
+  return c.id;
+}
+let cliEdit=null, cliView=null;
+function renderCli(){
+  if(!G) return; ensureClientes();
+  const q=norm($("#cq").value), qd=digits($("#cq").value), f=$("#cf").value;
+  const list=G.clientes.slice().sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).filter(c=>{
+    if(q&&!norm(c.nome).includes(q)&&!(qd&&(digits(c.cpf).includes(qd)||digits(c.tel).includes(qd)))) return false;
+    if(f==="deve") return cliDeve(c)>0; if(f==="vencido") return cliVencido(c); if(f==="limite") return c.limite&&cliDeve(c)>c.limite; return true;});
+  $("#cliBody").innerHTML=list.map(c=>{const [st,k]=cliSit(c),d=cliDeve(c);
+    return `<tr><td><b>${esc(c.nome)}</b>${c.end?`<div class="sub">${esc(c.end)}</div>`:""}</td><td>${c.cpf?esc(cpfFmt(c.cpf)):'<span class="sub">–</span>'}</td><td>${c.tel?esc(telFmt(c.tel)):'<span class="sub">–</span>'}</td>
+      <td>${c.fiador?.nome?esc(c.fiador.nome)+(c.fiador.tel?`<div class="sub">${esc(telFmt(c.fiador.tel))}</div>`:""):'<span class="sub">–</span>'}</td>
+      <td class="n">${c.limite?brl(c.limite):'<span class="sub">sem limite</span>'}</td><td class="n"><b>${d>0?brl(d):"–"}</b></td><td><span class="pill ${k}">${st}</span></td>
+      <td class="n"><span class="inl" style="justify-content:flex-end"><button class="btn ghost" type="button" data-cview="${c.id}">Ficha</button><button class="btn ghost" type="button" data-cedit="${c.id}">Editar</button></span></td></tr>`;}).join("")
+    ||`<tr><td colspan="8" class="sub" style="padding:24px;text-align:center">${G.clientes.length?"Nenhum cliente neste filtro.":"Nenhum cliente cadastrado ainda. Clique em “+ Novo cliente”."}</td></tr>`;
+  renderCliForm(); renderFicha();
+}
+function renderCliForm(){
+  const box=$("#cliForm"); if(cliEdit===null){ box.innerHTML=""; return; }
+  const c=cliEdit==="novo"?{nome:"",cpf:"",tel:"",end:"",nasc:"",obs:"",limite:0,fiador:{}}:G.clientes.find(x=>x.id===cliEdit); const F=c.fiador||{};
+  const v=(id,val)=>`id="${id}" value="${esc(val||"")}"`;
+  box.innerHTML=`<div class="gcard"><div class="inl" style="justify-content:space-between"><h3>${cliEdit==="novo"?"Novo cliente":"Editar cliente"}</h3><button class="ic" type="button" data-cx="1" aria-label="Fechar">×</button></div>
+   <b class="sub" style="text-transform:uppercase;letter-spacing:.06em">Cliente</b>
+   <div class="gform">
+    <label class="field wide" for="ckNome">Nome completo *<input ${v("ckNome",c.nome)} maxlength="80"></label>
+    <label class="field" for="ckCpf">CPF<input ${v("ckCpf",cpfFmt(c.cpf))} inputmode="numeric" maxlength="14" placeholder="000.000.000-00"></label>
+    <label class="field" for="ckTel">WhatsApp / telefone<input ${v("ckTel",telFmt(c.tel))} inputmode="tel" maxlength="16" placeholder="(81) 9…"></label>
+    <label class="field wide" for="ckEnd">Endereço<input ${v("ckEnd",c.end)} maxlength="140" placeholder="Rua, número, bairro, cidade"></label>
+    <label class="field" for="ckNasc">Data de nascimento<input ${v("ckNasc",c.nasc)} type="date"></label>
+    <label class="field" for="ckLim">Limite de fiado (R$)<input ${v("ckLim",c.limite?c.limite.toFixed(2).replace(".",","):"")} inputmode="decimal" placeholder="sem limite"></label>
+    <label class="field wide" for="ckObs" style="grid-column:1/-1">Observações<input ${v("ckObs",c.obs)} maxlength="200" placeholder="Ex.: trabalha no mercado da esquina, paga todo dia 10"></label>
+   </div>
+   <b class="sub" style="text-transform:uppercase;letter-spacing:.06em">Fiador (opcional)</b>
+   <div class="gform">
+    <label class="field wide" for="ckFNome">Nome do fiador<input ${v("ckFNome",F.nome)} maxlength="80"></label>
+    <label class="field" for="ckFCpf">CPF do fiador<input ${v("ckFCpf",cpfFmt(F.cpf))} inputmode="numeric" maxlength="14"></label>
+    <label class="field" for="ckFTel">Telefone do fiador<input ${v("ckFTel",telFmt(F.tel))} inputmode="tel" maxlength="16"></label>
+    <label class="field wide" for="ckFEnd" style="grid-column:1/-1">Endereço do fiador<input ${v("ckFEnd",F.end)} maxlength="140"></label>
+   </div>
+   <div class="msg bad gerr" id="ckErr" hidden></div>
+   <div class="confirm" id="ckDelBox" hidden>Excluir este cliente do cadastro? As vendas dele continuam no histórico.<div><button class="btn danger" type="button" id="ckDelYes" style="background:var(--bad);color:#fff">Sim, excluir</button><button class="btn ghost" type="button" id="ckDelNo">Cancelar</button></div></div>
+   <div class="inl"><button class="btn pri" type="button" id="ckSave">Salvar cliente</button><button class="btn ghost" type="button" data-cx="1">Cancelar</button>${cliEdit!=="novo"?'<button class="btn danger" type="button" id="ckDel" style="margin-left:auto">Excluir</button>':""}</div></div>`;
+  setTimeout(()=>$("#ckNome")?.focus(),30);
+}
+function renderFicha(){
+  const box=$("#cliFicha"); const c=cliView&&G.clientes.find(x=>x.id===cliView); if(!c){ box.innerHTML=""; return; }
+  const vs=cliVendas(c).filter(v=>v.status!=="cancelada"), d=cliDeve(c), [st,k]=cliSit(c);
+  const comprado=vs.reduce((s,v)=>s+v.total,0);
+  const zap=c.tel&&d>0?`https://wa.me/55${digits(c.tel).replace(/^55/,"")}?text=${encodeURIComponent(`Olá, ${c.nome}! Aqui é da POP BRILHO. Seu saldo em aberto conosco é de ${brl(d)}. Pode pagar por Pix ou na loja. Obrigado!`)}`:"";
+  box.innerHTML=`<div class="gcard"><div class="inl" style="justify-content:space-between"><h3>Ficha de ${esc(c.nome)} <span class="pill ${k}" style="vertical-align:middle">${st}</span></h3><button class="ic" type="button" data-cvx="1" aria-label="Fechar">×</button></div>
+    <div class="kv"><div><span>CPF</span>${c.cpf?esc(cpfFmt(c.cpf)):"–"}</div><div><span>WhatsApp</span>${c.tel?esc(telFmt(c.tel)):"–"}</div><div><span>Endereço</span>${esc(c.end||"–")}</div><div><span>Nascimento</span>${c.nasc?dfmt(c.nasc):"–"}</div>
+      <div><span>Fiador</span>${c.fiador?.nome?esc(c.fiador.nome)+(c.fiador.cpf?" · "+esc(cpfFmt(c.fiador.cpf)):""):"–"}</div><div><span>Tel. do fiador</span>${c.fiador?.tel?esc(telFmt(c.fiador.tel)):"–"}</div><div><span>End. do fiador</span>${esc(c.fiador?.end||"–")}</div><div><span>Observações</span>${esc(c.obs||"–")}</div></div>
+    <div class="tiles" style="margin:0"><div class="tile"><small>Total comprado</small><b>${brl(comprado)}</b></div><div class="tile"><small>Compras</small><b>${vs.length}</b></div><div class="tile ${d>0?"warn":""}"><small>Deve hoje</small><b>${brl(d)}</b></div><div class="tile"><small>Limite de fiado</small><b>${c.limite?brl(c.limite):"–"}</b></div></div>
+    <div class="tblw" style="margin:0"><table class="tbl"><thead><tr><th>Data</th><th>Produtos</th><th class="n">Valor</th><th>Pagamento</th><th>Vencimento</th><th class="n">Saldo</th></tr></thead><tbody>
+    ${vs.map(v=>{const F=v.fiado;return `<tr><td>${dfmt(v.data)}<div class="sub">Venda ${v.numero}</div></td><td>${v.itens.map(i=>`${qfmt(i.qtd)}× ${esc(i.produto)}`).join("<br>")}</td><td class="n">${brl(v.total)}</td>
+      <td>${esc(v.pagamento)}${F&&(F.recebimentos||[]).length?`<div class="sub">${F.recebimentos.map(r=>`${dfmt(r.data)} · ${esc(FORMAS[r.forma]||r.forma)} · ${brl(r.valor)}`).join("<br>")}</div>`:""}</td>
+      <td>${F?dfmt(F.venc):"–"}</td><td class="n">${F?(fSaldo(F)>0?`<b>${brl(fSaldo(F))}</b>`:`<span class="pill ok">Quitado ${dfmt(F.quitadoEm)}</span>`):"–"}</td></tr>`;}).join("")||`<tr><td colspan="6" class="sub" style="padding:18px;text-align:center">Nenhuma compra ainda.</td></tr>`}
+    </tbody></table></div>
+    <div class="inl">${d>0?`<button class="btn pri" type="button" data-cgo="${c.id}">Receber no Fiado</button>`:""}${zap?`<a class="btn ghost" href="${zap}" target="_blank" rel="noopener">Cobrar no WhatsApp</a>`:""}<button class="btn ghost" type="button" data-cedit="${c.id}">Editar cadastro</button></div></div>`;
+}
+$("#cq").addEventListener("input",renderCli); $("#cf").addEventListener("change",renderCli);
+$("#cliNew").addEventListener("click",()=>{cliEdit="novo";cliView=null;renderCli();window.scrollTo(0,0);});
+$("#tCli").addEventListener("click",async e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.cedit){ cliEdit=b.dataset.cedit; cliView=null; renderCli(); window.scrollTo(0,0); return; }
+  if(b.dataset.cview){ cliView=b.dataset.cview; cliEdit=null; renderCli(); window.scrollTo(0,0); return; }
+  if(b.dataset.cx){ cliEdit=null; renderCli(); return; }
+  if(b.dataset.cvx){ cliView=null; renderCli(); return; }
+  if(b.dataset.cgo){ const c=G.clientes.find(x=>x.id===b.dataset.cgo); $("#fq").value=c.nome; $("#ff").value="aberto"; document.querySelector('.tab[data-tab="fia"]').click(); return; }
+  if(b.id==="ckDel"){ $("#ckDelBox").hidden=false; return; }
+  if(b.id==="ckDelNo"){ $("#ckDelBox").hidden=true; return; }
+  const er=$("#ckErr");
+  if(b.id==="ckDelYes"){
+    const c=G.clientes.find(x=>x.id===cliEdit);
+    if(cliDeve(c)>0){ er.textContent=`Não dá para excluir: ${c.nome} ainda deve ${brl(cliDeve(c))}.`; er.hidden=false; $("#ckDelBox").hidden=true; return; }
+    const backup=JSON.stringify(G); G.clientes=G.clientes.filter(x=>x.id!==c.id); G.vendas.forEach(v=>{if(v.fiado&&v.fiado.clienteId===c.id) v.fiado.clienteId="removido-"+c.id;});
+    try{ await gSave("Exclui cliente "+c.nome); cliEdit=null; renderCli(); }catch(x){ G=JSON.parse(backup); er.textContent=gSaveErr(x); er.hidden=false; }
+    return;
+  }
+  if(b.id!=="ckSave") return;
+  er.hidden=true;
+  const nome=$("#ckNome").value.trim().replace(/\s+/g," "), cpf=digits($("#ckCpf").value), fcpf=digits($("#ckFCpf").value);
+  const probs=[];
+  if(!nome) probs.push("Preencha o nome do cliente.");
+  if(cpf&&!cpfOk(cpf)) probs.push("O CPF do cliente não é válido. Confira os números.");
+  if(fcpf&&!cpfOk(fcpf)) probs.push("O CPF do fiador não é válido. Confira os números.");
+  const dup=G.clientes.find(x=>x.id!==cliEdit&&(norm(x.nome)===norm(nome)||(cpf&&digits(x.cpf)===cpf)));
+  if(dup) probs.push(`Já existe um cliente cadastrado com ${norm(dup.nome)===norm(nome)?"esse nome":"esse CPF"}: ${dup.nome}.`);
+  if(fcpf&&cpf&&fcpf===cpf) probs.push("O fiador precisa ser outra pessoa.");
+  if(probs.length){ er.textContent=probs.join("\n"); er.hidden=false; return; }
+  const backup=JSON.stringify(G);
+  const data={nome,cpf,tel:digits($("#ckTel").value),end:$("#ckEnd").value.trim(),nasc:$("#ckNasc").value,obs:$("#ckObs").value.trim(),limite:num($("#ckLim").value),
+    fiador:{nome:$("#ckFNome").value.trim(),cpf:fcpf,tel:digits($("#ckFTel").value),end:$("#ckFEnd").value.trim()}};
+  let c;
+  if(cliEdit==="novo"){ c={id:uid(),...data,criadoEm:new Date().toISOString()}; G.clientes.push(c); }
+  else{ c=G.clientes.find(x=>x.id===cliEdit); const old=c.nome; Object.assign(c,data);
+    if(old!==nome) G.vendas.forEach(v=>{ if(v.fiado&&v.fiado.clienteId===c.id){ v.fiado.cliente=nome; if(v.cliente===old) v.cliente=nome; } }); }
+  b.disabled=true; b.textContent="Salvando…";
+  try{ await gSave((cliEdit==="novo"?"Novo cliente ":"Atualiza cliente ")+nome); cliEdit=null; cliView=c.id; gRenderAll(); }
+  catch(x){ G=JSON.parse(backup); er.textContent=gSaveErr(x); er.hidden=false; b.disabled=false; b.textContent="Salvar cliente"; }
+});
 
 // ===== Início =====
 function enterApp(){ show("#vApp"); loadData(); gEnsure(); }
