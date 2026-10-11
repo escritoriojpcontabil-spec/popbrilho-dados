@@ -157,6 +157,68 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
   .vrow{grid-template-columns:1fr 70px 90px;}
   .vrow .vsub{display:none}
 }
+
+/* ===== PDV ===== */
+.cxbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--ink);color:#fff;border-radius:16px;padding:10px 14px;margin-bottom:14px}
+.cxbar span{flex:1;min-width:200px;font-size:14px}
+.cxbar b{color:var(--citrus)}
+.cxbar .btn.ghost{background:rgba(255,255,255,.12);color:#fff;padding:8px 12px}
+.pdv{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+.pdvq{width:100%;padding:14px 16px;font-size:17px;border:2px solid var(--cobalt);border-radius:14px;background:var(--surface);margin-bottom:12px}
+.pgrid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.ptile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:96px}
+.ptile:hover{border-color:var(--cobalt)}
+.ptile b{font-size:14px;line-height:1.25}
+.ptile .pr{font-family:var(--display);font-weight:800;font-size:18px;margin-top:auto;font-variant-numeric:tabular-nums}
+.ptile small{font-size:12px;color:var(--muted)}
+.ptile small.z{color:var(--bad);font-weight:700}
+.cart2{position:sticky;top:76px;background:var(--surface);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;max-height:calc(100vh - 96px)}
+.cart2 h3{padding:14px 16px 8px;font-size:18px}
+.clines{flex:1;overflow:auto;padding:0 16px;display:flex;flex-direction:column}
+.cl{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.cl .nm{font-weight:600;font-size:14px;min-width:0;overflow-wrap:anywhere}
+.cl .vl{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.cl .qt{display:flex;align-items:center;gap:6px}
+.cl .qt button{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);font-weight:800}
+.cl .qt input{width:58px;padding:5px;border:1.5px solid var(--line);border-radius:8px;text-align:center}
+.cl .rm2{border:0;background:none;color:var(--bad);font-size:13px;text-decoration:underline;justify-self:end}
+.csum{padding:12px 16px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:6px;font-variant-numeric:tabular-nums;font-size:14px;align-items:center}
+.csum input{width:110px;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;text-align:right}
+.csum .big{font-family:var(--display);font-weight:800;font-size:30px}
+.cact{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px}
+.cact .btn.lime{font-size:18px;padding:14px}
+.kbd{font-size:11px;font-weight:700;background:rgba(0,0,0,.1);border-radius:5px;padding:1px 5px;margin-left:4px}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(5,10,25,.55);display:grid;place-items:center;padding:16px}
+.mbox{background:var(--surface);border-radius:22px;width:min(560px,100%);max-height:92vh;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.mbox h2{font-size:22px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.paytot{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.paytot div{background:var(--soft);border-radius:12px;padding:10px}
+.paytot small{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.paytot b{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.paytot .rest b{color:var(--cobalt)}
+.methods{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.meth{border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 6px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:14px}
+.meth svg{width:26px;height:26px}
+.meth[aria-pressed="true"]{border-color:var(--cobalt);background:var(--soft);color:var(--cobalt)}
+.paylines{display:flex;flex-direction:column;gap:6px}
+.payline{display:flex;justify-content:space-between;background:var(--ok-bg);color:var(--ok);border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px}
+.troco{font-family:var(--display);font-size:26px;font-weight:800;color:var(--ok)}
+.qrbox{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.qrbox #qr{background:#fff;padding:8px;border-radius:12px;border:1px solid var(--line);min-width:216px;min-height:216px;display:grid;place-items:center}
+.qrbox textarea{flex:1;min-width:200px;height:120px;font-size:12px;padding:8px;border:1.5px solid var(--line);border-radius:10px;resize:none}
+.done{text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.done .ok{width:64px;height:64px;border-radius:50%;background:var(--ok-bg);color:var(--ok);display:grid;place-items:center;font-size:34px;font-weight:800}
+.cxsum{display:grid;grid-template-columns:1fr auto;gap:6px 16px;font-variant-numeric:tabular-nums;font-size:15px}
+.cxsum .t{font-weight:800;border-top:1px solid var(--line);padding-top:6px}
+.cupom{display:none}
+@media print{
+  body>*:not(#cupom){display:none!important}
+  #cupom{display:block;width:72mm;font:12px/1.35 "Courier New",monospace;color:#000;padding:0;margin:0}
+  #cupom .c{text-align:center} #cupom hr{border:0;border-top:1px dashed #000;margin:6px 0}
+  #cupom table{width:100%;border-collapse:collapse} #cupom td{vertical-align:top;padding:1px 0} #cupom td.r{text-align:right;white-space:nowrap}
+  @page{size:80mm auto;margin:4mm}
+}
+@media (max-width:900px){ .pdv{grid-template-columns:1fr} .cart2{position:static;max-height:none} .methods{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
 <body>
@@ -223,9 +285,11 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
   <main class="wrap">
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true" data-tab="prod" type="button">Produtos</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="pdv" type="button">PDV (caixa)</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="est" type="button">Estoque</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cmp" type="button">Notas de compra</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="ven" type="button">Vendas</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="fia" type="button">Fiado</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cfg" type="button">Dados da loja</button>
     </div>
 
@@ -237,6 +301,52 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
       <div class="msg info" id="loadMsg">Carregando produtos…</div>
       <div class="count" id="count"></div>
       <div class="list" id="list"></div>
+    </section>
+
+    <!-- ===== PDV ===== -->
+    <section id="tPdv" data-panel="pdv" hidden>
+      <div class="msg info gmsg"></div>
+      <div class="gbody" hidden>
+        <div class="gcard" id="cxClosed" hidden>
+          <h3>Abrir caixa</h3>
+          <p class="sub" style="margin:0">Informe quanto dinheiro tem na gaveta para troco. Depois de aberto, o caixa registra todas as vendas até o fechamento.</p>
+          <div class="gform">
+            <label class="field" for="cxFundo">Fundo de troco (R$)<input id="cxFundo" inputmode="decimal" placeholder="0,00"></label>
+            <label class="field" for="cxOp">Operador<input id="cxOp" placeholder="Nome de quem está no caixa" maxlength="40"></label>
+          </div>
+          <div class="msg bad" id="cxErr" hidden></div>
+          <div class="inl"><button class="btn pri" id="cxOpen" type="button">Abrir caixa</button><button class="btn ghost" id="pixCfgBtn" type="button">Configurar Pix</button></div>
+        </div>
+        <div id="cxOpenView" hidden>
+          <div class="cxbar">
+            <span id="cxInfo"></span>
+            <button class="btn ghost" type="button" data-cxop="suprimento">Suprimento</button>
+            <button class="btn ghost" type="button" data-cxop="sangria">Sangria</button>
+            <button class="btn ghost" type="button" data-cxop="pix">Pix</button>
+            <button class="btn lime" type="button" data-cxop="fechar">Fechar caixa</button>
+          </div>
+          <div class="pdv">
+            <div style="min-width:0">
+              <input class="pdvq" id="pdvQ" placeholder="Código de barras ou nome do produto  (F2)" aria-label="Código de barras ou nome do produto" autocomplete="off">
+              <div class="msg bad" id="pdvQErr" hidden style="margin-bottom:10px"></div>
+              <div class="pgrid2" id="pdvGrid"></div>
+            </div>
+            <aside class="cart2" aria-label="Venda atual">
+              <h3>Venda atual</h3>
+              <div class="clines" id="pdvLines"></div>
+              <div class="csum">
+                <span>Subtotal</span><span id="pdvSub">R$ 0,00</span>
+                <label for="pdvDesc">Desconto (R$)</label><input id="pdvDesc" inputmode="decimal" placeholder="0,00">
+                <b>Total</b><span class="big" id="pdvTot">R$ 0,00</span>
+              </div>
+              <div class="cact">
+                <button class="btn lime" id="pdvPay" type="button">Receber pagamento <span class="kbd">F9</span></button>
+                <button class="btn ghost" id="pdvClear" type="button">Cancelar venda</button>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ===== ESTOQUE ===== -->
@@ -281,7 +391,7 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
             <label class="field wide" for="vCli">Cliente<input id="vCli" placeholder="Nome do cliente" maxlength="80"></label>
             <label class="field" for="vDoc">CPF/CNPJ<input id="vDoc" inputmode="numeric" placeholder="opcional" maxlength="18"></label>
             <label class="field" for="vData">Data<input id="vData" type="date"></label>
-            <label class="field" for="vPag">Pagamento<select id="vPag"><option>Pix</option><option>Dinheiro</option><option>Cartão de débito</option><option>Cartão de crédito</option><option>Boleto</option><option>A prazo</option></select></label>
+            <label class="field" for="vPag">Pagamento<select id="vPag"><option>Pix</option><option>Dinheiro</option><option>Cartão de débito</option><option>Cartão de crédito</option><option>Boleto</option><option>Fiado (pagar depois)</option></select></label>
             <label class="field" for="vNf">Nº da nota fiscal<input id="vNf" placeholder="se já emitida" maxlength="20"></label>
             <label class="field wide" for="vObs">Observação<input id="vObs" maxlength="120"></label>
           </div>
@@ -296,6 +406,21 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
         </div>
         <div class="gbar"><input id="vq" type="search" placeholder="Buscar venda por cliente ou número" aria-label="Buscar venda"></div>
         <div class="tblw"><table class="tbl"><thead><tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Itens</th><th class="n">Total</th><th>Pagamento</th><th>NF</th><th></th></tr></thead><tbody id="vBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- ===== FIADO ===== -->
+    <section id="tFia" data-panel="fia" hidden>
+      <div class="msg info gmsg"></div>
+      <div class="gbody" hidden>
+        <div class="tiles" id="fTiles"></div>
+        <div class="gbar">
+          <input id="fq" type="search" placeholder="Buscar pelo nome do cliente" aria-label="Buscar cliente">
+          <select id="ff" aria-label="Filtrar fiado"><option value="aberto">Em aberto</option><option value="vencido">Vencidos</option><option value="quitado">Quitados</option><option value="">Todos</option></select>
+          <button class="btn ghost" id="fXls" type="button">Baixar planilha</button>
+        </div>
+        <div class="tblw"><table class="tbl"><thead><tr><th>Cliente</th><th>Data da compra</th><th>Produtos</th><th class="n">Valor</th><th>Vencimento</th><th class="n">Saldo</th><th>Pagamento / quitação</th><th></th></tr></thead><tbody id="fBody"></tbody></table></div>
+        <p class="sub">Para vender fiado, escolha <b>Fiado</b> no pagamento do PDV ou na aba Vendas. O cliente aparece aqui até quitar.</p>
       </div>
     </section>
 
@@ -366,6 +491,7 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ===== Configuração do repositório =====
 const OWNER="escritoriojpcontabil-spec", REPO="popbrilho-dados", BRANCH="main";
@@ -579,7 +705,7 @@ function fillCfg(){ $("#cZap").value=cfg.whatsapp; $("#cEnd").value=cfg.endereco
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
   document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
   document.querySelectorAll("[data-panel]").forEach(sec=>sec.hidden=sec.dataset.panel!==t.dataset.tab);
-  if(["est","cmp","ven"].includes(t.dataset.tab)){ if(window.gEnsure) gEnsure(); if(window.gRenderAll) gRenderAll(); }
+  if(["pdv","est","cmp","ven","fia"].includes(t.dataset.tab)){ if(window.gEnsure) gEnsure(); if(window.gRenderAll) gRenderAll(); if(t.dataset.tab==="pdv"&&window.cx&&cx()) setTimeout(()=>$("#pdvQ").focus(),50); }
 }));
 
 // ===== Publicar =====
@@ -641,7 +767,7 @@ window.addEventListener("beforeunload",e=>{ if(TOKEN&&dirty()){ e.preventDefault
 // ======================================================================
 const GREPO="popbrilho-gestao", GAPI=`https://api.github.com/repos/${OWNER}/${GREPO}`, GFILE="gestao.json";
 let G=null, gSha=null, gState="idle", gQueue=Promise.resolve();
-const gEmpty=()=>({versao:1,estoque:{},movimentos:[],compras:[],vendas:[],vinculos:{}});
+const gEmpty=()=>({versao:1,estoque:{},movimentos:[],compras:[],vendas:[],vinculos:{},caixas:[],caixaAberto:null,pdv:{}});
 const qfmt=v=>(+v||0).toLocaleString("pt-BR",{maximumFractionDigits:3});
 const dfmt=s=>{if(!s)return"";const d=new Date(s.length===10?s+"T12:00:00":s);return isNaN(d)?s:d.toLocaleDateString("pt-BR");};
 const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);};
@@ -895,16 +1021,19 @@ $("#vSave").addEventListener("click",async()=>{
     err.hidden=false; b.dataset.sure="1"; return;
   }
   delete b.dataset.sure;
+  let fia=null;
+  if($("#vPag").value==="Fiado (pagar depois)"){ fia=fRead("vf"); if(!fia.cliente){err.textContent="Venda fiado: informe o nome do cliente.";err.hidden=false;return;} }
   const backup=JSON.stringify(G);
   const numero=(G.vendas.reduce((m,v)=>Math.max(m,v.numero||0),0))+1;
   const venda={id:uid(),numero,data:$("#vData").value||today(),cliente:$("#vCli").value.trim(),doc:$("#vDoc").value.trim(),pagamento:$("#vPag").value,nf:$("#vNf").value.trim(),obs:$("#vObs").value.trim(),
     itens:its.map(r=>({produto:r.produto,qtd:r.qtd,preco:r.preco,custo:G.estoque[r.produto]?.custo||0})),total:+its.reduce((s,r)=>s+r.qtd*r.preco,0).toFixed(2),status:"ativa"};
+  if(fia){ venda.cliente=venda.cliente||fia.cliente; venda.fiado={...fia,valor:venda.total,recebimentos:[],quitadoEm:null}; }
   its.forEach(r=>{const e2=est(r.produto); e2.qtd=+(e2.qtd-r.qtd).toFixed(3); mov("saida",r.produto,-r.qtd,`Venda ${numero}${venda.nf?" · NF "+venda.nf:""}`);});
   G.vendas.unshift(venda);
   b.disabled=true; b.textContent="Salvando…";
   try{
     await gSave(`Venda ${numero}`);
-    ["#vCli","#vDoc","#vNf","#vObs"].forEach(i=>$(i).value=""); $("#vData").value=today(); vRows=[]; vNewRow(); gRenderAll();
+    ["#vCli","#vDoc","#vNf","#vObs"].forEach(i=>$(i).value=""); $("#vData").value=today(); $("#vPag").selectedIndex=0; vFiadoToggle(); vRows=[]; vNewRow(); gRenderAll();
     err.hidden=false; err.className="msg ok gerr"; err.textContent=`Venda ${numero} registrada. Estoque atualizado.`; setTimeout(()=>{err.hidden=true;err.className="msg bad gerr";},5000);
   }catch(x){ G=JSON.parse(backup); err.textContent=gSaveErr(x); err.hidden=false; }
   finally{ b.disabled=false; b.textContent="Registrar venda e dar baixa no estoque"; }
@@ -915,7 +1044,7 @@ function renderVen(){
   const vis=G.vendas.filter(v=>!q||norm(v.cliente+" "+v.numero+" "+(v.nf||"")).includes(q));
   $("#vBody").innerHTML=vis.slice(0,200).map(v=>{
     const canc=v.status==="cancelada";
-    return `<tr${canc?' style="opacity:.55"':""}><td><b>${v.numero}</b></td><td>${dfmt(v.data)}</td><td>${esc(v.cliente||"Consumidor")}${v.doc?`<div class="sub">${esc(v.doc)}</div>`:""}</td><td>${v.itens.map(i=>`${qfmt(i.qtd)}× ${esc(i.produto)}`).join("<br>")}</td><td class="n">${brl(v.total)}</td><td>${esc(v.pagamento)}</td>
+    return `<tr${canc?' style="opacity:.55"':""}><td><b>${v.numero}</b></td><td>${dfmt(v.data)}</td><td>${esc(v.cliente||"Consumidor")}${v.doc?`<div class="sub">${esc(v.doc)}</div>`:""}</td><td>${v.itens.map(i=>`${qfmt(i.qtd)}× ${esc(i.produto)}`).join("<br>")}</td><td class="n">${brl(v.total)}</td><td>${esc(v.pagamento)}${v.fiado&&!canc?(fSaldo(v.fiado)>0?' <span class="pill warn">a receber</span>':' <span class="pill ok">quitado</span>'):""}</td>
     <td>${canc?'<span class="pill bad">Cancelada</span>':v.nf?`<span class="pill ok">NF ${esc(v.nf)}</span>`:`<span class="inl"><input data-nf="${v.id}" placeholder="nº NF" style="width:90px"><button class="btn ghost" type="button" data-nfsave="${v.id}">OK</button></span>`}</td>
     <td class="n">${canc?"":vCancel===v.id?`<span class="inl"><button class="btn danger" type="button" data-vcy="${v.id}" style="background:var(--bad);color:#fff">Confirmar</button><button class="btn ghost" type="button" data-vcn="1">Não</button></span>`:`<button class="btn danger" type="button" data-vc="${v.id}">Cancelar</button>`}</td></tr>`;
   }).join("")||`<tr><td colspan="8" class="sub" style="padding:24px;text-align:center">Nenhuma venda registrada ainda.</td></tr>`;
@@ -939,13 +1068,374 @@ $("#vBody").addEventListener("click",async e=>{
 });
 function alertRow(t){ const m=document.createElement("div"); m.className="msg bad"; m.style.marginBottom="10px"; m.textContent=t; $("#tVen .gbody").prepend(m); setTimeout(()=>m.remove(),8000); }
 
-function gRenderAll(){ if(!G) return; renderEst(); renderCmp(); renderVen(); if(!vRows.length){ $("#vData").value=today(); vNewRow(); } else renderVForm(); }
+function gRenderAll(){ if(!G) return; renderPdv(); renderFia(); renderEst(); renderCmp(); renderVen(); if(!vRows.length){ $("#vData").value=today(); vNewRow(); } else renderVForm(); }
 window.gRename=(oldN,newN)=>{
   if(!G||!G.estoque[oldN]||G.estoque[newN]) return;
   G.estoque[newN]=G.estoque[oldN]; delete G.estoque[oldN];
   Object.keys(G.vinculos).forEach(k=>{ if(G.vinculos[k]===oldN) G.vinculos[k]=newN; });
   gSave(`Renomeia ${oldN} para ${newN}`).catch(()=>{}); gRenderAll();
 };
+
+
+// ======================================================================
+// PDV — frente de caixa
+// ======================================================================
+const FORMAS={dinheiro:"Dinheiro",pix:"Pix",debito:"Cartão de débito",credito:"Cartão de crédito",fiado:"Fiado"};
+const ICON={
+  dinheiro:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>',
+  pix:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z"/><path d="M8 12h8M12 8v8"/></svg>',
+  debito:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>',
+  fiado:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 9h8M8 13h6"/></svg>',
+  credito:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M15 15h3"/></svg>'};
+let cart=[], pay=null;
+const cx=()=>G&&G.caixaAberto?G.caixas.find(c=>c.id===G.caixaAberto):null;
+const pdvVisible=()=>!$("#tPdv").hidden&&G;
+const r2=v=>Math.round(v*100)/100;
+
+// ----- Pix (BR Code estático, padrão do Banco Central) -----
+function crc16(s){let c=0xFFFF;for(const b of new TextEncoder().encode(s)){c^=b<<8;for(let i=0;i<8;i++)c=(c&0x8000)?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF;}return c.toString(16).toUpperCase().padStart(4,"0");}
+const emv=(id,v)=>id+String(v.length).padStart(2,"0")+v;
+const ascii=(s,n)=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9 .\-]/g,"").toUpperCase().trim().slice(0,n);
+function pixChave(){const p=G.pdv||{},k=String(p.chave||"").trim();
+  if(p.tipo==="cel"){const d=k.replace(/\D/g,"");return "+"+(d.startsWith("55")&&d.length>11?d:"55"+d);}
+  if(p.tipo==="doc") return k.replace(/\D/g,"");
+  return p.tipo==="email"?k.toLowerCase():k;}
+function pixPayload(valor,txid){
+  const p=G.pdv||{};
+  const s=emv("00","01")+emv("26",emv("00","br.gov.bcb.pix")+emv("01",pixChave()))+emv("52","0000")+emv("53","986")+(valor>0?emv("54",valor.toFixed(2)):"")+emv("58","BR")+emv("59",ascii(p.nome,25)||"POP BRILHO")+emv("60",ascii(p.cidade,15)||"PAULISTA")+emv("62",emv("05",(ascii(txid,25).replace(/[^A-Z0-9]/g,""))||"***"))+"6304";
+  return s+crc16(s);
+}
+
+// ----- telas do caixa -----
+function renderPdv(){
+  if(!G) return;
+  const c=cx(); $("#cxClosed").hidden=!!c; $("#cxOpenView").hidden=!c;
+  if(!c){ if(!$("#cxOp").value) $("#cxOp").value=c?.operador||""; return; }
+  $("#cxInfo").innerHTML=`Caixa aberto desde <b>${new Date(c.abertura).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</b>${c.operador?` · ${esc(c.operador)}`:""} · ${cxVendas(c).length} venda(s)`;
+  renderGridPdv(); renderCart();
+}
+function renderGridPdv(){
+  const q=norm($("#pdvQ").value);
+  const list=items.filter(i=>!q||/^\d{6,}$/.test(q)||norm(i.nome+" "+i.cat).includes(q)).slice().sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).slice(0,80);
+  $("#pdvGrid").innerHTML=list.map(i=>{const e=G.estoque[i.nome];const qt=e?e.qtd:null;
+    return `<button class="ptile" type="button" data-padd="${esc(i.nome)}"><b>${esc(i.nome)}</b><small>${esc(i.tam||"")}</small><small class="${qt!==null&&qt<=0?"z":""}">${qt===null?"sem controle de estoque":qt<=0?"sem estoque":qfmt(qt)+" em estoque"}</small><span class="pr">${brl(i.preco)}</span></button>`;}).join("")
+    ||`<div class="sub" style="grid-column:1/-1;padding:20px;text-align:center">Nenhum produto encontrado. Cadastre produtos na aba Produtos.</div>`;
+}
+const pdvSub=()=>r2(cart.reduce((s,l)=>s+l.qtd*l.preco,0));
+const pdvDesc=()=>Math.min(Math.max(num($("#pdvDesc").value),0),pdvSub());
+const pdvTot=()=>r2(pdvSub()-pdvDesc());
+function renderCart(){
+  $("#pdvLines").innerHTML=cart.length?cart.map((l,i)=>{const e=G.estoque[l.produto];const falta=e&&e.qtd<l.qtd;
+    return `<div class="cl"><span class="nm">${esc(l.produto)}${falta?' <span class="pill warn">estoque: '+qfmt(e.qtd)+'</span>':""}</span><span class="vl">${brl(l.qtd*l.preco)}</span>
+    <span class="qt"><button type="button" data-cq="${i}" data-d="-1" aria-label="Menos">−</button><input data-cqi="${i}" inputmode="decimal" value="${String(l.qtd).replace(".",",")}" aria-label="Quantidade"><button type="button" data-cq="${i}" data-d="1" aria-label="Mais">+</button><small class="sub">× ${brl(l.preco)}</small></span>
+    <button class="rm2" type="button" data-crm="${i}">remover</button></div>`;}).join(""):`<p class="sub" style="padding:10px 0;margin:0">Passe o código de barras ou toque nos produtos para começar.</p>`;
+  $("#pdvSub").textContent=brl(pdvSub()); $("#pdvTot").textContent=brl(pdvTot());
+  $("#pdvPay").disabled=!cart.length;
+}
+function addCart(nome,q=1){
+  const it=items.find(i=>i.nome===nome); if(!it) return;
+  const l=cart.find(x=>x.produto===nome); if(l) l.qtd=+(l.qtd+q).toFixed(3); else cart.push({produto:nome,qtd:q,preco:it.preco});
+  renderCart();
+}
+$("#pdvGrid").addEventListener("click",e=>{const b=e.target.closest("[data-padd]");if(b){addCart(b.dataset.padd);$("#pdvQ").focus();}});
+$("#pdvQ").addEventListener("input",()=>{$("#pdvQErr").hidden=true;renderGridPdv();});
+$("#pdvQ").addEventListener("keydown",e=>{
+  if(e.key!=="Enter") return; e.preventDefault();
+  let v=$("#pdvQ").value.trim(); if(!v) { if(cart.length) openPay(); return; }
+  let q=1; const m=v.match(/^(\d+(?:[.,]\d+)?)\s*[*xX]\s*(.+)$/); if(m){q=num(m[1])||1;v=m[2].trim();}
+  let nome=null;
+  if(/^\d{6,14}$/.test(v)){ const f=Object.entries(G.estoque).find(([n,e])=>e.ean===v&&items.some(i=>i.nome===n)); if(f) nome=f[0]; }
+  if(!nome){ const n=norm(v); const ex=items.find(i=>norm(i.nome)===n); const parc=items.filter(i=>norm(i.nome).includes(n)); nome=ex?ex.nome:parc.length===1?parc[0].nome:null; }
+  if(nome){ addCart(nome,q); $("#pdvQ").value=""; renderGridPdv(); }
+  else { const er=$("#pdvQErr"); er.textContent=/^\d{6,14}$/.test(v)?`Código ${v} não cadastrado. Cadastre o EAN do produto na aba Estoque (Ajustar).`:"Mais de um produto encontrado. Toque no produto desejado."; er.hidden=false; }
+});
+$("#pdvLines").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.cq!==undefined){ const l=cart[+b.dataset.cq]; l.qtd=+(l.qtd+ +b.dataset.d).toFixed(3); if(l.qtd<=0) cart.splice(+b.dataset.cq,1); renderCart(); }
+  else if(b.dataset.crm!==undefined){ cart.splice(+b.dataset.crm,1); renderCart(); }
+});
+$("#pdvLines").addEventListener("change",e=>{const i=e.target.dataset.cqi; if(i===undefined) return; const v=num(e.target.value); if(v>0) cart[+i].qtd=v; else cart.splice(+i,1); renderCart();});
+$("#pdvDesc").addEventListener("input",renderCart);
+$("#pdvClear").addEventListener("click",()=>{
+  const b=$("#pdvClear"); if(!cart.length) return;
+  if(!b.dataset.sure){b.dataset.sure="1";b.textContent="Confirmar cancelamento";setTimeout(()=>{delete b.dataset.sure;b.textContent="Cancelar venda";},3000);return;}
+  delete b.dataset.sure; b.textContent="Cancelar venda"; cart=[]; $("#pdvDesc").value=""; renderCart(); $("#pdvQ").focus();
+});
+
+// ----- modal genérico -----
+function modal(html){ closeModal(); const m=document.createElement("div"); m.className="modal"; m.id="pdvModal"; m.innerHTML=`<div class="mbox" role="dialog" aria-modal="true">${html}</div>`; document.body.appendChild(m); m.addEventListener("click",e=>{if(e.target===m&&!(pay&&pay.done))closeModal();}); return m; }
+function closeModal(){ const m=$("#pdvModal"); if(m) m.remove(); }
+
+// ----- pagamento -----
+function openPay(){
+  if(!cart.length) return;
+  if(pdvDesc()>0&&pdvDesc()>=pdvSub()){ return; }
+  pay={total:pdvTot(),linhas:[],forma:"dinheiro",done:false}; drawPay();
+}
+const pago=()=>r2(pay.linhas.reduce((s,l)=>s+l.valor,0));
+const falta=()=>Math.max(r2(pay.total-pago()),0);
+function drawPay(){
+  const rest=falta();
+  const m=modal(`<h2>Receber pagamento <button class="ic" type="button" data-pclose="1" aria-label="Fechar">×</button></h2>
+   <div class="paytot"><div><small>Total</small><b>${brl(pay.total)}</b></div><div><small>Pago</small><b>${brl(pago())}</b></div><div class="rest"><small>Falta</small><b>${brl(rest)}</b></div></div>
+   ${pay.linhas.length?`<div class="paylines">${pay.linhas.map((l,i)=>`<div class="payline"><span>${FORMAS[l.forma]}${l.parcelas>1?` ${l.parcelas}x`:""}</span><span>${brl(l.valor)} <button class="linkbtn" style="color:inherit;font-size:12px" type="button" data-pdel="${i}">remover</button></span></div>`).join("")}</div>`:""}
+   <div class="methods">${Object.keys(FORMAS).map(k=>`<button class="meth" type="button" data-pm="${k}" aria-pressed="${pay.forma===k}">${ICON[k]}${k==="debito"?"Débito":k==="credito"?"Crédito":k==="fiado"?"Fiado":FORMAS[k]}</button>`).join("")}</div>
+   <div id="pmBody"></div>
+   <div class="msg bad" id="pErr" hidden></div>`);
+  const body=$("#pmBody"), f=pay.forma;
+  if(f==="fiado"){ body.innerHTML=`<div class="gform"><label class="field" for="pVal">Valor fiado (R$)<input id="pVal" inputmode="decimal" value="${rest.toFixed(2).replace(".",",")}"></label>${fFields("pf")}</div>
+      <p class="sub" style="margin:0">O cliente leva agora e paga depois. Ele fica na aba <b>Fiado</b> até quitar.</p>
+      <button class="btn pri" type="button" data-pok="1" style="font-size:17px;padding:13px">Confirmar fiado</button>`; fBind("pf"); }
+  else if(f==="dinheiro") body.innerHTML=`<div class="gform"><label class="field wide" for="pVal">Valor recebido (R$)<input id="pVal" inputmode="decimal" value="${rest.toFixed(2).replace(".",",")}"></label><div class="wide" style="text-align:right"><small class="sub">Troco</small><div class="troco" id="pTroco">R$ 0,00</div></div></div>
+    <div class="inl" id="notas">${[2,5,10,20,50,100,200].map(n=>`<button class="btn ghost" type="button" data-nota="${n}">R$ ${n}</button>`).join("")}</div>
+    <button class="btn pri" type="button" data-pok="1" style="font-size:17px;padding:13px">Confirmar dinheiro</button>`;
+  else if(f==="pix"){
+    const ok=(G.pdv||{}).chave;
+    body.innerHTML=ok?`<div class="gform"><label class="field wide" for="pVal">Valor no Pix (R$)<input id="pVal" inputmode="decimal" value="${rest.toFixed(2).replace(".",",")}"></label></div>
+      <div class="qrbox"><div id="qr"></div><div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px"><span class="sub">Peça para o cliente escanear o QR Code ou usar o Pix copia e cola. <b>Confira o recebimento no app do banco</b> antes de confirmar.</span><textarea id="pixTxt" readonly aria-label="Pix copia e cola"></textarea><button class="btn ghost" type="button" data-pcopy="1">Copiar código Pix</button></div></div>
+      <button class="btn pri" type="button" data-pok="1" style="font-size:17px;padding:13px">Pix recebido — confirmar</button>`
+      :`<div class="msg info">Para gerar o QR Code, cadastre a chave Pix da loja. <button class="btn pri" type="button" data-pixcfg="1" style="margin-left:8px">Cadastrar chave Pix</button></div><button class="btn ghost" type="button" data-pok="1">Registrar Pix sem QR Code</button><div class="gform"><label class="field wide" for="pVal">Valor (R$)<input id="pVal" inputmode="decimal" value="${rest.toFixed(2).replace(".",",")}"></label></div>`;
+    if(ok) drawQr();
+  }else body.innerHTML=`<div class="gform"><label class="field" for="pVal">Valor (R$)<input id="pVal" inputmode="decimal" value="${rest.toFixed(2).replace(".",",")}"></label>
+      ${f==="credito"?`<label class="field" for="pParc">Parcelas<select id="pParc">${Array.from({length:12},(_,i)=>`<option value="${i+1}">${i+1}x${i?" de "+brl(rest/(i+1)):" (à vista)"}</option>`).join("")}</select></label>`:""}
+      <label class="field wide" for="pAut">Autorização / NSU<input id="pAut" placeholder="opcional, do comprovante da maquininha" maxlength="20"></label></div>
+      <p class="sub" style="margin:0">Passe o cartão na maquininha e confirme aqui quando aprovar.</p>
+      <button class="btn pri" type="button" data-pok="1" style="font-size:17px;padding:13px">Cartão aprovado — confirmar</button>`;
+  const pv=$("#pVal"); if(pv){ pv.addEventListener("input",()=>{updTroco(); if(f==="pix") drawQr();}); setTimeout(()=>{pv.focus();pv.select();},30); pv.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();confirmLine();}}); }
+  updTroco();
+  m.addEventListener("click",onPayClick);
+}
+function updTroco(){ const t=$("#pTroco"); if(!t) return; const v=num($("#pVal").value); t.textContent=brl(Math.max(r2(v-falta()),0)); }
+function drawQr(){
+  if(!$("#pixTxt")) return;
+  const v=num($("#pVal")?.value), txt=pixPayload(Math.min(v,falta())||falta(),"PDV"+((G.vendas.reduce((m,x)=>Math.max(m,x.numero||0),0))+1));
+  $("#pixTxt").value=txt; const box=$("#qr"); box.innerHTML="";
+  if(window.QRCode) new QRCode(box,{text:txt,width:200,height:200,correctLevel:QRCode.CorrectLevel.M});
+  else box.textContent="Use o código copia e cola ao lado.";
+}
+function confirmLine(){
+  const er=$("#pErr"); er.hidden=true;
+  let v=num($("#pVal")?.value), rest=falta();
+  if(!(v>0)){er.textContent="Informe o valor.";er.hidden=false;return;}
+  if(pay.forma!=="dinheiro"&&v>rest+0.001){er.textContent=`O valor no ${FORMAS[pay.forma]} não pode passar do que falta (${brl(rest)}). Troco só no dinheiro.`;er.hidden=false;return;}
+  let fx={};
+  if(pay.forma==="fiado"){ fx=fRead("pf"); if(!fx.cliente){er.textContent="Informe o nome do cliente.";er.hidden=false;return;} if(pay.linhas.some(l=>l.forma==="fiado")){er.textContent="Esta venda já tem uma parte fiado.";er.hidden=false;return;} }
+  pay.linhas.push({...fx,forma:pay.forma,valor:r2(v),parcelas:pay.forma==="credito"?+($("#pParc")?.value||1):1,aut:$("#pAut")?.value.trim()||""});
+  if(falta()<=0) finishSale(); else { pay.forma=pay.forma==="dinheiro"?"pix":pay.forma; drawPay(); }
+}
+async function onPayClick(e){
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.pclose){ if(pay&&!pay.done){ pay=null; closeModal(); $("#pdvQ").focus(); } return; }
+  if(b.dataset.pm){ pay.forma=b.dataset.pm; drawPay(); return; }
+  if(b.dataset.pdel!==undefined){ pay.linhas.splice(+b.dataset.pdel,1); drawPay(); return; }
+  if(b.dataset.nota){ $("#pVal").value=String(b.dataset.nota)+",00"; updTroco(); return; }
+  if(b.dataset.pcopy){ const t=$("#pixTxt"); try{ await navigator.clipboard.writeText(t.value); b.textContent="Copiado!"; }catch(_){ t.select(); b.textContent="Selecionado, use Ctrl+C"; } return; }
+  if(b.dataset.pixcfg){ openPixCfg(true); return; }
+  if(b.dataset.pok){ confirmLine(); return; }
+}
+async function finishSale(){
+  const c=cx(); const backup=JSON.stringify(G);
+  const sub=pdvSub(), desc=pdvDesc(), total=pay.total, pagoT=pago(), troco=r2(pagoT-total);
+  const numero=(G.vendas.reduce((m,v)=>Math.max(m,v.numero||0),0))+1;
+  const venda={id:uid(),numero,data:today(),hora:new Date().toISOString(),origem:"PDV",caixa:c.id,operador:c.operador||"",cliente:"",doc:"",nf:"",obs:"",
+    itens:cart.map(l=>({produto:l.produto,qtd:l.qtd,preco:l.preco,custo:G.estoque[l.produto]?.custo||0})),subtotal:sub,desconto:desc,total,
+    pagamentos:pay.linhas.map(({cliente,tel,venc,...l})=>l),troco,pagamento:[...new Set(pay.linhas.map(l=>FORMAS[l.forma]+(l.parcelas>1?` ${l.parcelas}x`:"")))].join(" + "),status:"ativa"};
+  const fl=pay.linhas.find(l=>l.forma==="fiado");
+  if(fl){ venda.cliente=fl.cliente; venda.fiado={cliente:fl.cliente,tel:fl.tel,venc:fl.venc,valor:fl.valor,recebimentos:[],quitadoEm:null}; }
+  cart.forEach(l=>{ const e2=est(l.produto); e2.qtd=+(e2.qtd-l.qtd).toFixed(3); mov("saida",l.produto,-l.qtd,`PDV venda ${numero}`); });
+  G.vendas.unshift(venda);
+  pay.done=true;
+  modal(`<div class="done"><div class="ok">✓</div><h2 style="justify-content:center">Venda ${numero} concluída</h2>${troco>0?`<div><small class="sub">Troco</small><div class="troco" style="font-size:40px">${brl(troco)}</div></div>`:""}<div class="sub" id="saveSt">Salvando…</div>
+    <div class="inl" style="justify-content:center"><button class="btn ghost" type="button" id="dPrint">Imprimir cupom</button><button class="btn lime" type="button" id="dNew" style="font-size:17px">Nova venda <span class="kbd">Enter</span></button></div></div>`);
+  fillCupom(venda);
+  $("#dPrint").addEventListener("click",()=>window.print());
+  $("#dNew").addEventListener("click",newSale); setTimeout(()=>$("#dNew").focus(),50);
+  try{ await gSave(`PDV venda ${numero}`); $("#saveSt").textContent="Venda salva e estoque atualizado."; }
+  catch(x){ G=JSON.parse(backup); pay.done=false; $("#saveSt").innerHTML=`<span class="msg bad" style="display:block">${esc(gSaveErr(x))} A venda NÃO foi registrada.</span>`; $("#dNew").textContent="Voltar"; $("#dNew").onclick=()=>{closeModal();}; return; }
+}
+function newSale(){ if(!pay||!pay.done) return; pay=null; cart=[]; $("#pdvDesc").value=""; closeModal(); renderPdv(); gRenderAll(); $("#pdvQ").focus(); }
+function fillCupom(v){
+  let el=$("#cupom"); if(!el){ el=document.createElement("div"); el.id="cupom"; el.className="cupom"; document.body.appendChild(el); }
+  el.innerHTML=`<div class="c"><b>POP BRILHO</b><br>Materiais de Limpeza<br>${esc(cfg.endereco||"")}<br>WhatsApp ${esc(cfg.whatsapp||"")}</div><hr>
+  <div class="c"><b>CUPOM NÃO FISCAL</b><br>Venda nº ${v.numero} · ${new Date(v.hora).toLocaleString("pt-BR")}${v.operador?"<br>Operador: "+esc(v.operador):""}</div><hr>
+  <table>${v.itens.map(i=>`<tr><td colspan="2">${esc(i.produto)}</td></tr><tr><td>${qfmt(i.qtd)} x ${brl(i.preco)}</td><td class="r">${brl(i.qtd*i.preco)}</td></tr>`).join("")}</table><hr>
+  <table><tr><td>Subtotal</td><td class="r">${brl(v.subtotal)}</td></tr>${v.desconto?`<tr><td>Desconto</td><td class="r">-${brl(v.desconto)}</td></tr>`:""}<tr><td><b>TOTAL</b></td><td class="r"><b>${brl(v.total)}</b></td></tr>
+  ${v.pagamentos.map(p=>`<tr><td>${FORMAS[p.forma]}${p.parcelas>1?" "+p.parcelas+"x":""}</td><td class="r">${brl(p.valor)}</td></tr>`).join("")}${v.fiado?`<tr><td colspan="2">Cliente: ${esc(v.fiado.cliente)}<br>Pagar até ${dfmt(v.fiado.venc)}<br><br>Assinatura: ____________________</td></tr>`:""}${v.troco>0?`<tr><td>Troco</td><td class="r">${brl(v.troco)}</td></tr>`:""}</table><hr>
+  <div class="c">Não é documento fiscal.<br>Obrigado pela preferência!</div>`;
+}
+
+// ----- caixa: abrir, sangria, suprimento, fechar -----
+const cxVendas=c=>G.vendas.filter(v=>v.caixa===c.id&&v.status!=="cancelada");
+function cxResumo(c){
+  const vs=cxVendas(c), por={dinheiro:0,pix:0,debito:0,credito:0,fiado:0};
+  vs.forEach(v=>(v.pagamentos||[]).forEach(p=>por[p.forma]=(por[p.forma]||0)+p.valor));
+  const rec={dinheiro:0,pix:0,debito:0,credito:0}; G.vendas.filter(v=>v.fiado&&v.status!=="cancelada").forEach(v=>(v.fiado.recebimentos||[]).filter(r=>r.caixa===c.id).forEach(r=>rec[r.forma]=(rec[r.forma]||0)+r.valor));
+  Object.keys(rec).forEach(k=>por[k]+=rec[k]); const recT=r2(Object.values(rec).reduce((s,x)=>s+x,0));
+  const troco=vs.reduce((s,v)=>s+(v.troco||0),0);
+  const sup=c.movs.filter(m=>m.tipo==="suprimento").reduce((s,m)=>s+m.valor,0), san=c.movs.filter(m=>m.tipo==="sangria").reduce((s,m)=>s+m.valor,0);
+  const din=r2(por.dinheiro-troco);
+  return {vendas:vs.length,total:r2(vs.reduce((s,v)=>s+v.total,0)),por:{...por,dinheiro:din},rec,recT,sup,san,esperado:r2(c.fundo+din+sup-san)};
+}
+$("#cxOpen").addEventListener("click",async()=>{
+  const b=$("#cxOpen"), er=$("#cxErr"); er.hidden=true;
+  const c={id:uid(),abertura:new Date().toISOString(),fundo:num($("#cxFundo").value),operador:$("#cxOp").value.trim(),movs:[]};
+  const backup=JSON.stringify(G); G.caixas.unshift(c); G.caixaAberto=c.id; b.disabled=true;
+  try{ await gSave("Abertura de caixa"); $("#cxFundo").value=""; renderPdv(); $("#pdvQ").focus(); }
+  catch(x){ G=JSON.parse(backup); er.textContent=gSaveErr(x); er.hidden=false; }
+  finally{ b.disabled=false; }
+});
+$("#pixCfgBtn").addEventListener("click",()=>openPixCfg(false));
+$("#cxOpenView").addEventListener("click",e=>{
+  const b=e.target.closest("[data-cxop]"); if(!b) return; const op=b.dataset.cxop;
+  if(op==="pix") return openPixCfg(false);
+  if(op==="fechar") return openFechar();
+  modal(`<h2>${op==="sangria"?"Sangria (retirada)":"Suprimento (reforço de troco)"} <button class="ic" type="button" data-mx="1" aria-label="Fechar">×</button></h2>
+    <div class="gform"><label class="field" for="smVal">Valor (R$)<input id="smVal" inputmode="decimal"></label><label class="field" for="smObs" style="grid-column:span 3">Motivo<input id="smObs" maxlength="60" placeholder="${op==="sangria"?"Ex.: depósito no banco":"Ex.: troco extra"}"></label></div>
+    <div class="msg bad" id="smErr" hidden></div><button class="btn pri" type="button" id="smOk">Registrar</button>`);
+  setTimeout(()=>$("#smVal").focus(),30);
+  $("#pdvModal").addEventListener("click",async ev=>{
+    if(ev.target.closest("[data-mx]")) return closeModal();
+    if(!ev.target.closest("#smOk")) return;
+    const v=num($("#smVal").value), er=$("#smErr"); if(!(v>0)){er.textContent="Informe o valor.";er.hidden=false;return;}
+    const c=cx(), backup=JSON.stringify(G); c.movs.push({tipo:op,valor:r2(v),obs:$("#smObs").value.trim(),data:new Date().toISOString()});
+    try{ await gSave(`${op} de caixa`); closeModal(); renderPdv(); }catch(x){ G=JSON.parse(backup); er.textContent=gSaveErr(x); er.hidden=false; }
+  });
+});
+function openFechar(){
+  const c=cx(), r=cxResumo(c);
+  modal(`<h2>Fechar caixa <button class="ic" type="button" data-mx="1" aria-label="Fechar">×</button></h2>
+   <div class="cxsum"><span>Vendas</span><span>${r.vendas}</span><span>Dinheiro (já descontado o troco)</span><span>${brl(r.por.dinheiro)}</span><span>Pix</span><span>${brl(r.por.pix)}</span><span>Cartão de débito</span><span>${brl(r.por.debito)}</span><span>Cartão de crédito</span><span>${brl(r.por.credito)}</span><span>Fiado (a receber)</span><span>${brl(r.por.fiado)}</span><span class="t">Total vendido</span><span class="t">${brl(r.total)}</span></div>
+   ${r.recT?`<p class="sub" style="margin:0">Os valores acima incluem ${brl(r.recT)} de fiados recebidos neste caixa.</p>`:""}
+   <div class="cxsum" style="background:var(--soft);padding:12px;border-radius:12px"><span>Fundo de troco</span><span>${brl(c.fundo)}</span><span>+ Dinheiro das vendas</span><span>${brl(r.por.dinheiro)}</span><span>+ Suprimentos</span><span>${brl(r.sup)}</span><span>− Sangrias</span><span>${brl(r.san)}</span><span class="t">Dinheiro esperado na gaveta</span><span class="t">${brl(r.esperado)}</span></div>
+   <label class="field" for="fcCont">Dinheiro contado na gaveta (R$)<input id="fcCont" inputmode="decimal" placeholder="conte as notas e moedas"></label>
+   <div id="fcDif" class="sub"></div><div class="msg bad" id="fcErr" hidden></div>
+   <div class="inl"><button class="btn pri" type="button" id="fcOk">Fechar caixa</button><button class="btn ghost" type="button" data-mx="1">Voltar</button></div>`);
+  const upd=()=>{const v=$("#fcCont").value.trim(); if(!v){$("#fcDif").textContent="";return;} const d=r2(num(v)-r.esperado); $("#fcDif").innerHTML=d===0?'<span class="pill ok">Caixa confere</span>':`<span class="pill ${d>0?"warn":"bad"}">${d>0?"Sobra":"Falta"} de ${brl(Math.abs(d))}</span>`;};
+  $("#fcCont").addEventListener("input",upd); setTimeout(()=>$("#fcCont").focus(),30);
+  $("#pdvModal").addEventListener("click",async ev=>{
+    if(ev.target.closest("[data-mx]")) return closeModal();
+    if(!ev.target.closest("#fcOk")) return;
+    if(cart.length){ const er=$("#fcErr"); er.textContent="Há uma venda em andamento. Conclua ou cancele antes de fechar o caixa."; er.hidden=false; return; }
+    const backup=JSON.stringify(G), cont=num($("#fcCont").value);
+    Object.assign(c,{fechamento:new Date().toISOString(),resumo:r,contado:cont,diferenca:r2(cont-r.esperado)}); G.caixaAberto=null;
+    try{ await gSave("Fechamento de caixa"); fillFechCupom(c); modal(`<div class="done"><div class="ok">✓</div><h2 style="justify-content:center">Caixa fechado</h2><div class="sub">Total vendido ${brl(r.total)} · ${r.vendas} venda(s)</div><div class="inl" style="justify-content:center"><button class="btn ghost" type="button" id="fcPrint">Imprimir resumo</button><button class="btn pri" type="button" data-mx="1">OK</button></div></div>`);
+      $("#fcPrint").addEventListener("click",()=>window.print()); $("#pdvModal").addEventListener("click",e2=>{if(e2.target.closest("[data-mx]"))closeModal();}); renderPdv(); }
+    catch(x){ G=JSON.parse(backup); const er=$("#fcErr"); er.textContent=gSaveErr(x); er.hidden=false; }
+  });
+}
+function fillFechCupom(c){
+  let el=$("#cupom"); if(!el){ el=document.createElement("div"); el.id="cupom"; el.className="cupom"; document.body.appendChild(el); }
+  const r=c.resumo;
+  el.innerHTML=`<div class="c"><b>POP BRILHO</b><br>FECHAMENTO DE CAIXA</div><hr>Abertura: ${new Date(c.abertura).toLocaleString("pt-BR")}<br>Fechamento: ${new Date(c.fechamento).toLocaleString("pt-BR")}${c.operador?"<br>Operador: "+esc(c.operador):""}<hr>
+  <table><tr><td>Vendas</td><td class="r">${r.vendas}</td></tr><tr><td>Dinheiro</td><td class="r">${brl(r.por.dinheiro)}</td></tr><tr><td>Pix</td><td class="r">${brl(r.por.pix)}</td></tr><tr><td>Débito</td><td class="r">${brl(r.por.debito)}</td></tr><tr><td>Crédito</td><td class="r">${brl(r.por.credito)}</td></tr><tr><td>Fiado</td><td class="r">${brl(r.por.fiado||0)}</td></tr>${r.recT?`<tr><td>Receb. fiado</td><td class="r">${brl(r.recT)}</td></tr>`:""}<tr><td><b>Total</b></td><td class="r"><b>${brl(r.total)}</b></td></tr></table><hr>
+  <table><tr><td>Fundo de troco</td><td class="r">${brl(c.fundo)}</td></tr><tr><td>Suprimentos</td><td class="r">${brl(r.sup)}</td></tr><tr><td>Sangrias</td><td class="r">-${brl(r.san)}</td></tr><tr><td>Esperado</td><td class="r">${brl(r.esperado)}</td></tr><tr><td>Contado</td><td class="r">${brl(c.contado)}</td></tr><tr><td><b>Diferença</b></td><td class="r"><b>${brl(c.diferenca)}</b></td></tr></table>`;
+}
+function openPixCfg(fromPay){
+  const p=G.pdv||{};
+  const back=fromPay?pay:null;
+  modal(`<h2>Chave Pix da loja <button class="ic" type="button" data-mx="1" aria-label="Fechar">×</button></h2>
+   <p class="sub" style="margin:0">Usada para gerar o QR Code no caixa. O dinheiro cai direto na conta dona da chave.</p>
+   <div class="gform"><label class="field" for="pxTipo">Tipo de chave<select id="pxTipo"><option value="doc">CNPJ/CPF</option><option value="cel">Celular</option><option value="email">E-mail</option><option value="evp">Chave aleatória</option></select></label>
+   <label class="field" for="pxChave" style="grid-column:span 3">Chave<input id="pxChave" value="${esc(p.chave||"")}" maxlength="77"></label>
+   <label class="field wide" for="pxNome">Nome do recebedor<input id="pxNome" value="${esc(p.nome||"POP BRILHO")}" maxlength="25"></label>
+   <label class="field wide" for="pxCid">Cidade<input id="pxCid" value="${esc(p.cidade||"PAULISTA")}" maxlength="15"></label></div>
+   <div class="msg bad" id="pxErr" hidden></div><button class="btn pri" type="button" id="pxOk">Salvar chave Pix</button>`);
+  $("#pxTipo").value=p.tipo||"doc";
+  $("#pdvModal").addEventListener("click",async ev=>{
+    if(ev.target.closest("[data-mx]")){ closeModal(); if(back){pay=back;drawPay();} return; }
+    if(!ev.target.closest("#pxOk")) return;
+    const er=$("#pxErr"), ch=$("#pxChave").value.trim(); if(!ch){er.textContent="Informe a chave.";er.hidden=false;return;}
+    const backup=JSON.stringify(G); G.pdv={tipo:$("#pxTipo").value,chave:ch,nome:$("#pxNome").value.trim(),cidade:$("#pxCid").value.trim()};
+    try{ await gSave("Chave Pix do PDV"); closeModal(); if(back){pay=back;pay.forma="pix";drawPay();} }
+    catch(x){ G=JSON.parse(backup); er.textContent=gSaveErr(x); er.hidden=false; }
+  });
+}
+document.addEventListener("keydown",e=>{
+  if(!pdvVisible()||!cx()) return;
+  if(e.key==="F2"){ e.preventDefault(); closeModal(); $("#pdvQ").focus(); }
+  else if(e.key==="F9"){ e.preventDefault(); if(!$("#pdvModal")) openPay(); }
+  else if(e.key==="Escape"&&$("#pdvModal")&&!(pay&&pay.done)){ pay=null; closeModal(); $("#pdvQ").focus(); }
+  else if(e.key==="Enter"&&pay&&pay.done&&document.activeElement?.id!=="dPrint"){ e.preventDefault(); newSale(); }
+});
+$("#pdvPay").addEventListener("click",openPay);
+window.addEventListener("beforeunload",e=>{ if(cart.length){ e.preventDefault(); e.returnValue=""; } });
+
+
+// ======================================================================
+// FIADO — contas a receber
+// ======================================================================
+const addDays=(d,n)=>{const x=new Date(d+"T12:00:00");x.setDate(x.getDate()+n);return x.toISOString().slice(0,10);};
+const fPago=f=>r2((f.recebimentos||[]).reduce((s,r)=>s+r.valor,0));
+const fSaldo=f=>Math.max(r2(f.valor-fPago(f)),0);
+const fiados=()=>G.vendas.filter(v=>v.fiado&&v.status!=="cancelada");
+const fClientes=()=>[...new Set(G.vendas.filter(v=>v.fiado).map(v=>v.fiado.cliente))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+const telOf=n=>{const v=G.vendas.find(x=>x.fiado&&x.fiado.cliente===n&&x.fiado.tel);return v?v.fiado.tel:"";};
+function fFields(prefix,valor){
+  return `<label class="field wide" for="${prefix}Cli">Nome do cliente *<input id="${prefix}Cli" list="fCliList" maxlength="60" placeholder="Nome de quem vai pagar depois"></label>
+   <label class="field" for="${prefix}Tel">WhatsApp<input id="${prefix}Tel" inputmode="tel" maxlength="16" placeholder="(81) 9…"></label>
+   <label class="field" for="${prefix}Venc">Pagar até<input id="${prefix}Venc" type="date" value="${addDays(today(),30)}"></label>
+   <datalist id="fCliList">${fClientes().map(c=>`<option value="${esc(c)}">`).join("")}</datalist>`;
+}
+function fBind(prefix){ const c=$("#"+prefix+"Cli"); if(c) c.addEventListener("change",()=>{const t=telOf(c.value.trim()); if(t&&!$("#"+prefix+"Tel").value) $("#"+prefix+"Tel").value=t;}); }
+function fRead(prefix){ return {cliente:$("#"+prefix+"Cli").value.trim(),tel:$("#"+prefix+"Tel").value.replace(/\D/g,""),venc:$("#"+prefix+"Venc").value||addDays(today(),30)}; }
+let fOpen=null;
+function renderFia(){
+  if(!G) return;
+  const all=fiados(), hoje=today();
+  const aberto=all.filter(v=>fSaldo(v.fiado)>0), venc=aberto.filter(v=>v.fiado.venc&&v.fiado.venc<hoje);
+  $("#fTiles").innerHTML=`<div class="tile"><small>Total a receber</small><b>${brl(aberto.reduce((s,v)=>s+fSaldo(v.fiado),0))}</b></div><div class="tile"><small>Clientes devendo</small><b>${new Set(aberto.map(v=>v.fiado.cliente)).size}</b></div><div class="tile bad"><small>Vencidos</small><b>${brl(venc.reduce((s,v)=>s+fSaldo(v.fiado),0))}</b></div><div class="tile"><small>Recebido este mês</small><b>${brl(all.flatMap(v=>v.fiado.recebimentos||[]).filter(r=>r.data.slice(0,7)===hoje.slice(0,7)).reduce((s,r)=>s+r.valor,0))}</b></div>`;
+  const q=norm($("#fq").value), f=$("#ff").value;
+  const vis=all.filter(v=>(!q||norm(v.fiado.cliente).includes(q))&&(f===""||(f==="quitado"?fSaldo(v.fiado)<=0:f==="vencido"?(fSaldo(v.fiado)>0&&v.fiado.venc<hoje):fSaldo(v.fiado)>0)))
+    .sort((a,b)=>(a.fiado.cliente.localeCompare(b.fiado.cliente,"pt-BR"))||(a.data<b.data?-1:1));
+  $("#fBody").innerHTML=vis.map(v=>{
+    const F=v.fiado, s=fSaldo(F), late=s>0&&F.venc<hoje;
+    const recs=(F.recebimentos||[]).map(r=>`${dfmt(r.data)} · ${esc(FORMAS[r.forma]||r.forma)} · ${brl(r.valor)}`).join("<br>");
+    const zap=F.tel?`https://wa.me/55${F.tel.replace(/^55/,"")}?text=${encodeURIComponent(`Olá, ${F.cliente}! Aqui é da POP BRILHO. Passando para lembrar da compra de ${dfmt(v.data)} no valor de ${brl(s)}, com vencimento em ${dfmt(F.venc)}. Pode pagar por Pix ou na loja. Obrigado!`)}`:"";
+    const row=`<tr><td><b>${esc(F.cliente)}</b>${F.tel?`<div class="sub">${esc(F.tel)}</div>`:""}<div class="sub">Venda ${v.numero}</div></td><td>${dfmt(v.data)}</td>
+      <td>${v.itens.map(i=>`${qfmt(i.qtd)}× ${esc(i.produto)}`).join("<br>")}</td><td class="n">${brl(F.valor)}</td>
+      <td>${dfmt(F.venc)}${late?' <span class="pill bad">vencido</span>':""}</td><td class="n"><b>${s>0?brl(s):"–"}</b></td>
+      <td>${s<=0?`<span class="pill ok">Quitado em ${dfmt(F.quitadoEm)}</span><div class="sub">${recs}</div>`:recs?`<div class="sub">${recs}</div>`:'<span class="pill warn">Em aberto</span>'}</td>
+      <td class="n">${s>0?`<span class="inl" style="justify-content:flex-end"><button class="btn pri" type="button" data-frec="${v.id}">Receber</button>${zap?`<a class="btn ghost" href="${zap}" target="_blank" rel="noopener">Cobrar</a>`:""}</span>`:""}</td></tr>`;
+    if(fOpen!==v.id) return row;
+    return row+`<tr><td colspan="8" style="background:var(--soft)"><div class="gform">
+      <label class="field" for="frVal">Valor recebido (R$)<input id="frVal" inputmode="decimal" value="${s.toFixed(2).replace(".",",")}"></label>
+      <label class="field" for="frForma">Forma de pagamento<select id="frForma">${["dinheiro","pix","debito","credito"].map(k=>`<option value="${k}">${FORMAS[k]}</option>`).join("")}</select></label>
+      <label class="field" for="frData">Data do pagamento<input id="frData" type="date" value="${today()}"></label>
+      <div class="field"><span>&nbsp;</span><span class="sub">Saldo: ${brl(s)}${cx()?" · entra no caixa aberto":""}</span></div></div>
+      <div class="inl" style="margin-top:10px"><button class="btn pri" type="button" data-frok="${v.id}">Confirmar recebimento</button><button class="btn ghost" type="button" data-frx="1">Cancelar</button><span class="sub" id="frMsg"></span></div></td></tr>`;
+  }).join("")||`<tr><td colspan="8" class="sub" style="padding:24px;text-align:center">${f==="aberto"?"Ninguém devendo no momento.":"Nenhum registro neste filtro."}</td></tr>`;
+}
+$("#fq").addEventListener("input",renderFia); $("#ff").addEventListener("change",renderFia);
+$("#fBody").addEventListener("click",async e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.frec){ fOpen=fOpen===b.dataset.frec?null:b.dataset.frec; renderFia(); setTimeout(()=>$("#frVal")?.select(),30); return; }
+  if(b.dataset.frx){ fOpen=null; renderFia(); return; }
+  if(!b.dataset.frok) return;
+  const v=G.vendas.find(x=>x.id===b.dataset.frok), F=v.fiado, val=r2(num($("#frVal").value)), s=fSaldo(F), msg=$("#frMsg");
+  if(!(val>0)){msg.textContent="Informe o valor recebido.";return;}
+  if(val>s+0.001){msg.textContent=`O valor passa do saldo (${brl(s)}).`;return;}
+  const backup=JSON.stringify(G), data=$("#frData").value||today();
+  F.recebimentos=F.recebimentos||[]; F.recebimentos.push({data,forma:$("#frForma").value,valor:val,caixa:G.caixaAberto||null,em:new Date().toISOString()});
+  if(fSaldo(F)<=0) F.quitadoEm=data;
+  b.disabled=true; msg.textContent="Salvando…";
+  try{ await gSave(`Recebimento fiado ${F.cliente} venda ${v.numero}`); fOpen=null; gRenderAll(); }
+  catch(x){ G=JSON.parse(backup); msg.textContent=gSaveErr(x); b.disabled=false; }
+});
+$("#fXls").addEventListener("click",()=>{
+  if(!window.XLSX) return;
+  const rows=[["Cliente","WhatsApp","Venda","Data da compra","Quantidade","Produto","Valor da compra","Vencimento","Data do pagamento","Forma de pagamento","Valor pago","Saldo","Situação"]];
+  fiados().forEach(v=>{const F=v.fiado,recs=F.recebimentos||[];
+    v.itens.forEach((i,k)=>{const r=recs[k];rows.push([F.cliente,F.tel||"",v.numero,dfmt(v.data),i.qtd,i.produto,k?"":F.valor,k?"":dfmt(F.venc),r?dfmt(r.data):"",r?(FORMAS[r.forma]||r.forma):"",r?r.valor:"",k?"":fSaldo(F),k?"":(fSaldo(F)<=0?"Quitado em "+dfmt(F.quitadoEm):"Em aberto")]);});
+    recs.slice(v.itens.length).forEach(r=>rows.push([F.cliente,"",v.numero,"","","","","",dfmt(r.data),FORMAS[r.forma]||r.forma,r.valor,"",""]));});
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"Fiado"); XLSX.writeFile(wb,`fiado-popbrilho-${today()}.xlsx`);
+});
+// Vendas tab: campos do fiado
+function vFiadoToggle(){
+  const on=$("#vPag").value==="Fiado (pagar depois)"; let box=$("#vFiaBox");
+  if(on&&!box){ box=document.createElement("div"); box.id="vFiaBox"; box.className="gform"; box.innerHTML=fFields("vf"); $("#vItems").before(box); fBind("vf"); if($("#vCli").value) $("#vfCli").value=$("#vCli").value; }
+  else if(!on&&box) box.remove();
+}
+$("#vPag").addEventListener("change",vFiadoToggle);
 
 // ===== Início =====
 function enterApp(){ show("#vApp"); loadData(); gEnsure(); }
