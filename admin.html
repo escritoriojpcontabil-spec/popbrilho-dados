@@ -578,6 +578,12 @@ async function decObj(c,pass){
   const dec=await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(c.iv)},await deriveKey(pass,ub64(c.salt),c.iter||200000),ub64(c.data));
   return new TextDecoder().decode(dec);
 }
+// conteúdo do arquivo vindo da API do GitHub (base64 no próprio retorno; arquivos grandes pelo "blob")
+async function fileBytes(meta,fn){
+  let b64s=meta.encoding==="base64"&&meta.content?meta.content:"";
+  if(!b64s){ const bl=await (await fn(`/git/blobs/${meta.sha}`)).json(); b64s=bl.content||""; }
+  return ub64(b64s.replace(/\s/g,""));
+}
 async function remoteCred(){ try{ const r=await fetch("acesso.json?v="+Date.now(),{cache:"no-store"}); if(!r.ok) return null; const j=await r.json(); return j&&j.data?j:null; }catch(_){ return null; } }
 async function remoteSha(){ try{ return (await (await gh("/contents/acesso.json?ref="+BRANCH)).json()).sha; }catch(e){ if(e.status===404) return null; throw e; } }
 async function publishRemote(token,pass){
@@ -657,11 +663,11 @@ async function loadData(){
     try{
       const meta=await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`)).json();
       xlsxSha=meta.sha;
-      buf=await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`,{accept:"application/vnd.github.raw"})).arrayBuffer();
+      buf=(await fileBytes(meta,gh)).buffer;
     }catch(e){ if(e.status!==404) throw e; }
     // se pelo GitHub não vier nada, lê a mesma planilha que o site usa
     let fonte="GitHub";
-    const tryParse=b=>{ try{ const w=XLSX.read(b,{type:"array"}); const sh=w.SheetNames.find(n=>norm(n)==="produtos")||w.SheetNames[0]; return XLSX.utils.sheet_to_json(w.Sheets[sh],{defval:""}).length; }catch(_){ return 0; } };
+    const tryParse=b=>{ try{ const w=XLSX.read(b,{type:"array"}); const sh=w.SheetNames.find(n=>norm(n)==="produtos")||w.SheetNames[0]; const rows=XLSX.utils.sheet_to_json(w.Sheets[sh],{defval:""}); return rows.length&&Object.keys(rows[0]).some(k=>norm(k)==="nome")?rows.length:0; }catch(_){ return 0; } };
     if(!buf||!tryParse(buf)){ try{ const r=await fetch("produtos.xlsx?v="+Date.now(),{cache:"no-store"}); if(r.ok){ const b2=await r.arrayBuffer(); if(tryParse(b2)){ buf=b2; fonte="site"; } } }catch(_){} }
     items=[];
     if(buf){
@@ -903,7 +909,7 @@ async function gEnsure(){
     }
     try{
       const meta=await (await ghg(`/contents/${GFILE}`)).json(); gSha=meta.sha;
-      const txt=await (await ghg(`/contents/${GFILE}`,{accept:"application/vnd.github.raw"})).text();
+      const txt=new TextDecoder().decode(await fileBytes(meta,ghg));
       G=Object.assign(gEmpty(),JSON.parse(txt));
     }catch(e){ if(e.status!==404) throw e; G=gEmpty(); gSha=null; }
     gState="ready"; gMsg(""); gRenderAll();
