@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Painel POP BRILHO</title>
-<link rel="icon" href="icone.png">
+<link rel="icon" href="pop-brilho-icone.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 /* Painel do lojista: login → lista de produtos com editor lateral → barra fixa "Publicar alterações" */
@@ -285,7 +285,7 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
 <!-- ===== LOGIN ===== -->
 <section class="login" id="vLogin" hidden>
   <form class="lcard" id="fLogin" autocomplete="off">
-    <img src="logo.svg" alt="POP BRILHO – Materiais de limpeza">
+    <img src="pop-brilho-horizontal.svg" alt="POP BRILHO – Materiais de limpeza">
     <h1>Área do lojista</h1>
     <p>Entre com sua senha para editar produtos, preços e fotos da loja.</p>
     <label class="field" for="lPass">Senha
@@ -300,7 +300,7 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
 <!-- ===== PRIMEIRO ACESSO ===== -->
 <section class="login" id="vSetup" hidden>
   <form class="lcard" id="fSetup" autocomplete="off">
-    <img src="logo.svg" alt="POP BRILHO – Materiais de limpeza">
+    <img src="pop-brilho-horizontal.svg" alt="POP BRILHO – Materiais de limpeza">
     <h1>Configurar acesso</h1>
     <p>Faça isso uma vez em cada computador ou celular que for usar.</p>
     <label class="field" for="sToken">Chave de acesso do GitHub
@@ -336,7 +336,7 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
 <div id="vApp" hidden>
   <header class="top">
     <div class="wrap">
-      <img src="logo-branca.svg" alt="POP BRILHO" class="toplogo">
+      <img src="pop-brilho-horizontal-branca.svg" alt="POP BRILHO" class="toplogo">
       <h1>Painel da loja<span id="who">Conectado</span></h1>
       <a class="btn ghost" href="./" target="_blank" rel="noopener">Ver site</a>
       <button class="btn ghost" id="logout" type="button">Sair</button>
@@ -1557,7 +1557,7 @@ async function finishSale(){
 function newSale(){ if(!pay||!pay.done) return; pay=null; cart=[]; $("#pdvDesc").value=""; closeModal(); renderPdv(); gRenderAll(); $("#pdvQ").focus(); }
 function fillCupom(v){
   let el=$("#cupom"); if(!el){ el=document.createElement("div"); el.id="cupom"; el.className="cupom"; document.body.appendChild(el); }
-  el.innerHTML=`<div class="c"><img src="logo.svg" alt="POP BRILHO" style="width:60mm;filter:grayscale(1) contrast(1.4);margin-bottom:2mm"><br>CNPJ 67.905.362/0001-00<br>${esc(cfg.endereco||"")}<br>WhatsApp ${esc(cfg.whatsapp||"")}</div><hr>
+  el.innerHTML=`<div class="c"><img src="pop-brilho-horizontal.svg" alt="POP BRILHO" style="width:60mm;filter:grayscale(1) contrast(1.4);margin-bottom:2mm"><br>CNPJ 67.905.362/0001-00<br>${esc(cfg.endereco||"")}<br>WhatsApp ${esc(cfg.whatsapp||"")}</div><hr>
   <div class="c"><b>CUPOM NÃO FISCAL</b><br>Venda nº ${v.numero} · ${new Date(v.hora).toLocaleString("pt-BR")}${v.operador?"<br>Operador: "+esc(v.operador):""}</div><hr>
   <table>${v.itens.map(i=>`<tr><td colspan="2">${esc(i.produto)}</td></tr><tr><td>${qfmt(i.qtd)} x ${brl(i.preco)}</td><td class="r">${brl(i.qtd*i.preco)}</td></tr>`).join("")}</table><hr>
   <table><tr><td>Subtotal</td><td class="r">${brl(v.subtotal)}</td></tr>${v.desconto?`<tr><td>Desconto</td><td class="r">-${brl(v.desconto)}</td></tr>`:""}<tr><td><b>TOTAL</b></td><td class="r"><b>${brl(v.total)}</b></td></tr>

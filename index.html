@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="POP BRILHO: material de limpeza com entrega rápida na Região Metropolitana do Recife.">
-<link rel="icon" href="icone.png">
-<link rel="apple-touch-icon" href="icone.png">
+<link rel="icon" href="pop-brilho-icone.png">
+<link rel="apple-touch-icon" href="pop-brilho-icone.png">
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>POP BRILHO | Material de limpeza</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
@@ -151,6 +151,25 @@ details p{margin:10px 0 0;color:var(--muted)}
 .bagbtn.bump{animation:bump .35s}
 @keyframes bump{50%{transform:scale(1.15)}}
 
+
+/* solicite outros produtos */
+.req{margin-top:18px;background:var(--ink);color:var(--bg);border-radius:20px;padding:20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.req div{flex:1;min-width:220px}
+.req h3{font-family:var(--display);font-size:22px;line-height:1.1;margin:0 0 4px}
+.req p{margin:0;font-size:15px;opacity:.85}
+.req .btn{background:var(--citrus);color:var(--citrus-ink);text-transform:uppercase;letter-spacing:.03em}
+.req .prazo{display:inline-block;background:var(--citrus);color:var(--citrus-ink);font-weight:800;border-radius:6px;padding:0 6px}
+dialog.rq{border:0;border-radius:22px;padding:0;width:min(480px,calc(100% - 32px));background:var(--surface);color:var(--ink)}
+dialog.rq::backdrop{background:rgba(5,10,25,.55)}
+.rq form{padding:20px;display:flex;flex-direction:column;gap:12px}
+.rq h3{font-family:var(--display);font-size:22px;margin:0;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rq label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:14px}
+.rq input,.rq textarea{font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+.rq .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rq .aviso{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:0}
+.rq .x2{border:0;background:var(--soft);color:var(--ink);border-radius:999px;width:34px;height:34px;font-size:18px;cursor:pointer}
+.rq .send{justify-content:center;background:#1fa855;color:#fff}
+
 /* loja */
 .shop{background:var(--bg)}
 .shop-grid{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
@@ -250,7 +269,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 <body>
 <header>
   <div class="wrap">
-    <a class="logo" href="#inicio"><img src="logo.svg" alt="POP BRILHO – Materiais de limpeza" width="1100" height="240"></a>
+    <a class="logo" href="#inicio"><img src="pop-brilho-horizontal.svg" alt="POP BRILHO – Materiais de limpeza" width="1100" height="240"></a>
     <nav id="nav" aria-label="Menu principal">
       <ul>
         <li><a href="#sobre">Quem somos</a></li>
@@ -340,6 +359,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <div class="cats" id="cats"></div>
         <p class="found" id="found"></p>
         <div class="pgrid" id="grid"></div>
+        <div class="req">
+          <div>
+            <h3>Não achou o que procura?</h3>
+            <p>Peça qualquer outro produto de limpeza. Ele chega na loja em até <span class="prazo">8 dias</span>.</p>
+          </div>
+          <button class="btn" type="button" id="reqOpen">Solicite outros produtos</button>
+        </div>
       </div>
 
       <div class="backdrop" id="backdrop"></div>
@@ -380,6 +406,20 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     </div>
   </div>
 </section>
+
+<dialog class="rq" id="reqDlg" aria-labelledby="reqTit">
+  <form id="reqForm" method="dialog" novalidate>
+    <h3 id="reqTit">Solicite outros produtos <button class="x2" type="button" id="reqClose" aria-label="Fechar">×</button></h3>
+    <p class="aviso">Encomendamos para você. <b>Prazo: até 8 dias</b> para o produto chegar na loja. Avisamos pelo WhatsApp quando chegar.</p>
+    <label for="reqProd">Qual produto você precisa?<textarea id="reqProd" rows="3" placeholder="Ex.: Desinfetante Pinho Sol 5 L, marca X…" maxlength="400"></textarea></label>
+    <div class="two">
+      <label for="reqQtd">Quantidade<input id="reqQtd" inputmode="numeric" placeholder="1" maxlength="10"></label>
+      <label for="reqNome">Seu nome<input id="reqNome" autocomplete="name" placeholder="Nome" maxlength="60"></label>
+    </div>
+    <p class="err" id="reqErr" hidden></p>
+    <button class="btn send" type="submit">Enviar pelo WhatsApp</button>
+  </form>
+</dialog>
 
 <section class="biz" id="empresas">
   <div class="wrap">
@@ -720,6 +760,22 @@ loadSheet();
 const menu=document.getElementById("menu"),nav=document.getElementById("nav");
 menu.addEventListener("click",()=>{const o=nav.classList.toggle("open");menu.setAttribute("aria-expanded",o);});
 nav.addEventListener("click",e=>{if(e.target.closest("a")){nav.classList.remove("open");menu.setAttribute("aria-expanded","false");}});
+
+/* solicite outros produtos */
+(function(){
+  const d=document.getElementById("reqDlg"), f=document.getElementById("reqForm"), e=document.getElementById("reqErr");
+  document.getElementById("reqOpen").onclick=()=>{e.hidden=true; d.showModal(); setTimeout(()=>document.getElementById("reqProd").focus(),50)};
+  document.getElementById("reqClose").onclick=()=>d.close();
+  d.addEventListener("click",ev=>{if(ev.target===d)d.close()});
+  f.addEventListener("submit",ev=>{
+    ev.preventDefault();
+    const prod=document.getElementById("reqProd").value.trim(), qtd=document.getElementById("reqQtd").value.trim()||"1", nome=document.getElementById("reqNome").value.trim();
+    if(!prod){e.textContent="Escreva qual produto você precisa.";e.hidden=false;return}
+    const msg=`Olá, POP BRILHO! Quero *solicitar um produto* que não encontrei no site.\n\n*Produto:* ${prod}\n*Quantidade:* ${qtd}`+(nome?`\n*Nome:* ${nome}`:"")+`\n\nEstou ciente do prazo de até 8 dias para o produto chegar na loja.`;
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,"_blank","noopener");
+    d.close(); f.reset();
+  });
+})();
 </script>
 
 </body>
