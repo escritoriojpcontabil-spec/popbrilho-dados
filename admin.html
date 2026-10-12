@@ -180,6 +180,14 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
 .pcat[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
 .pcat[aria-pressed="true"] span{color:#c9d2e6}
 .chip.cat{background:var(--soft);color:var(--cobalt)}
+/* ===== financeiro ===== */
+.fin2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fin2 .cxsum span:nth-child(even){text-align:right}
+.fin2 .neg{color:var(--bad)} .fin2 .pos{color:var(--ok)}
+.fchart svg{width:100%;height:auto;display:block}
+.fleg{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px}
+.fleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+@media (max-width:900px){ .fin2{grid-template-columns:1fr} }
 /* ===== PDV ===== */
 .cxbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--ink);color:#fff;border-radius:16px;padding:10px 14px;margin-bottom:14px}
 .cxbar span{flex:1;min-width:200px;font-size:14px}
@@ -313,6 +321,7 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
       <button class="tab" role="tab" aria-selected="false" data-tab="est" type="button">Estoque</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cmp" type="button">Notas de compra</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="ven" type="button">Vendas</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="fin" type="button">Financeiro</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="fia" type="button">Fiado</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cli" type="button">Clientes</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cfg" type="button">Dados da loja</button>
@@ -434,6 +443,39 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
         </div>
         <div class="gbar"><input id="vq" type="search" placeholder="Buscar venda por cliente ou número" aria-label="Buscar venda"></div>
         <div class="tblw"><table class="tbl"><thead><tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Itens</th><th class="n">Total</th><th>Pagamento</th><th>NF</th><th></th></tr></thead><tbody id="vBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- ===== FINANCEIRO ===== -->
+    <section id="tFin" data-panel="fin" hidden>
+      <div class="msg info gmsg"></div>
+      <div class="gbody" hidden>
+        <div class="gbar">
+          <label class="field" for="finMes" style="flex-direction:row;align-items:center;gap:8px">Mês<input id="finMes" type="month" style="padding:8px 12px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)"></label>
+          <span style="flex:1"></span>
+          <button class="btn ghost" id="finXls" type="button">Baixar planilha</button>
+          <button class="btn lime" id="finNova" type="button">+ Nova despesa</button>
+        </div>
+        <div class="tiles" id="finTiles"></div>
+        <div id="finForm"></div>
+        <div class="fin2">
+          <div class="gcard" style="margin:0">
+            <h3>Resultado do mês</h3>
+            <div class="cxsum" id="finDre"></div>
+            <p class="sub" style="margin:0">Vendas e custo pela data da venda. Despesas pela data de vencimento. Não inclui impostos que não foram lançados como despesa.</p>
+          </div>
+          <div class="gcard" style="margin:0">
+            <h3>Últimos 6 meses</h3>
+            <div id="finChart"></div>
+          </div>
+        </div>
+        <h3 class="h2s" style="margin-top:18px">Contas a pagar</h3>
+        <div class="gbar">
+          <input id="fpq" type="search" placeholder="Buscar despesa ou fornecedor" aria-label="Buscar despesa">
+          <select id="fpf" aria-label="Filtrar contas"><option value="aberto">Em aberto</option><option value="vencida">Vencidas</option><option value="mes">Vencem no mês escolhido</option><option value="paga">Pagas</option><option value="">Todas</option></select>
+        </div>
+        <div class="tblw"><table class="tbl"><thead><tr><th>Vencimento</th><th>Descrição</th><th>Categoria</th><th class="n">Valor</th><th>Situação</th><th></th></tr></thead><tbody id="fpBody"></tbody></table></div>
+        <p class="sub">As contas a receber dos clientes ficam na aba <b>Fiado</b>. As notas de compra importadas criam as contas a pagar sozinhas, pelas parcelas da nota.</p>
       </div>
     </section>
 
@@ -890,7 +932,7 @@ function fillCfg(){ $("#cZap").value=cfg.whatsapp; $("#cEnd").value=cfg.endereco
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
   document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
   document.querySelectorAll("[data-panel]").forEach(sec=>sec.hidden=sec.dataset.panel!==t.dataset.tab);
-  if(["pdv","est","cmp","ven","fia","cli"].includes(t.dataset.tab)){ if(window.gEnsure) gEnsure(); if(window.gRenderAll) gRenderAll(); if(t.dataset.tab==="pdv"&&window.cx&&cx()) setTimeout(()=>$("#pdvQ").focus(),50); }
+  if(["pdv","est","cmp","ven","fia","cli","fin"].includes(t.dataset.tab)){ if(window.gEnsure) gEnsure(); if(window.gRenderAll) gRenderAll(); if(t.dataset.tab==="pdv"&&window.cx&&cx()) setTimeout(()=>$("#pdvQ").focus(),50); }
 }));
 
 // ===== Publicar =====
@@ -957,7 +999,7 @@ window.addEventListener("beforeunload",e=>{ if(TOKEN&&dirty()){ e.preventDefault
 // ======================================================================
 const GREPO="popbrilho-gestao", GAPI=`https://api.github.com/repos/${OWNER}/${GREPO}`, GFILE="gestao.json";
 let G=null, gSha=null, gState="idle", gQueue=Promise.resolve();
-const gEmpty=()=>({versao:1,estoque:{},movimentos:[],compras:[],vendas:[],vinculos:{},caixas:[],caixaAberto:null,pdv:{},clientes:[]});
+const gEmpty=()=>({versao:1,estoque:{},movimentos:[],compras:[],vendas:[],vinculos:{},caixas:[],caixaAberto:null,pdv:{},clientes:[],financeiro:{contas:[]}});
 const qfmt=v=>(+v||0).toLocaleString("pt-BR",{maximumFractionDigits:3});
 const dfmt=s=>{if(!s)return"";const d=new Date(s.length===10?s+"T12:00:00":s);return isNaN(d)?s:d.toLocaleDateString("pt-BR");};
 const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);};
@@ -1092,7 +1134,8 @@ function parseNFe(text){
       custoTotal:+(f("vProd")-f("vDesc")+f("vFrete")+f("vSeg")+f("vOutro")+ipi+st).toFixed(2)};
   });
   return {chave,numero:tv(ide,"nNF"),serie:tv(ide,"serie"),data:(tv(ide,"dhEmi")||tv(ide,"dEmi")).slice(0,10),
-    fornecedor:{cnpj:tv(emit,"CNPJ")||tv(emit,"CPF"),nome:tv(emit,"xNome"),fantasia:tv(emit,"xFant")},total:num(tv(tot,"vNF")),itens,xml:text};
+    fornecedor:{cnpj:tv(emit,"CNPJ")||tv(emit,"CPF"),nome:tv(emit,"xNome"),fantasia:tv(emit,"xFant")},total:num(tv(tot,"vNF")),itens,xml:text,
+    dups:[...inf.getElementsByTagNameNS("*","dup")].map(d=>({n:tv(d,"nDup"),venc:tv(d,"dVenc"),valor:num(tv(d,"vDup"))})).filter(d=>d.valor>0)};
 }
 let rev=[]; // notas em revisão
 function sugerir(nf,it){
@@ -1160,6 +1203,9 @@ $("#cRev").addEventListener("click",async e=>{
   });
   const {xml,...semXml}=nf;
   G.compras.unshift({...semXml,itens:nf.itens.map(({alvo,nomeNovo,...r})=>r),importadoEm:new Date().toISOString()});
+  // contas a pagar a partir das parcelas da nota (sem parcelas: uma conta no valor da nota, vencendo na emissão)
+  { const forn=nf.fornecedor.fantasia||nf.fornecedor.nome, ds=nf.dups&&nf.dups.length?nf.dups:[{n:"",venc:nf.data,valor:nf.total}], g=uid();
+    ds.forEach((d,k)=>fin().contas.push({id:uid(),desc:`NF ${nf.numero} – ${forn}`,fornecedor:forn,cat:"Mercadorias / fornecedores",valor:r2(d.valor),venc:d.venc||nf.data,parcela:ds.length>1?`${k+1}/${ds.length}`:"",grupo:g,notaChave:nf.chave,criadoEm:new Date().toISOString(),pago:null})); }
   b.disabled=true; b.textContent="Salvando…";
   try{
     await gSave("Entrada NF "+nf.numero+" "+nf.fornecedor.nome,[{path:`notas-compra/${nf.chave||uid()}.xml`,b64:enc64(xml)}]);
@@ -1260,7 +1306,7 @@ $("#vBody").addEventListener("click",async e=>{
 });
 function alertRow(t){ const m=document.createElement("div"); m.className="msg bad"; m.style.marginBottom="10px"; m.textContent=t; $("#tVen .gbody").prepend(m); setTimeout(()=>m.remove(),8000); }
 
-function gRenderAll(){ if(!G) return; render(); ensureClientes(); renderCli(); renderPdv(); renderFia(); renderEst(); renderCmp(); renderVen(); if(!vRows.length){ $("#vData").value=today(); vNewRow(); } else renderVForm(); }
+function gRenderAll(){ if(!G) return; render(); ensureClientes(); renderCli(); renderPdv(); renderFia(); renderFin(); renderEst(); renderCmp(); renderVen(); if(!vRows.length){ $("#vData").value=today(); vNewRow(); } else renderVForm(); }
 window.gRename=(oldN,newN)=>{
   if(!G||!G.estoque[oldN]||G.estoque[newN]) return;
   G.estoque[newN]=G.estoque[oldN]; delete G.estoque[oldN];
@@ -1793,6 +1839,139 @@ $("#raOff").addEventListener("click",async()=>{
   try{ await removeRemote(); er.className="msg ok gerr"; er.textContent="Acesso remoto desativado. Este computador continua entrando normalmente."; er.hidden=false; setTimeout(raStatus,1500); }
   catch(x){ er.textContent=x.status?tokenError(x):"Não foi possível desativar."; er.hidden=false; }
   finally{ b.disabled=false; b.textContent="Desativar"; }
+});
+
+
+// ======================================================================
+// FINANCEIRO — contas a pagar, resumo do mês, resultado e gráfico
+// ======================================================================
+const FCATS=["Mercadorias / fornecedores","Aluguel","Energia","Água","Internet e telefone","Salários e encargos","Impostos (DAS)","Frete","Embalagens","Marketing","Manutenção","Taxas de cartão","Pró-labore","Outras despesas"];
+const FFORMAS={dinheiro:"Dinheiro",pix:"Pix",boleto:"Boleto",debito:"Cartão de débito",credito:"Cartão de crédito",transferencia:"Transferência"};
+const fin=()=>{ if(!G.financeiro) G.financeiro={contas:[]}; return G.financeiro; };
+const ym=d=>String(d||"").slice(0,7);
+const mesNome=m=>{const [y,mm]=m.split("-");return new Date(+y,+mm-1,15).toLocaleDateString("pt-BR",{month:"short",year:"2-digit"}).replace(".","");};
+const addMonths=(d,n)=>{const [y,m,dd]=d.split("-").map(Number);const x=new Date(y,m-1+n,1);const last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(dd,last));return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");};
+function mesDados(m){
+  const vs=G.vendas.filter(v=>v.status!=="cancelada"&&ym(v.data)===m);
+  const vendas=r2(vs.reduce((s,v)=>s+v.total,0));
+  const cmv=r2(vs.reduce((s,v)=>s+v.itens.reduce((a,i)=>a+i.qtd*(i.custo||0),0),0));
+  // entradas de caixa: vendas pagas na hora (sem a parte fiado) + fiados recebidos no mês
+  let entradas=0;
+  vs.forEach(v=>{ if(v.pagamentos) entradas+=v.pagamentos.filter(p=>p.forma!=="fiado").reduce((s,p)=>s+p.valor,0)-(v.troco||0); else if(!v.fiado) entradas+=v.total; });
+  G.vendas.filter(v=>v.fiado&&v.status!=="cancelada").forEach(v=>(v.fiado.recebimentos||[]).forEach(r=>{ if(ym(r.data)===m) entradas+=r.valor; }));
+  const contas=fin().contas;
+  const despesas=r2(contas.filter(c=>ym(c.venc)===m).reduce((s,c)=>s+c.valor,0));
+  const saidas=r2(contas.filter(c=>c.pago&&ym(c.pago.data)===m).reduce((s,c)=>s+(c.pago.valor||c.valor),0));
+  const despMerc=r2(contas.filter(c=>ym(c.venc)===m&&c.cat==="Mercadorias / fornecedores").reduce((s,c)=>s+c.valor,0));
+  return {vendas,cmv,entradas:r2(entradas),saidas,despesas,despOper:r2(despesas-despMerc),nv:vs.length};
+}
+let finEdit=null, fpOpen=null;
+function renderFin(){
+  if(!G) return;
+  if(!$("#finMes").value) $("#finMes").value=today().slice(0,7);
+  const m=$("#finMes").value, d=mesDados(m), hoje=today(), contas=fin().contas;
+  const aberto=contas.filter(c=>!c.pago), venc=aberto.filter(c=>c.venc<hoje);
+  const receber=G.vendas.filter(v=>v.fiado&&v.status!=="cancelada").reduce((s,v)=>s+fSaldo(v.fiado),0);
+  const saldo=r2(d.entradas-d.saidas);
+  $("#finTiles").innerHTML=`<div class="tile"><small>Entrou no mês</small><b>${brl(d.entradas)}</b></div><div class="tile"><small>Saiu no mês (pago)</small><b>${brl(d.saidas)}</b></div>
+    <div class="tile ${saldo<0?"bad":""}"><small>Saldo do mês</small><b>${brl(saldo)}</b></div><div class="tile ${venc.length?"bad":"warn"}"><small>A pagar ${venc.length?`· ${venc.length} vencida${venc.length>1?"s":""}`:""}</small><b>${brl(aberto.reduce((s,c)=>s+c.valor,0))}</b></div>`;
+  const lb=r2(d.vendas-d.cmv), res=r2(lb-d.despOper), mg=d.vendas?Math.round(res/d.vendas*100):0;
+  const cls=v=>v<0?"neg":"";
+  $("#finDre").innerHTML=`<span>Vendas (${d.nv})</span><span>${brl(d.vendas)}</span><span>− Custo das mercadorias vendidas</span><span>${brl(d.cmv)}</span>
+    <span class="t">= Lucro bruto</span><span class="t ${cls(lb)}">${brl(lb)}</span><span>− Despesas do mês (sem compra de mercadoria)</span><span>${brl(d.despOper)}</span>
+    <span class="t">= Resultado</span><span class="t ${res<0?"neg":"pos"}">${brl(res)}${d.vendas?` <small class="sub">(${mg}%)</small>`:""}</span>
+    <span>A receber de fiado (total)</span><span>${brl(receber)}</span>`;
+  // gráfico 6 meses
+  const ms=[]; for(let k=5;k>=0;k--){ ms.push(addMonths(m+"-15",-k).slice(0,7)); }
+  const ds=ms.map(x=>({m:x,...mesDados(x)})), mx=Math.max(1,...ds.map(x=>Math.max(x.entradas,x.saidas)));
+  const W=520,H=210,L=56,B=26,T=10, cw=(W-L-8)/6, bw=Math.min(26,cw/3), y=v=>T+(H-T-B)*(1-v/mx);
+  const tk=[0,mx/2,mx].map(v=>`<line x1="${L}" x2="${W-4}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v>=1000?(v/1000).toFixed(1).replace(".",",")+" mil":Math.round(v)}</text>`).join("");
+  const bars=ds.map((x,i)=>{const cx0=L+cw*i+cw/2;return `<rect x="${cx0-bw-2}" y="${y(x.entradas)}" width="${bw}" height="${H-B-y(x.entradas)}" rx="4" fill="#14805a"><title>Entrou ${brl(x.entradas)}</title></rect><rect x="${cx0+2}" y="${y(x.saidas)}" width="${bw}" height="${H-B-y(x.saidas)}" rx="4" fill="#c0362c"><title>Saiu ${brl(x.saidas)}</title></rect><text x="${cx0}" y="${H-8}" text-anchor="middle" font-size="11" fill="${x.m===m?"var(--ink)":"var(--muted)"}" font-weight="${x.m===m?700:400}">${mesNome(x.m)}</text>`;}).join("");
+  $("#finChart").innerHTML=`<div class="fchart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Entradas e saídas dos últimos 6 meses">${tk}${bars}</svg></div><div class="fleg"><span><i style="background:#14805a"></i>Entrou</span><span><i style="background:#c0362c"></i>Saiu (pago)</span></div>`;
+  renderFinForm(); renderFp();
+}
+function renderFinForm(){
+  const box=$("#finForm"); if(finEdit===null){ box.innerHTML=""; return; }
+  const c=finEdit==="nova"?{desc:"",fornecedor:"",cat:"",valor:0,venc:today(),obs:""}:fin().contas.find(x=>x.id===finEdit);
+  box.innerHTML=`<div class="gcard"><div class="inl" style="justify-content:space-between"><h3>${finEdit==="nova"?"Nova despesa":"Editar despesa"}</h3><button class="ic" type="button" data-fx="1" aria-label="Fechar">×</button></div>
+   <div class="gform">
+    <label class="field wide" for="fdDesc">Descrição *<input id="fdDesc" value="${esc(c.desc)}" maxlength="80" placeholder="Ex.: Conta de energia"></label>
+    <label class="field" for="fdCat">Categoria<select id="fdCat">${FCATS.map(x=>`<option${x===c.cat?" selected":""}>${x}</option>`).join("")}</select></label>
+    <label class="field" for="fdForn">Fornecedor / favorecido<input id="fdForn" value="${esc(c.fornecedor||"")}" maxlength="60"></label>
+    <label class="field" for="fdVal">Valor (R$) *<input id="fdVal" inputmode="decimal" value="${c.valor?c.valor.toFixed(2).replace(".",","):""}"></label>
+    <label class="field" for="fdVenc">Vencimento *<input id="fdVenc" type="date" value="${c.venc}"></label>
+    ${finEdit==="nova"?`<label class="field" for="fdRep">Repetir<select id="fdRep"><option value="1">Só esta vez</option>${[2,3,6,12].map(n=>`<option value="${n}">Todo mês, por ${n} meses</option>`).join("")}</select></label>
+    <label class="field" for="fdPaga">Já está paga?<select id="fdPaga"><option value="">Não, em aberto</option>${Object.entries(FFORMAS).map(([k,v])=>`<option value="${k}">Sim, paga com ${v.toLowerCase()}</option>`).join("")}</select></label>`:""}
+    <label class="field wide" for="fdObs" style="grid-column:1/-1">Observação<input id="fdObs" value="${esc(c.obs||"")}" maxlength="120"></label>
+   </div>
+   <div class="msg bad" id="fdErr" hidden></div>
+   <div class="inl"><button class="btn pri" type="button" id="fdSave">Salvar despesa</button><button class="btn ghost" type="button" data-fx="1">Cancelar</button></div></div>`;
+  setTimeout(()=>$("#fdDesc")?.focus(),30);
+}
+function renderFp(){
+  const q=norm($("#fpq").value), f=$("#fpf").value, hoje=today(), m=$("#finMes").value;
+  const list=fin().contas.filter(c=>(!q||norm(c.desc+" "+(c.fornecedor||"")+" "+c.cat).includes(q))&&(f===""||(f==="aberto"?!c.pago:f==="vencida"?(!c.pago&&c.venc<hoje):f==="paga"?!!c.pago:ym(c.venc)===m)))
+    .sort((a,b)=>f==="paga"?(b.pago.data<a.pago.data?-1:1):(a.venc<b.venc?-1:a.venc>b.venc?1:0));
+  $("#fpBody").innerHTML=list.map(c=>{
+    const late=!c.pago&&c.venc<hoje, hojeV=!c.pago&&c.venc===hoje;
+    const st=c.pago?`<span class="pill ok">Paga em ${dfmt(c.pago.data)}</span><div class="sub">${esc(FFORMAS[c.pago.forma]||c.pago.forma)}</div>`:late?'<span class="pill bad">Vencida</span>':hojeV?'<span class="pill warn">Vence hoje</span>':'<span class="pill mute">Em aberto</span>';
+    const row=`<tr><td>${dfmt(c.venc)}</td><td><b>${esc(c.desc)}</b>${c.fornecedor?`<div class="sub">${esc(c.fornecedor)}</div>`:""}${c.parcela?`<div class="sub">Parcela ${esc(c.parcela)}</div>`:""}</td><td>${esc(c.cat)}</td><td class="n"><b>${brl(c.valor)}</b></td><td>${st}</td>
+      <td class="n"><span class="inl" style="justify-content:flex-end;flex-wrap:nowrap">${c.pago?`<button class="btn ghost" type="button" data-fpun="${c.id}">Desfazer</button>`:`<button class="btn pri" type="button" data-fpay="${c.id}">Pagar</button>`}<button class="btn ghost" type="button" data-fped="${c.id}">Editar</button><button class="btn danger" type="button" data-fpdel="${c.id}">${fpOpen==="del"+c.id?"Confirmar":"Excluir"}</button></span></td></tr>`;
+    if(fpOpen!==c.id) return row;
+    return row+`<tr><td colspan="6" style="background:var(--soft)"><div class="gform">
+      <label class="field" for="fpData">Data do pagamento<input id="fpData" type="date" value="${today()}"></label>
+      <label class="field" for="fpForma">Forma<select id="fpForma">${Object.entries(FFORMAS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></label>
+      <label class="field" for="fpVal">Valor pago (R$)<input id="fpVal" inputmode="decimal" value="${c.valor.toFixed(2).replace(".",",")}"></label>
+      <div class="field"><span>&nbsp;</span><span class="sub">Juros ou desconto? Ajuste o valor pago.</span></div></div>
+      <div class="inl" style="margin-top:10px"><button class="btn pri" type="button" data-fpok="${c.id}">Confirmar pagamento</button><button class="btn ghost" type="button" data-fpx="1">Cancelar</button><span class="sub" id="fpMsg"></span></div></td></tr>`;
+  }).join("")||`<tr><td colspan="6" class="sub" style="padding:24px;text-align:center">${f==="aberto"?"Nenhuma conta em aberto. Clique em “+ Nova despesa” para lançar.":"Nenhuma conta neste filtro."}</td></tr>`;
+}
+$("#finMes").addEventListener("change",renderFin);
+$("#fpq").addEventListener("input",renderFp); $("#fpf").addEventListener("change",renderFp);
+$("#finNova").addEventListener("click",()=>{finEdit="nova";renderFinForm();});
+$("#tFin").addEventListener("click",async e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.fx){ finEdit=null; renderFinForm(); return; }
+  if(b.dataset.fped){ finEdit=b.dataset.fped; renderFinForm(); window.scrollTo(0,0); return; }
+  if(b.dataset.fpay){ fpOpen=fpOpen===b.dataset.fpay?null:b.dataset.fpay; renderFp(); return; }
+  if(b.dataset.fpx){ fpOpen=null; renderFp(); return; }
+  const backup=JSON.stringify(G); const fail=x=>{ G=JSON.parse(backup); alertFin(gSaveErr(x)); };
+  if(b.dataset.fpdel){
+    if(fpOpen!=="del"+b.dataset.fpdel){ fpOpen="del"+b.dataset.fpdel; renderFp(); setTimeout(()=>{ if(fpOpen==="del"+b.dataset.fpdel){fpOpen=null;renderFp();} },3500); return; }
+    fin().contas=fin().contas.filter(c=>c.id!==b.dataset.fpdel); fpOpen=null;
+    try{ await gSave("Exclui despesa"); renderFin(); }catch(x){ fail(x); } return;
+  }
+  if(b.dataset.fpun){ const c=fin().contas.find(x=>x.id===b.dataset.fpun); c.pago=null; try{ await gSave("Desfaz pagamento: "+c.desc); renderFin(); }catch(x){ fail(x); } return; }
+  if(b.dataset.fpok){
+    const c=fin().contas.find(x=>x.id===b.dataset.fpok), v=num($("#fpVal").value);
+    if(!(v>0)){ $("#fpMsg").textContent="Informe o valor pago."; return; }
+    c.pago={data:$("#fpData").value||today(),forma:$("#fpForma").value,valor:r2(v)}; fpOpen=null; b.disabled=true;
+    try{ await gSave("Pagamento: "+c.desc); renderFin(); }catch(x){ fail(x); } return;
+  }
+  if(b.id==="fdSave"){
+    const er=$("#fdErr"); er.hidden=true;
+    const desc=$("#fdDesc").value.trim(), valor=r2(num($("#fdVal").value)), venc=$("#fdVenc").value;
+    if(!desc){er.textContent="Preencha a descrição.";er.hidden=false;return;}
+    if(!(valor>0)){er.textContent="Informe um valor válido, por exemplo 150,00.";er.hidden=false;return;}
+    if(!venc){er.textContent="Informe o vencimento.";er.hidden=false;return;}
+    const base={desc,cat:$("#fdCat").value,fornecedor:$("#fdForn").value.trim(),valor,obs:$("#fdObs").value.trim()};
+    if(finEdit==="nova"){
+      const n=+$("#fdRep").value, paga=$("#fdPaga").value, grupo=uid();
+      for(let k=0;k<n;k++){ const vk=addMonths(venc,k); fin().contas.push({id:uid(),...base,venc:vk,parcela:n>1?`${k+1}/${n}`:"",grupo:n>1?grupo:"",criadoEm:new Date().toISOString(),pago:(paga&&k===0)?{data:vk<=today()?vk:today(),forma:paga,valor}:null}); }
+    } else Object.assign(fin().contas.find(x=>x.id===finEdit),base,{venc});
+    b.disabled=true; b.textContent="Salvando…";
+    try{ await gSave("Despesa: "+desc); finEdit=null; renderFin(); }catch(x){ fail(x); b.disabled=false; b.textContent="Salvar despesa"; }
+  }
+});
+function alertFin(t){ const m=document.createElement("div"); m.className="msg bad"; m.style.marginBottom="10px"; m.textContent=t; $("#tFin .gbody").prepend(m); setTimeout(()=>m.remove(),8000); }
+$("#finXls").addEventListener("click",()=>{
+  if(!window.XLSX) return;
+  const m=$("#finMes").value, d=mesDados(m);
+  const cp=[["Vencimento","Descrição","Fornecedor","Categoria","Valor","Parcela","Situação","Data pagamento","Forma","Valor pago"],...fin().contas.slice().sort((a,b)=>a.venc<b.venc?-1:1).map(c=>[dfmt(c.venc),c.desc,c.fornecedor||"",c.cat,c.valor,c.parcela||"",c.pago?"Paga":(c.venc<today()?"Vencida":"Em aberto"),c.pago?dfmt(c.pago.data):"",c.pago?(FFORMAS[c.pago.forma]||c.pago.forma):"",c.pago?c.pago.valor:""])];
+  const dre=[["Resultado de "+m,""],["Vendas",d.vendas],["Custo das mercadorias vendidas",d.cmv],["Lucro bruto",r2(d.vendas-d.cmv)],["Despesas do mês (sem mercadorias)",d.despOper],["Resultado",r2(d.vendas-d.cmv-d.despOper)],["",""],["Entrou no mês",d.entradas],["Saiu no mês (pago)",d.saidas],["Saldo do mês",r2(d.entradas-d.saidas)]];
+  const vd=[["Data","Venda","Cliente","Total","Pagamento","Custo"],...G.vendas.filter(v=>v.status!=="cancelada"&&ym(v.data)===m).map(v=>[dfmt(v.data),v.numero,v.cliente||"",v.total,v.pagamento,r2(v.itens.reduce((a,i)=>a+i.qtd*(i.custo||0),0))])];
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dre),"Resultado"); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(vd),"Vendas do mês"); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cp),"Contas a pagar");
+  XLSX.writeFile(wb,`financeiro-popbrilho-${m}.xlsx`);
 });
 
 // ===== Início =====
