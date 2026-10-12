@@ -276,6 +276,8 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
     <label class="field" for="sPass2">Repita a senha
       <input id="sPass2" type="password" autocomplete="new-password" minlength="6" required>
     </label>
+    <label class="switch" for="sRemote" style="font-size:14px"><input id="sRemote" type="checkbox" checked> Entrar em qualquer computador só com esta senha</label>
+    <small style="color:var(--muted);font-size:12px;margin-top:-8px">Use uma senha forte, com pelo menos 8 caracteres, misturando letras e números.</small>
     <div class="msg bad" id="sErr" hidden></div>
     <button class="btn pri" type="submit" id="sBtn">Salvar e entrar</button>
     <button class="linkbtn" type="button" id="toLogin" hidden>Voltar para o login</button>
@@ -465,6 +467,17 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
     </section>
 
     <section id="tCfg" data-panel="cfg" hidden>
+      <div class="gcard" style="max-width:720px">
+        <h3>Acesso em outros computadores</h3>
+        <p class="sub" style="margin:0" id="raStatus">Verificando…</p>
+        <div class="gform">
+          <label class="field wide" for="raPass">Senha para entrar em qualquer computador<input id="raPass" type="password" autocomplete="new-password"></label>
+          <label class="field wide" for="raPass2">Repita a senha<input id="raPass2" type="password" autocomplete="new-password"></label>
+        </div>
+        <div class="msg bad gerr" id="raErr" hidden></div>
+        <div class="inl"><button class="btn pri" type="button" id="raOn">Ativar / trocar senha</button><button class="btn danger" type="button" id="raOff">Desativar</button></div>
+        <p class="sub" style="margin:0">Com o acesso ativo, basta abrir <b>popbrilhope.com.br/admin.html</b> em qualquer computador ou celular e digitar a senha. A chave do GitHub fica guardada no site de forma criptografada: sem a senha, ninguém consegue usá-la.</p>
+      </div>
       <div class="cfg">
         <label class="field" for="cZap">WhatsApp da loja
           <input id="cZap" inputmode="numeric" placeholder="5581988887777">
@@ -550,10 +563,28 @@ const b64=buf=>{let s="",a=new Uint8Array(buf);for(let i=0;i<a.length;i+=0x8000)
 const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 
 // ===== Credenciais: a chave do GitHub fica guardada neste navegador, criptografada com a senha =====
-async function deriveKey(pass,salt){
+async function deriveKey(pass,salt,iter=200000){
   const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);
-  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:200000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
 }
+// acesso em qualquer computador: a chave fica no site, criptografada com a senha (só a senha abre)
+const REMOTE_ITER=600000;
+async function encObj(token,pass,iter){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const data=await crypto.subtle.encrypt({name:"AES-GCM",iv},await deriveKey(pass,salt,iter),new TextEncoder().encode(token));
+  return {v:1,iter,salt:b64(salt),iv:b64(iv),data:b64(data)};
+}
+async function decObj(c,pass){
+  const dec=await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(c.iv)},await deriveKey(pass,ub64(c.salt),c.iter||200000),ub64(c.data));
+  return new TextDecoder().decode(dec);
+}
+async function remoteCred(){ try{ const r=await fetch("acesso.json?v="+Date.now(),{cache:"no-store"}); if(!r.ok) return null; const j=await r.json(); return j&&j.data?j:null; }catch(_){ return null; } }
+async function remoteSha(){ try{ return (await (await gh("/contents/acesso.json?ref="+BRANCH)).json()).sha; }catch(e){ if(e.status===404) return null; throw e; } }
+async function publishRemote(token,pass){
+  const obj=await encObj(token,pass,REMOTE_ITER), sha=await remoteSha();
+  await gh("/contents/acesso.json",{method:"PUT",body:JSON.stringify({message:"Atualiza acesso do painel",content:b64(new TextEncoder().encode(JSON.stringify(obj))),branch:BRANCH,...(sha?{sha}:{})})});
+}
+async function removeRemote(){ const sha=await remoteSha(); if(sha) await gh("/contents/acesso.json",{method:"DELETE",body:JSON.stringify({message:"Remove acesso remoto do painel",sha,branch:BRANCH})}); }
 async function saveCred(token,pass){
   const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
   const data=await crypto.subtle.encrypt({name:"AES-GCM",iv},await deriveKey(pass,salt),new TextEncoder().encode(token));
@@ -584,22 +615,29 @@ const tokenError=e=>e.status===401?"Chave de acesso inválida ou vencida. Gere u
 // ===== Login / primeiro acesso =====
 $("#fLogin").addEventListener("submit",async e=>{
   e.preventDefault();const err=$("#lErr");err.hidden=true;
-  try{TOKEN=await openCred($("#lPass").value);}catch(_){err.textContent="Senha incorreta.";err.hidden=false;return;}
+  const pass=$("#lPass").value, btn=e.submitter||$("#fLogin button[type=submit]"); btn.disabled=true; btn.textContent="Entrando…";
+  TOKEN="";
+  if(hasCred()){ try{TOKEN=await openCred(pass);}catch(_){} }
+  if(!TOKEN){ const rc=await remoteCred(); if(rc){ try{ TOKEN=await decObj(rc,pass); try{ await saveCred(TOKEN,pass); }catch(_){} }catch(_){} } }
+  btn.disabled=false; btn.textContent="Entrar";
+  if(!TOKEN){err.textContent="Senha incorreta.";err.hidden=false;return;}
   try{await checkToken();}catch(x){err.textContent=tokenError(x);err.hidden=false;return;}
   sessionStorage.setItem("pb-t",TOKEN);$("#lPass").value="";enterApp();
 });
 $("#fSetup").addEventListener("submit",async e=>{
   e.preventDefault();const err=$("#sErr");err.hidden=true;
   const t=$("#sToken").value.trim(),p=$("#sPass").value,p2=$("#sPass2").value;
-  if(p.length<6){err.textContent="A senha precisa ter pelo menos 6 caracteres.";err.hidden=false;return;}
+  const remote=$("#sRemote").checked;
+  if(p.length<(remote?8:6)){err.textContent=`A senha precisa ter pelo menos ${remote?8:6} caracteres.`;err.hidden=false;return;}
+  if(remote&&!(/[a-zA-Z]/.test(p)&&/\d/.test(p))){err.textContent="Para entrar de qualquer computador, use letras e números na senha.";err.hidden=false;return;}
   if(p!==p2){err.textContent="As duas senhas não são iguais.";err.hidden=false;return;}
   $("#sBtn").disabled=true;$("#sBtn").textContent="Verificando…";
   TOKEN=t;
-  try{await checkToken();await saveCred(t,p);sessionStorage.setItem("pb-t",t);["#sToken","#sPass","#sPass2"].forEach(i=>$(i).value="");enterApp();}
+  try{await checkToken();await saveCred(t,p);if(remote){$("#sBtn").textContent="Liberando outros computadores…";await publishRemote(t,p);}sessionStorage.setItem("pb-t",t);["#sToken","#sPass","#sPass2"].forEach(i=>$(i).value="");enterApp();}
   catch(x){err.textContent=x.status?tokenError(x):"Não foi possível salvar o acesso neste navegador (modo anônimo?).";err.hidden=false;}
   finally{$("#sBtn").disabled=false;$("#sBtn").textContent="Salvar e entrar";}
 });
-$("#toSetup").addEventListener("click",()=>{$("#toLogin").hidden=!hasCred();show("#vSetup");});
+$("#toSetup").addEventListener("click",()=>{$("#toLogin").hidden=false;show("#vSetup");});
 $("#toLogin").addEventListener("click",()=>show("#vLogin"));
 $("#logout").addEventListener("click",()=>{
   if(dirty() && !$("#logout").dataset.sure){$("#logout").dataset.sure="1";$("#logout").textContent="Sair sem publicar?";setTimeout(()=>{delete $("#logout").dataset.sure;$("#logout").textContent="Sair";},3000);return;}
@@ -1654,12 +1692,32 @@ $("#tCli").addEventListener("click",async e=>{
   catch(x){ G=JSON.parse(backup); er.textContent=gSaveErr(x); er.hidden=false; b.disabled=false; b.textContent="Salvar cliente"; }
 });
 
+// ----- acesso em outros computadores (aba Dados da loja) -----
+async function raStatus(){ const on=!!(await remoteCred()); $("#raStatus").innerHTML=on?'<span class="pill ok">Ativo</span> Você entra em qualquer computador só com a senha.':'<span class="pill mute">Desativado</span> Em cada computador novo será pedida a chave do GitHub.'; $("#raOff").hidden=!on; }
+$("#raOn").addEventListener("click",async()=>{
+  const er=$("#raErr"), p=$("#raPass").value, b=$("#raOn"); er.hidden=true; er.className="msg bad gerr";
+  if(p.length<8||!(/[a-zA-Z]/.test(p)&&/\d/.test(p))){er.textContent="Use pelo menos 8 caracteres, com letras e números.";er.hidden=false;return;}
+  if(p!==$("#raPass2").value){er.textContent="As duas senhas não são iguais.";er.hidden=false;return;}
+  b.disabled=true; b.textContent="Salvando…";
+  try{ await publishRemote(TOKEN,p); try{ await saveCred(TOKEN,p); }catch(_){} $("#raPass").value=$("#raPass2").value=""; er.className="msg ok gerr"; er.textContent="Pronto! Em 1 a 2 minutos você já entra em qualquer computador com essa senha."; er.hidden=false; setTimeout(raStatus,1500); }
+  catch(x){ er.textContent=x.status?tokenError(x):"Não foi possível salvar. Verifique a internet."; er.hidden=false; }
+  finally{ b.disabled=false; b.textContent="Ativar / trocar senha"; }
+});
+$("#raOff").addEventListener("click",async()=>{
+  const b=$("#raOff"), er=$("#raErr"); er.hidden=true; er.className="msg bad gerr";
+  if(!b.dataset.sure){ b.dataset.sure="1"; b.textContent="Confirmar desativação"; setTimeout(()=>{delete b.dataset.sure;b.textContent="Desativar";},3000); return; }
+  delete b.dataset.sure; b.disabled=true;
+  try{ await removeRemote(); er.className="msg ok gerr"; er.textContent="Acesso remoto desativado. Este computador continua entrando normalmente."; er.hidden=false; setTimeout(raStatus,1500); }
+  catch(x){ er.textContent=x.status?tokenError(x):"Não foi possível desativar."; er.hidden=false; }
+  finally{ b.disabled=false; b.textContent="Desativar"; }
+});
+
 // ===== Início =====
-function enterApp(){ show("#vApp"); loadData(); gEnsure(); }
+function enterApp(){ show("#vApp"); loadData(); gEnsure(); raStatus(); }
 (async()=>{
   const t=sessionStorage.getItem("pb-t");
   if(t){ TOKEN=t; try{ await checkToken(); enterApp(); return; }catch(_){ sessionStorage.removeItem("pb-t"); } }
-  if(hasCred()) show("#vLogin"); else { $("#toLogin").hidden=true; show("#vSetup"); }
+  if(hasCred()||await remoteCred()) show("#vLogin"); else { $("#toLogin").hidden=true; show("#vSetup"); }
 })();
 </script>
 </body>
