@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Painel POP BRILHO</title>
+<link rel="icon" href="icone.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 /* Painel do lojista: login → lista de produtos com editor lateral → barra fixa "Publicar alterações" */
@@ -42,7 +43,7 @@ h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;margin:0}
 /* login */
 .login{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
 .lcard{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:28px 24px;display:flex;flex-direction:column;gap:14px}
-.lcard img{width:210px;max-width:70%;align-self:center;border-radius:14px}
+.lcard img{width:300px;max-width:85%;align-self:center}
 .lcard h1{font-size:24px;text-align:center}
 .lcard p{margin:0;color:var(--muted);font-size:14px;text-align:center}
 .linkbtn{background:none;border:0;color:var(--cobalt);text-decoration:underline;font-size:14px;padding:4px;align-self:center}
@@ -256,7 +257,7 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
 body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 60%),radial-gradient(900px 400px at -10% 110%,#fff1c7 0%,transparent 55%),var(--bg);background-attachment:fixed}
 .top{background:linear-gradient(100deg,var(--royal) 0%,var(--cobalt) 55%,var(--sky) 100%);border-bottom:0;box-shadow:0 4px 18px rgba(13,71,184,.25)}
 .top h1{color:#fff}.top h1 span{color:#d6ebff}
-.top img{background:#fff;padding:2px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.top img.toplogo{height:40px;width:auto;border-radius:0;background:none;padding:0;box-shadow:none}
 .top .btn.ghost{background:rgba(255,255,255,.16);color:#fff}
 .top .btn.ghost:hover{background:rgba(255,255,255,.26)}
 #vApp .tabs{border-color:var(--line);box-shadow:0 4px 16px rgba(21,101,216,.08)}
@@ -284,7 +285,7 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
 <!-- ===== LOGIN ===== -->
 <section class="login" id="vLogin" hidden>
   <form class="lcard" id="fLogin" autocomplete="off">
-    <img src="logo.jpg" alt="POP BRILHO – Materiais de limpeza">
+    <img src="logo.svg" alt="POP BRILHO – Materiais de limpeza">
     <h1>Área do lojista</h1>
     <p>Entre com sua senha para editar produtos, preços e fotos da loja.</p>
     <label class="field" for="lPass">Senha
@@ -299,7 +300,7 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
 <!-- ===== PRIMEIRO ACESSO ===== -->
 <section class="login" id="vSetup" hidden>
   <form class="lcard" id="fSetup" autocomplete="off">
-    <img src="logo.jpg" alt="POP BRILHO – Materiais de limpeza">
+    <img src="logo.svg" alt="POP BRILHO – Materiais de limpeza">
     <h1>Configurar acesso</h1>
     <p>Faça isso uma vez em cada computador ou celular que for usar.</p>
     <label class="field" for="sToken">Chave de acesso do GitHub
@@ -335,7 +336,7 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
 <div id="vApp" hidden>
   <header class="top">
     <div class="wrap">
-      <img src="logo.jpg" alt="POP BRILHO">
+      <img src="logo-branca.svg" alt="POP BRILHO" class="toplogo">
       <h1>Painel da loja<span id="who">Conectado</span></h1>
       <a class="btn ghost" href="./" target="_blank" rel="noopener">Ver site</a>
       <button class="btn ghost" id="logout" type="button">Sair</button>
@@ -563,6 +564,25 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
         <label class="field" for="cFrete">Frete grátis a partir de (R$)
           <input id="cFrete" inputmode="decimal" placeholder="120,00">
         </label>
+        <b class="sub" style="grid-column:1/-1;text-transform:uppercase;letter-spacing:.06em;margin-top:6px">Pix da loja (aparece nos pedidos do site e no PDV)</b>
+        <label class="field" for="cPixTipo">Tipo da chave
+          <select id="cPixTipo"><option value="doc">CNPJ/CPF</option><option value="cel">Celular</option><option value="email">E-mail</option><option value="evp">Chave aleatória</option></select>
+        </label>
+        <label class="field" for="cPixChave">Chave Pix
+          <input id="cPixChave" maxlength="77" placeholder="Ex.: 67.905.362/0001-00">
+          <small>Confira com cuidado: é para essa chave que o dinheiro vai.</small>
+        </label>
+        <label class="field" for="cPixNome">Nome do favorecido
+          <input id="cPixNome" maxlength="25" placeholder="POP BRILHO">
+        </label>
+        <label class="field" for="cPixCid">Cidade
+          <input id="cPixCid" maxlength="15" placeholder="PAULISTA">
+        </label>
+        <b class="sub" style="grid-column:1/-1;text-transform:uppercase;letter-spacing:.06em;margin-top:6px">Link de pagamento do banco (cartão)</b>
+        <label class="field" for="cLink" style="grid-column:1/-1">Link de pagamento
+          <input id="cLink" inputmode="url" placeholder="https://… (gerado no app do seu banco ou maquininha)">
+          <small>Se preencher, o site oferece "Cartão pelo link de pagamento" e manda o link junto com o pedido.</small>
+        </label>
       </div>
     </section>
   </main>
@@ -736,7 +756,7 @@ $("#logout").addEventListener("click",()=>{
 
 // ===== Dados =====
 const HEAD=["Ativo","Nome","Categoria","Tamanho","Preço","Preço antigo","Selo","Foto"];
-let wbOrig=null, xlsxSha=null, items=[], cfg={whatsapp:"",taxa:10,frete:120,endereco:""}, saved="", pending={}, editIdx=-1, editPhoto=undefined;
+let wbOrig=null, xlsxSha=null, items=[], cfg={whatsapp:"",taxa:10,frete:120,endereco:"",pixTipo:"doc",pixChave:"",pixNome:"POP BRILHO",pixCidade:"PAULISTA",link:""}, saved="", pending={}, editIdx=-1, editPhoto=undefined;
 const snap=()=>JSON.stringify({items,cfg});
 const dirty=()=>snap()!==saved||Object.keys(pending).length>0;
 
@@ -770,6 +790,11 @@ async function loadData(){
         else if(k.startsWith("taxa")) cfg.taxa=num(v);
         else if(k.startsWith("frete")) cfg.frete=num(v);
         else if(k.startsWith("ender")) cfg.endereco=String(v).trim();
+        else if(k.startsWith("chave")) cfg.pixChave=String(v).trim();
+        else if(k.startsWith("tipo")) cfg.pixTipo=({"cnpj/cpf":"doc",cnpj:"doc",cpf:"doc",celular:"cel",telefone:"cel","e-mail":"email",email:"email","chave aleatoria":"evp",aleatoria:"evp"})[norm(v)]||String(v).trim()||"doc";
+        else if(k.startsWith("nome")) cfg.pixNome=String(v).trim();
+        else if(k.startsWith("cidade")) cfg.pixCidade=String(v).trim();
+        else if(k.startsWith("link")) cfg.link=String(v).trim();
       });
     }
     saved=snap(); pending={};
@@ -953,10 +978,13 @@ $("#delYes").addEventListener("click",()=>{
 });
 
 // ===== Dados da loja =====
-function fillCfg(){ $("#cZap").value=cfg.whatsapp; $("#cEnd").value=cfg.endereco; $("#cTaxa").value=fmtNum(cfg.taxa); $("#cFrete").value=fmtNum(cfg.frete); }
-["#cZap","#cEnd","#cTaxa","#cFrete"].forEach(id=>$(id).addEventListener("input",()=>{
-  cfg.whatsapp=$("#cZap").value.replace(/\D/g,""); cfg.endereco=$("#cEnd").value.trim(); cfg.taxa=num($("#cTaxa").value); cfg.frete=num($("#cFrete").value); updatePub();
+function fillCfg(){ $("#cZap").value=cfg.whatsapp; $("#cEnd").value=cfg.endereco; $("#cTaxa").value=fmtNum(cfg.taxa); $("#cFrete").value=fmtNum(cfg.frete);
+  $("#cPixTipo").value=cfg.pixTipo||"doc"; $("#cPixChave").value=cfg.pixChave||""; $("#cPixNome").value=cfg.pixNome||""; $("#cPixCid").value=cfg.pixCidade||""; $("#cLink").value=cfg.link||""; }
+["#cZap","#cEnd","#cTaxa","#cFrete","#cPixTipo","#cPixChave","#cPixNome","#cPixCid","#cLink"].forEach(id=>$(id).addEventListener("input",()=>{
+  cfg.whatsapp=$("#cZap").value.replace(/\D/g,""); cfg.endereco=$("#cEnd").value.trim(); cfg.taxa=num($("#cTaxa").value); cfg.frete=num($("#cFrete").value);
+  cfg.pixTipo=$("#cPixTipo").value; cfg.pixChave=$("#cPixChave").value.trim(); cfg.pixNome=$("#cPixNome").value.trim(); cfg.pixCidade=$("#cPixCid").value.trim(); cfg.link=$("#cLink").value.trim(); updatePub();
 }));
+$("#cPixTipo").addEventListener("change",()=>$("#cPixTipo").dispatchEvent(new Event("input")));
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
   document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
   document.querySelectorAll("[data-panel]").forEach(sec=>sec.hidden=sec.dataset.panel!==t.dataset.tab);
@@ -979,7 +1007,10 @@ function buildWorkbook(){
   for(let r=2;r<=rows.length;r++){["E","F"].forEach(c=>{const cell=ws[c+r];if(cell&&typeof cell.v==="number")cell.z='"R$" #,##0.00';});}
   ws["!cols"]=[8,32,18,14,12,14,14,30].map(w=>({wch:w}));
   XLSX.utils.book_append_sheet(wb,ws,"Produtos");
-  const c=XLSX.utils.aoa_to_sheet([["Item","Valor","Observação"],["WhatsApp",cfg.whatsapp,"Só números, com 55 + DDD"],["Taxa de entrega",cfg.taxa,"Valor cobrado quando o pedido não tem frete grátis"],["Frete grátis a partir de",cfg.frete,"Pedidos a partir deste valor não pagam entrega"],["Endereço",cfg.endereco,"Aparece na seção Contato do site"]]);
+  const c=XLSX.utils.aoa_to_sheet([["Item","Valor","Observação"],["WhatsApp",cfg.whatsapp,"Só números, com 55 + DDD"],["Taxa de entrega",cfg.taxa,"Valor cobrado quando o pedido não tem frete grátis"],["Frete grátis a partir de",cfg.frete,"Pedidos a partir deste valor não pagam entrega"],["Endereço",cfg.endereco,"Aparece na seção Contato do site"],
+    ["Chave Pix",cfg.pixChave,"Chave Pix da loja (pedidos do site e PDV)"],["Tipo da chave Pix",({doc:"CNPJ/CPF",cel:"Celular",email:"E-mail",evp:"Chave aleatória"})[cfg.pixTipo]||"CNPJ/CPF","CNPJ/CPF, Celular, E-mail ou Chave aleatória"],
+    ["Nome do favorecido Pix",cfg.pixNome,"Até 25 letras"],["Cidade do Pix",cfg.pixCidade,"Até 15 letras"],["Link de pagamento",cfg.link,"Link de pagamento com cartão do banco/maquininha"]]);
+  if(c.B6) c.B6.t="s";
   if(c.B2) c.B2.t="s";
   c["!cols"]=[{wch:26},{wch:22},{wch:52}];
   XLSX.utils.book_append_sheet(wb,c,"Configurações");
@@ -990,6 +1021,7 @@ async function put(path,content,sha,message){
   return (await gh("/contents/"+path.split("/").map(encodeURIComponent).join("/"),{method:"PUT",body:JSON.stringify(body)})).json();
 }
 $("#publish").addEventListener("click",async()=>{
+  if(cfg.link&&!/^https?:\/\//i.test(cfg.link)){ updatePub("O link de pagamento precisa começar com https://. Corrija em Dados da loja."); return; }
   const b=$("#publish"); b.disabled=true; $("#discard").disabled=true;
   try{
     let remoto=null; try{ remoto=(await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`)).json()).sha; }catch(e){ if(e.status!==404) throw e; }
@@ -1362,12 +1394,13 @@ const r2=v=>Math.round(v*100)/100;
 function crc16(s){let c=0xFFFF;for(const b of new TextEncoder().encode(s)){c^=b<<8;for(let i=0;i<8;i++)c=(c&0x8000)?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF;}return c.toString(16).toUpperCase().padStart(4,"0");}
 const emv=(id,v)=>id+String(v.length).padStart(2,"0")+v;
 const ascii=(s,n)=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9 .\-]/g,"").toUpperCase().trim().slice(0,n);
-function pixChave(){const p=G.pdv||{},k=String(p.chave||"").trim();
+const pixCfg=()=>(G&&G.pdv&&G.pdv.chave)?G.pdv:{tipo:cfg.pixTipo,chave:cfg.pixChave,nome:cfg.pixNome,cidade:cfg.pixCidade};
+function pixChave(){const p=pixCfg(),k=String(p.chave||"").trim();
   if(p.tipo==="cel"){const d=k.replace(/\D/g,"");return "+"+(d.startsWith("55")&&d.length>11?d:"55"+d);}
   if(p.tipo==="doc") return k.replace(/\D/g,"");
   return p.tipo==="email"?k.toLowerCase():k;}
 function pixPayload(valor,txid){
-  const p=G.pdv||{};
+  const p=pixCfg();
   const s=emv("00","01")+emv("26",emv("00","br.gov.bcb.pix")+emv("01",pixChave()))+emv("52","0000")+emv("53","986")+(valor>0?emv("54",valor.toFixed(2)):"")+emv("58","BR")+emv("59",ascii(p.nome,25)||"POP BRILHO")+emv("60",ascii(p.cidade,15)||"PAULISTA")+emv("62",emv("05",(ascii(txid,25).replace(/[^A-Z0-9]/g,""))||"***"))+"6304";
   return s+crc16(s);
 }
@@ -1457,7 +1490,7 @@ function drawPay(){
     <div class="inl" id="notas">${[2,5,10,20,50,100,200].map(n=>`<button class="btn ghost" type="button" data-nota="${n}">R$ ${n}</button>`).join("")}</div>
     <button class="btn pri" type="button" data-pok="1" style="font-size:17px;padding:13px">Confirmar dinheiro</button>`;
   else if(f==="pix"){
-    const ok=(G.pdv||{}).chave;
+    const ok=pixCfg().chave;
     body.innerHTML=ok?`<div class="gform"><label class="field wide" for="pVal">Valor no Pix (R$)<input id="pVal" inputmode="decimal" value="${rest.toFixed(2).replace(".",",")}"></label></div>
       <div class="qrbox"><div id="qr"></div><div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px"><span class="sub">Peça para o cliente escanear o QR Code ou usar o Pix copia e cola. <b>Confira o recebimento no app do banco</b> antes de confirmar.</span><textarea id="pixTxt" readonly aria-label="Pix copia e cola"></textarea><button class="btn ghost" type="button" data-pcopy="1">Copiar código Pix</button></div></div>
       <button class="btn pri" type="button" data-pok="1" style="font-size:17px;padding:13px">Pix recebido — confirmar</button>`
@@ -1524,7 +1557,7 @@ async function finishSale(){
 function newSale(){ if(!pay||!pay.done) return; pay=null; cart=[]; $("#pdvDesc").value=""; closeModal(); renderPdv(); gRenderAll(); $("#pdvQ").focus(); }
 function fillCupom(v){
   let el=$("#cupom"); if(!el){ el=document.createElement("div"); el.id="cupom"; el.className="cupom"; document.body.appendChild(el); }
-  el.innerHTML=`<div class="c"><b>POP BRILHO</b><br>Materiais de Limpeza<br>CNPJ 67.905.362/0001-00<br>${esc(cfg.endereco||"")}<br>WhatsApp ${esc(cfg.whatsapp||"")}</div><hr>
+  el.innerHTML=`<div class="c"><img src="logo.svg" alt="POP BRILHO" style="width:60mm;filter:grayscale(1) contrast(1.4);margin-bottom:2mm"><br>CNPJ 67.905.362/0001-00<br>${esc(cfg.endereco||"")}<br>WhatsApp ${esc(cfg.whatsapp||"")}</div><hr>
   <div class="c"><b>CUPOM NÃO FISCAL</b><br>Venda nº ${v.numero} · ${new Date(v.hora).toLocaleString("pt-BR")}${v.operador?"<br>Operador: "+esc(v.operador):""}</div><hr>
   <table>${v.itens.map(i=>`<tr><td colspan="2">${esc(i.produto)}</td></tr><tr><td>${qfmt(i.qtd)} x ${brl(i.preco)}</td><td class="r">${brl(i.qtd*i.preco)}</td></tr>`).join("")}</table><hr>
   <table><tr><td>Subtotal</td><td class="r">${brl(v.subtotal)}</td></tr>${v.desconto?`<tr><td>Desconto</td><td class="r">-${brl(v.desconto)}</td></tr>`:""}<tr><td><b>TOTAL</b></td><td class="r"><b>${brl(v.total)}</b></td></tr>

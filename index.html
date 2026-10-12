@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="POP BRILHO: material de limpeza com entrega rápida na Região Metropolitana do Recife.">
-<link rel="icon" href="logo.jpg">
+<link rel="icon" href="icone.png">
+<link rel="apple-touch-icon" href="icone.png">
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>POP BRILHO | Material de limpeza</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
@@ -42,7 +43,11 @@ h2{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,44px);lin
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
 header .wrap{display:flex;align-items:center;gap:20px;padding-block:12px}
 .logo{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.02em;line-height:1;display:flex;align-items:baseline;gap:6px;text-decoration:none;margin-right:auto}
-.logo img{height:58px;width:auto;display:block;border-radius:12px}
+.logo img{height:52px;width:auto;max-width:62vw;display:block}
+nav ul{gap:18px} nav a{white-space:nowrap;font-size:14.5px}
+header .btn{white-space:nowrap}
+@media (max-width:1240px){ header .btn.blue{display:none} }
+@media (min-width:901px) and (max-width:1060px){ .logo img{height:42px} nav ul{gap:12px} nav a{font-size:13.5px} }
 .logo .pop{background:var(--cobalt);color:var(--cobalt-ink);padding:2px 9px 4px;border-radius:999px}
 .logo .sp{color:var(--cobalt)}
 nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-weight:600;font-size:15px}
@@ -193,6 +198,12 @@ details p{margin:10px 0 0;color:var(--muted)}
 .f select{width:100%;background:var(--bg)}
 .go{display:block;text-align:center;text-decoration:none;background:var(--citrus);color:var(--citrus-ink);font-family:var(--display);font-weight:800;font-size:17px;padding:13px;border-radius:14px}
 .go[aria-disabled="true"]{opacity:.5}
+.paybox{background:var(--soft);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.pixrow{display:flex;gap:12px;align-items:center}
+#pixQr{background:#fff;padding:6px;border-radius:10px;flex:0 0 auto;line-height:0}
+#pixQr img,#pixQr canvas{width:120px!important;height:120px!important}
+#pixTxt{font:12px/1.3 ui-monospace,monospace;padding:8px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);resize:none;width:100%}
+.copy2{border:0;border-radius:10px;padding:9px 12px;font:inherit;font-weight:700;background:var(--cobalt);color:var(--cobalt-ink);cursor:pointer}
 .hint{font-size:12px;color:var(--muted);margin:0}
 .err{font-size:13px;color:#c0362c;margin:0;font-weight:600}
 .backdrop{display:none}
@@ -239,7 +250,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 <body>
 <header>
   <div class="wrap">
-    <a class="logo" href="#inicio"><img src="logo.jpg" alt="POP BRILHO – Materiais de limpeza" width="600" height="386"></a>
+    <a class="logo" href="#inicio"><img src="logo.svg" alt="POP BRILHO – Materiais de limpeza" width="1100" height="240"></a>
     <nav id="nav" aria-label="Menu principal">
       <ul>
         <li><a href="#sobre">Quem somos</a></li>
@@ -260,7 +271,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   </div>
 </header>
 
-<div class="banner"><img src="banner.jpg" alt="POP BRILHO – Materiais de limpeza" width="1600" height="621"></div>
+<div class="banner"><img src="banner.jpg?v=2" alt="POP BRILHO – Materiais de limpeza" width="1600" height="460"></div>
 
 <section class="hero" id="inicio">
   <div class="wrap">
@@ -342,6 +353,24 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
           <label for="end">Endereço de entrega<textarea id="end" rows="2" placeholder="Rua, número, bairro, cidade"></textarea></label>
           <label for="pag">Forma de pagamento
             <select id="pag"><option>Pix</option><option>Cartão na entrega</option><option>Dinheiro</option></select>
+          </label>
+          <div class="paybox" id="pixBox" hidden>
+            <b>Pague com Pix</b>
+            <div class="pixrow"><div id="pixQr" aria-label="QR Code Pix"></div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <span class="hint">Escaneie o QR Code ou copie o código. O valor do pedido já vem preenchido.</span>
+                <span class="hint" id="pixInfo"></span>
+                <button type="button" class="copy2" id="pixCopy">Copiar código Pix</button>
+              </div></div>
+            <textarea id="pixTxt" readonly rows="3" aria-label="Pix copia e cola"></textarea>
+            <span class="hint">Depois de pagar, envie o pedido e o comprovante pelo WhatsApp.</span>
+          </div>
+          <div class="paybox" id="linkBox" hidden>
+            <b>Pagar com cartão pelo link</b>
+            <span class="hint">Abra o link de pagamento da loja e pague o total de <b id="linkVal"></b>. O link também vai na mensagem do pedido.</span>
+            <a class="copy2" id="linkBtn" href="#" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">Abrir link de pagamento</a>
+          </div>
+          <label style="display:none">
           </label>
           <p class="err" id="err" hidden></p>
           <a class="go" id="go" href="#" target="_blank" rel="noopener" aria-disabled="true">Finalizar pelo WhatsApp</a>
@@ -449,6 +478,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // Os dados da loja (produtos, WhatsApp, frete) vêm da planilha produtos.xlsx.
 // Os valores abaixo só são usados se a planilha não for encontrada.
@@ -506,6 +536,7 @@ cp.addEventListener("click",()=>{
 });
 
 // ===== LOJA =====
+let PIX = {chave:"",tipo:"doc",nome:"POP BRILHO",cidade:"PAULISTA"}, LINKPAG = "";
 let FRETE = 10.00, FRETE_GRATIS = 120.00, ENDERECO = "Avenida B, nº 5, Loja C – Maranguape II, Paulista – PE, CEP 53421-036";
 let P = [
  {id:1,n:"Detergente Neutro",c:"Cozinha",v:"500 ml",p:2.49,shape:"bottle",col:"#f5c518",pop:10},
@@ -570,13 +601,36 @@ function renderCart(){
   $("#sum").innerHTML=`<span>Subtotal</span><span>${brl(t.sub)}</span><span>Entrega</span><span>${t.frete?brl(t.frete):"Grátis"}</span><span class="tot">Total</span><span class="tot">${brl(t.tot)}</span>`;
   updateLink();
 }
+// ===== Pix (BR Code do Banco Central) e link de pagamento =====
+function crc16(s){let c=0xFFFF;for(const b of new TextEncoder().encode(s)){c^=b<<8;for(let i=0;i<8;i++)c=(c&0x8000)?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF;}return c.toString(16).toUpperCase().padStart(4,"0");}
+const emv=(id,v)=>id+String(v.length).padStart(2,"0")+v;
+const ascii=(s,n)=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9 .\-]/g,"").toUpperCase().trim().slice(0,n);
+function pixKey(){const k=String(PIX.chave||"").trim(); if(PIX.tipo==="cel"){const d=k.replace(/\D/g,"");return "+"+(d.startsWith("55")&&d.length>11?d:"55"+d);} if(PIX.tipo==="doc") return k.replace(/\D/g,""); return PIX.tipo==="email"?k.toLowerCase():k;}
+function pixPayload(valor){const s=emv("00","01")+emv("26",emv("00","br.gov.bcb.pix")+emv("01",pixKey()))+emv("52","0000")+emv("53","986")+(valor>0?emv("54",valor.toFixed(2)):"")+emv("58","BR")+emv("59",ascii(PIX.nome,25)||"POP BRILHO")+emv("60",ascii(PIX.cidade,15)||"PAULISTA")+emv("62",emv("05","SITE"))+"6304";return s+crc16(s);}
+const LINKOPT="Cartão pelo link de pagamento";
+function setupPag(){
+  const sel=$("#pag"), cur=sel.value, ops=["Pix",...(LINKPAG?[LINKOPT]:[]),"Cartão na entrega","Dinheiro"];
+  sel.innerHTML=ops.map(o=>`<option>${o}</option>`).join(""); sel.value=ops.includes(cur)?cur:"Pix"; updateLink();
+}
+let lastPix="";
+function updatePayBox(t){
+  const pag=$("#pag").value, pixOn=pag==="Pix"&&PIX.chave&&t.n>0, linkOn=pag===LINKOPT&&LINKPAG&&t.n>0;
+  $("#pixBox").hidden=!pixOn; $("#linkBox").hidden=!linkOn;
+  if(pixOn){ const code=pixPayload(t.tot); $("#pixTxt").value=code; $("#pixInfo").textContent=`Valor: ${brl(t.tot)} · ${PIX.nome||"POP BRILHO"}`;
+    if(code!==lastPix){ lastPix=code; const q=$("#pixQr"); q.innerHTML=""; if(window.QRCode) new QRCode(q,{text:code,width:240,height:240,correctLevel:QRCode.CorrectLevel.M}); else q.hidden=true; } }
+  if(linkOn){ $("#linkBtn").href=LINKPAG; $("#linkVal").textContent=brl(t.tot); }
+}
+$("#pixCopy").addEventListener("click",async()=>{const b=$("#pixCopy"),t=$("#pixTxt");try{await navigator.clipboard.writeText(t.value);b.textContent="Código copiado!";}catch(_){t.select();b.textContent="Selecionado, use Ctrl+C";}setTimeout(()=>b.textContent="Copiar código Pix",2000);});
 function updateLink(){
   const t=totals(), nome=$("#nome").value.trim(), end=$("#end").value.trim(), go=$("#go");
+  updatePayBox(t);
   const ok=t.n>0&&nome&&end;
   go.setAttribute("aria-disabled",ok?"false":"true");
   if(!ok){go.href="#";return;}
   const lines=Object.keys(cart).map(id=>{const p=P.find(x=>x.id==id);return `• ${cart[id]}x ${p.n}${p.v?` (${p.v})`:""} — ${brl(p.p*cart[id])}`});
-  const msg=`*Pedido POP BRILHO*\n\n${lines.join("\n")}\n\nSubtotal: ${brl(t.sub)}\nEntrega: ${t.frete?brl(t.frete):"Grátis"}\n*Total: ${brl(t.tot)}*\n\nNome: ${nome}\nEndereço: ${end}\nPagamento: ${$("#pag").value}`;
+  const msg=`*Pedido POP BRILHO*\n\n${lines.join("\n")}\n\nSubtotal: ${brl(t.sub)}\nEntrega: ${t.frete?brl(t.frete):"Grátis"}\n*Total: ${brl(t.tot)}*\n\nNome: ${nome}\nEndereço: ${end}\nPagamento: ${$("#pag").value}`+
+    ($("#pag").value==="Pix"&&PIX.chave?`\n\n*Dados do Pix*\nChave: ${PIX.chave}\nFavorecido: ${PIX.nome||"POP BRILHO"}\nValor: ${brl(t.tot)}\n\nPix copia e cola:\n${pixPayload(t.tot)}\n\n_Vou enviar o comprovante por aqui._`:"")+
+    ($("#pag").value===LINKOPT&&LINKPAG?`\n\n*Link de pagamento:* ${LINKPAG}\nValor a pagar: ${brl(t.tot)}`:"");
   go.href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
 }
 $("#cats").addEventListener("click",e=>{const b=e.target.closest(".cat");if(!b)return;cat=b.dataset.c;renderCats();renderGrid();});
@@ -597,6 +651,7 @@ $("#items").addEventListener("click",e=>{
   save(); renderCart();
 });
 ["nome","end","pag"].forEach(id=>$("#"+id).addEventListener("input",()=>{$("#err").hidden=true;updateLink();}));
+$("#pag").addEventListener("change",updateLink);
 $("#form").addEventListener("submit",e=>e.preventDefault());
 $("#go").addEventListener("click",e=>{
   if($("#go").getAttribute("aria-disabled")==="true"){
@@ -642,7 +697,13 @@ async function loadSheet(){
         else if(k.startsWith("taxa")) FRETE=num(v);
         else if(k.startsWith("frete")) FRETE_GRATIS=num(v);
         else if(k.startsWith("ender")) ENDERECO=String(v).trim();
+        else if(k.startsWith("chave")) PIX.chave=String(v).trim();
+        else if(k.startsWith("tipo")) PIX.tipo=({cnpj:"doc",cpf:"doc","cnpj/cpf":"doc",celular:"cel",telefone:"cel","e-mail":"email",email:"email",aleatoria:"evp"})[norm(v)]||String(v).trim();
+        else if(k.startsWith("nome")) PIX.nome=String(v).trim();
+        else if(k.startsWith("cidade")) PIX.cidade=String(v).trim();
+        else if(k.startsWith("link")) LINKPAG=String(v).trim();
       });
+      setupPag();
     }
     for(const id in cart){ if(!P.some(p=>p.id==id)) delete cart[id]; }
     if(!CATS.includes(cat)) cat="Todos";
