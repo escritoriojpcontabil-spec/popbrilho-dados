@@ -319,6 +319,7 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
     <section id="tProd" data-panel="prod">
       <div class="tools">
         <input id="q" type="search" placeholder="Buscar produto" aria-label="Buscar produto">
+        <button class="btn ghost" id="reload" type="button" title="Buscar de novo a lista de produtos">↻ Recarregar</button>
         <button class="btn lime" id="add" type="button">+ Novo produto</button>
       </div>
       <div class="msg info" id="loadMsg">Carregando produtos…</div>
@@ -620,6 +621,10 @@ async function loadData(){
       xlsxSha=meta.sha;
       buf=await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`,{accept:"application/vnd.github.raw"})).arrayBuffer();
     }catch(e){ if(e.status!==404) throw e; }
+    // se pelo GitHub não vier nada, lê a mesma planilha que o site usa
+    let fonte="GitHub";
+    const tryParse=b=>{ try{ const w=XLSX.read(b,{type:"array"}); const sh=w.SheetNames.find(n=>norm(n)==="produtos")||w.SheetNames[0]; return XLSX.utils.sheet_to_json(w.Sheets[sh],{defval:""}).length; }catch(_){ return 0; } };
+    if(!buf||!tryParse(buf)){ try{ const r=await fetch("produtos.xlsx?v="+Date.now(),{cache:"no-store"}); if(r.ok){ const b2=await r.arrayBuffer(); if(tryParse(b2)){ buf=b2; fonte="site"; } } }catch(_){} }
     items=[];
     if(buf){
       wbOrig=XLSX.read(buf,{type:"array"});
@@ -640,7 +645,8 @@ async function loadData(){
       });
     }
     saved=snap(); pending={};
-    fillCfg(); render(); m.hidden=true;
+    fillCfg(); catF="Todos"; render(); m.hidden=true;
+    $("#who").textContent=`Conectado · ${items.length} produtos carregados às ${new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}${fonte==="site"?" (pelo site)":""}`;
   }catch(e){ m.className="msg bad"; m.textContent="Não foi possível carregar os produtos. "+(e.status?tokenError(e):"Verifique sua internet e recarregue a página."); }
 }
 
@@ -692,6 +698,7 @@ $("#list").addEventListener("click",e=>{
   else if(b.dataset.down!==undefined){const i=+b.dataset.down;[items[i+1],items[i]]=[items[i],items[i+1]];render();}
 });
 $("#add").addEventListener("click",()=>openEditor(-1));
+$("#reload").addEventListener("click",()=>{ if(dirty()&&!$("#reload").dataset.sure){ $("#reload").dataset.sure="1"; $("#reload").textContent="Descartar mudanças e recarregar?"; setTimeout(()=>{delete $("#reload").dataset.sure;$("#reload").textContent="↻ Recarregar";},3000); return; } delete $("#reload").dataset.sure; $("#reload").textContent="↻ Recarregar"; loadData(); });
 
 // ===== Editor =====
 function setPv(src){ $("#pv").innerHTML=src?`<img src="${esc(src)}" alt="Prévia da foto">`:"Sem foto"; }
