@@ -9,8 +9,10 @@
 <style>
 /* Painel do lojista: login → lista de produtos com editor lateral → barra fixa "Publicar alterações" */
 :root{
-  --bg:#f3f6fb; --surface:#ffffff; --ink:#0d1b3d; --muted:#56617a; --line:#dce3ef;
-  --cobalt:#1747d6; --cobalt-ink:#ffffff; --citrus:#d7f23a; --citrus-ink:#0d1b3d; --soft:#e8eefb;
+  /* cores da logomarca POP BRILHO: azul royal, azul céu, amarelo-laranja */
+  --bg:#eef5ff; --surface:#ffffff; --ink:#0b2e6b; --muted:#4f6488; --line:#d3e2f7;
+  --cobalt:#1565d8; --cobalt-ink:#ffffff; --citrus:#ffc21a; --citrus-ink:#0b2e6b; --soft:#e2eeff;
+  --royal:#0d47b8; --sky:#29a8f0; --sun:#ffd21f; --orange:#ff8a00;
   --ok:#14805a; --ok-bg:#e3f5ec; --warn:#a15c00; --warn-bg:#fff3dc; --bad:#c0362c; --bad-bg:#fde8e6;
   --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
   --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -249,6 +251,32 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
   @page{size:80mm auto;margin:4mm}
 }
 @media (max-width:900px){ .pdv{grid-template-columns:1fr} .cart2{position:static;max-height:none} .methods{grid-template-columns:repeat(2,1fr)} }
+
+/* ===== identidade POP BRILHO ===== */
+body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 60%),radial-gradient(900px 400px at -10% 110%,#fff1c7 0%,transparent 55%),var(--bg);background-attachment:fixed}
+.top{background:linear-gradient(100deg,var(--royal) 0%,var(--cobalt) 55%,var(--sky) 100%);border-bottom:0;box-shadow:0 4px 18px rgba(13,71,184,.25)}
+.top h1{color:#fff}.top h1 span{color:#d6ebff}
+.top img{background:#fff;padding:2px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.top .btn.ghost{background:rgba(255,255,255,.16);color:#fff}
+.top .btn.ghost:hover{background:rgba(255,255,255,.26)}
+#vApp .tabs{border-color:var(--line);box-shadow:0 4px 16px rgba(21,101,216,.08)}
+#vApp .tab{color:var(--ink)}
+#vApp .tab:hover{background:var(--soft)}
+#vApp .tab[aria-selected="true"]{background:linear-gradient(100deg,var(--royal),var(--cobalt));color:#fff;box-shadow:0 3px 10px rgba(21,101,216,.3)}
+.btn.pri{background:linear-gradient(100deg,var(--royal),var(--cobalt))}
+.btn.lime{background:linear-gradient(100deg,var(--sun),var(--citrus) 50%,var(--orange));color:var(--citrus-ink);box-shadow:0 3px 10px rgba(255,138,0,.25)}
+.tile{border-top:4px solid var(--sky)}
+.tile.warn{border-top-color:var(--orange)} .tile.bad{border-top-color:var(--bad)}
+.tbl th{background:var(--soft);color:var(--royal)}
+.pub{background:linear-gradient(100deg,var(--royal),#0b2e6b)}
+.cxbar{background:linear-gradient(100deg,var(--royal),var(--cobalt) 60%,var(--sky))}
+.cxbar b{color:var(--sun)}
+.chip.cat,.pcat[aria-pressed="true"]{}
+.pcat[aria-pressed="true"]{background:var(--cobalt);border-color:var(--cobalt)}
+.login{background:linear-gradient(160deg,var(--royal) 0%,var(--cobalt) 45%,var(--sky) 100%)}
+.lcard{box-shadow:0 20px 50px rgba(11,46,107,.35);border:0}
+.lcard h1{color:var(--royal)}
+:focus-visible{outline-color:var(--orange)}
 </style>
 </head>
 <body>
