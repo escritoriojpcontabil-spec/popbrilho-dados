@@ -649,7 +649,9 @@ const RAW=`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/fotos/`;
 const photoSrc=f=>pending["fotos/"+f]?pending["fotos/"+f].url:RAW+encodeURIComponent(f)+"?v="+Date.now().toString(36).slice(0,-3);
 const CAT_PADRAO=["Cozinha","Roupas","Desinfecção","Pisos e banheiro","Utensílios","Kits"];
 let catF="Todos";
-const allCats=()=>{const s=[...CAT_PADRAO];items.forEach(i=>{if(i.cat&&!s.includes(i.cat))s.push(i.cat);});return s;};
+// mesmas categorias do site: as que os produtos usam (as padrão só aparecem como sugestão quando não há nenhuma)
+const allCats=()=>{const s=[];items.forEach(i=>{if(i.cat&&!s.includes(i.cat))s.push(i.cat);});return s;};
+const catSugestoes=()=>{const s=allCats();return s.length?s:[...CAT_PADRAO];};
 function render(){
   const q=norm($("#q").value);
   const cats=allCats(), semCat=items.filter(i=>!i.cat).length;
@@ -662,7 +664,7 @@ function render(){
   $("#count").textContent=`${items.length} produtos · ${items.filter(i=>i.ativo).length} na loja`;
   $("#list").innerHTML=vis.length?vis.map(({it,i})=>`
     <div class="row${it.ativo?"":" off"}">
-      <div class="thumb">${it.foto?`<img src="${esc(photoSrc(it.foto))}" alt="" loading="lazy" onerror="this.replaceWith('Foto não encontrada')">`:"Sem foto"}</div>
+      <div class="thumb">${it.foto?`<img src="${esc(photoSrc(it.foto))}" alt="" loading="lazy" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.replace('/fotos/','/')}else{this.replaceWith('Foto não encontrada')}">`:"Sem foto"}</div>
       <div class="info"><b>${esc(it.nome)}</b><span>${esc(it.tam||"")}</span>
         <div class="chips"><span class="chip ${it.cat?"cat":"off"}">${it.cat?esc(it.cat):"Sem categoria"}</span>${it.ativo?"":'<span class="chip off">Fora da loja</span>'}${it.selo?`<span class="chip sel">${esc(it.selo)}</span>`:""}${it.foto&&pending["fotos/"+it.foto]?'<span class="chip new">Foto nova</span>':""}</div></div>
       <div class="price">${brl(it.preco)}${it.antigo?`<s>${brl(it.antigo)}</s>`:""}</div>
@@ -678,7 +680,7 @@ function render(){
 $("#q").addEventListener("input",render);
 $("#pcats").addEventListener("click",e=>{const b=e.target.closest("[data-pcat]");if(!b)return;catF=b.dataset.pcat;render();});
 function fillCatSel(cur){
-  const cats=allCats(); const sel=$("#eCatSel");
+  const cats=catSugestoes(); const sel=$("#eCatSel");
   sel.innerHTML=`<option value="">Sem categoria</option>${cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("")}<option value="__nova">+ Nova categoria…</option>`;
   sel.value=cats.includes(cur)?cur:""; $("#eCat").hidden=true; $("#eCat").value="";
 }
@@ -731,7 +733,7 @@ $("#eSave").addEventListener("click",()=>{
   const nome=$("#eNome").value.trim(), preco=num($("#ePreco").value), antigo=num($("#eAntigo").value);
   if(!nome){er.textContent="Preencha o nome do produto.";er.hidden=false;return;}
   if(!(preco>0)){er.textContent="Preencha um preço válido, por exemplo 9,90.";er.hidden=false;return;}
-  if($("#eCatSel").value==="__nova"){ const nc=$("#eCat").value.trim(); if(!nc){er.textContent="Digite o nome da nova categoria.";er.hidden=false;return;} const ex=allCats().find(c=>norm(c)===norm(nc)); if(ex){ $("#eCatSel").value=ex; $("#eCat").hidden=true; } }
+  if($("#eCatSel").value==="__nova"){ const nc=$("#eCat").value.trim(); if(!nc){er.textContent="Digite o nome da nova categoria.";er.hidden=false;return;} const ex=catSugestoes().find(c=>norm(c)===norm(nc)); if(ex){ $("#eCatSel").value=ex; $("#eCat").hidden=true; } }
   if(items.some((it,j)=>j!==editIdx&&norm(it.nome)===norm(nome))){er.textContent="Já existe um produto com esse nome.";er.hidden=false;return;}
   const it=editIdx>=0?items[editIdx]:{foto:""};
   const oldName=editIdx>=0?it.nome:null;
@@ -793,12 +795,17 @@ async function put(path,content,sha,message){
 $("#publish").addEventListener("click",async()=>{
   const b=$("#publish"); b.disabled=true; $("#discard").disabled=true;
   try{
+    let remoto=null; try{ remoto=(await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`)).json()).sha; }catch(e){ if(e.status!==404) throw e; }
+    if(remoto&&xlsxSha&&remoto!==xlsxSha&&!b.dataset.force){
+      b.dataset.force="1"; updatePub("Atenção: a planilha de produtos foi alterada fora do painel depois que você abriu esta página (por exemplo, por envio direto ao GitHub). Recarregue o painel (Ctrl+F5) para não apagar essas mudanças. Para publicar mesmo assim, clique em Publicar de novo.");
+      $("#publish").hidden=false; return; }
+    delete b.dataset.force; xlsxSha=remoto;
     const used=new Set(items.map(i=>i.foto).filter(Boolean));
     const photos=Object.entries(pending).filter(([p])=>used.has(p.slice(6)));
     let k=0;
     for(const [path,ph] of photos){ k++; updatePub(`Enviando foto ${k} de ${photos.length}…`); await put(path,ph.b64,null,"Foto: "+path.slice(6)); }
     updatePub("Salvando produtos…");
-    try{ const meta=await (await gh(`/contents/produtos.xlsx?ref=${BRANCH}`)).json(); xlsxSha=meta.sha; }catch(e){ if(e.status!==404) throw e; xlsxSha=null; }
+
     const res=await put("produtos.xlsx",buildWorkbook(),xlsxSha,"Atualiza produtos pelo painel");
     xlsxSha=res.content&&res.content.sha;
     pending={}; saved=snap(); render();

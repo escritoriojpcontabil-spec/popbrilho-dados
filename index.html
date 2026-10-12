@@ -546,7 +546,7 @@ function renderGrid(){
   $("#found").textContent=list.length+(list.length===1?" produto":" produtos");
   $("#grid").innerHTML=list.length?list.map(p=>`
    <article class="pcard">
-     <div class="pic${p.foto?" has-foto":""}">${p.b?`<span class="badge">${esc(p.b)}</span>`:""}${p.foto?`<img src="fotos/${encodeURIComponent(p.foto)}" alt="${esc(p.n)}" loading="lazy" onerror="this.parentNode.classList.remove('has-foto');this.remove()">`:""}<span class="draw">${art(p.shape,p.col,130)}</span></div>
+     <div class="pic${p.foto?" has-foto":""}">${p.b?`<span class="badge">${esc(p.b)}</span>`:""}${p.foto?`<img src="fotos/${encodeURIComponent(p.foto)}" alt="${esc(p.n)}" loading="lazy" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.replace('/fotos/','/')}else{this.parentNode.classList.remove('has-foto');this.remove()}">`:""}<span class="draw">${art(p.shape,p.col,130)}</span></div>
      <h4>${esc(p.n)}</h4>
      <div class="meta">${esc([p.v,p.c].filter(Boolean).join(" · "))}</div>
      <div class="price"><b>${brl(p.p)}</b>${p.old?`<s>${brl(p.old)}</s>`:""}</div>
@@ -648,7 +648,7 @@ async function loadSheet(){
     if(!CATS.includes(cat)) cat="Todos";
     if(list.length){ const cs=CATS.filter(c=>c!=="Todos");
       document.getElementById("lines").innerHTML=cs.map(c=>{const ps=P.filter(p=>p.c===c), f=ps.find(p=>p.foto)||ps[0];
-        const pic=f.foto?`<img src="fotos/${encodeURIComponent(f.foto)}" alt="" loading="lazy" style="height:84px;width:auto;max-width:100%;object-fit:contain;border-radius:8px">`:art(f.shape,f.col,84);
+        const pic=f.foto?`<img src="fotos/${encodeURIComponent(f.foto)}" alt="" loading="lazy" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.replace('/fotos/','/')}" style="height:84px;width:auto;max-width:100%;object-fit:contain;border-radius:8px">`:art(f.shape,f.col,84);
         return `<a class="line" href="#loja" data-c="${esc(c)}"><div class="ic">${pic}</div><div><h3>${esc(c)}</h3><p>${ps.length} produto${ps.length>1?"s":""} · a partir de ${brl(Math.min(...ps.map(p=>p.p)))}</p></div></a>`;}).join(""); }
     save(); applyConfig(); renderCats(); renderGrid(); renderCart();
   }catch(e){ console.warn("Não foi possível ler produtos.xlsx", e); }
