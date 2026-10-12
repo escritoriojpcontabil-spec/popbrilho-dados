@@ -551,7 +551,7 @@ function renderGrid(){
      <div class="meta">${esc([p.v,p.c].filter(Boolean).join(" · "))}</div>
      <div class="price"><b>${brl(p.p)}</b>${p.old?`<s>${brl(p.old)}</s>`:""}</div>
      <button type="button" class="add" data-id="${esc(p.id)}">Adicionar</button>
-   </article>`).join(""):`<div class="empty">Nenhum produto encontrado para essa busca.</div>`;
+   </article>`).join(""):`<div class="empty">${P.length?"Nenhum produto encontrado para essa busca.":"Produtos sendo cadastrados. Fale com a gente pelo WhatsApp para fazer seu pedido."}</div>`;
 }
 function totals(){
   let sub=0,n=0;
@@ -633,7 +633,7 @@ async function loadSheet(){
       const v=String(get(o,"tamanho")).trim();
       list.push({id:n,n,c:String(get(o,"categoria")).trim()||"Outros",v,p,old:num(get(o,"preco antigo")),b:String(get(o,"selo")).trim(),foto:String(get(o,"foto")).trim(),pop:-i,shape:guessShape(n+" "+v),col:COLS[i%COLS.length]});
     });
-    if(list.length){ P=list; buildCats(); }
+    P=list; buildCats();
     const cs=wb.SheetNames.find(n=>norm(n).startsWith("config"));
     if(cs){
       XLSX.utils.sheet_to_json(wb.Sheets[cs],{header:1,defval:""}).forEach(([k,v])=>{
@@ -646,7 +646,10 @@ async function loadSheet(){
     }
     for(const id in cart){ if(!P.some(p=>p.id==id)) delete cart[id]; }
     if(!CATS.includes(cat)) cat="Todos";
-    document.querySelectorAll("#lines .line").forEach(a=>a.hidden=!P.some(p=>p.c===a.dataset.c));
+    if(list.length){ const cs=CATS.filter(c=>c!=="Todos");
+      document.getElementById("lines").innerHTML=cs.map(c=>{const ps=P.filter(p=>p.c===c), f=ps.find(p=>p.foto)||ps[0];
+        const pic=f.foto?`<img src="fotos/${encodeURIComponent(f.foto)}" alt="" loading="lazy" style="height:84px;width:auto;max-width:100%;object-fit:contain;border-radius:8px">`:art(f.shape,f.col,84);
+        return `<a class="line" href="#loja" data-c="${esc(c)}"><div class="ic">${pic}</div><div><h3>${esc(c)}</h3><p>${ps.length} produto${ps.length>1?"s":""} · a partir de ${brl(Math.min(...ps.map(p=>p.p)))}</p></div></a>`;}).join(""); }
     save(); applyConfig(); renderCats(); renderGrid(); renderCart();
   }catch(e){ console.warn("Não foi possível ler produtos.xlsx", e); }
 }
