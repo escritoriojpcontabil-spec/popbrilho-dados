@@ -621,7 +621,7 @@ const num=v=>{if(typeof v==="number")return v; v=String(v||"").replace(/[R$\s]/g
 async function loadSheet(){
   if(!window.XLSX) return;
   try{
-    const r=await fetch("produtos.xlsx",{cache:"no-store"}); if(!r.ok) return;
+    const r=await fetch("produtos.xlsx?v="+Date.now(),{cache:"no-store"}); if(!r.ok) return;
     const wb=XLSX.read(await r.arrayBuffer(),{type:"array"});
     const sh=wb.SheetNames.find(n=>norm(n)==="produtos")||wb.SheetNames[0];
     const rows=XLSX.utils.sheet_to_json(wb.Sheets[sh],{defval:""});

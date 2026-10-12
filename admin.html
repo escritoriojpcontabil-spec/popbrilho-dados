@@ -174,6 +174,12 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
   #vApp .tabs{grid-row:auto;position:static;flex-direction:row;overflow-x:auto;margin:14px 0;padding:6px}
   #vApp .tab{white-space:nowrap;flex:0 0 auto}
 }
+.pcats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.pcat{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700;font-size:14px}
+.pcat span{font-weight:600;color:var(--muted);margin-left:4px;font-size:12px}
+.pcat[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pcat[aria-pressed="true"] span{color:#c9d2e6}
+.chip.cat{background:var(--soft);color:var(--cobalt)}
 /* ===== PDV ===== */
 .cxbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--ink);color:#fff;border-radius:16px;padding:10px 14px;margin-bottom:14px}
 .cxbar span{flex:1;min-width:200px;font-size:14px}
@@ -316,6 +322,7 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
         <button class="btn lime" id="add" type="button">+ Novo produto</button>
       </div>
       <div class="msg info" id="loadMsg">Carregando produtos…</div>
+      <div class="pcats" id="pcats" role="group" aria-label="Filtrar por categoria"></div>
       <div class="count" id="count"></div>
       <div class="list" id="list"></div>
     </section>
@@ -499,7 +506,7 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
       <label class="switch" for="eAtivo"><input id="eAtivo" type="checkbox"> Mostrar na loja</label>
       <label class="field" for="eNome">Nome do produto *<input id="eNome" required maxlength="80"></label>
       <div class="two">
-        <label class="field" for="eCat">Categoria<input id="eCat" list="cats" maxlength="40"></label>
+        <label class="field" for="eCatSel">Categoria<select id="eCatSel"></select><input id="eCat" maxlength="40" placeholder="Nome da nova categoria" hidden></label>
         <label class="field" for="eTam">Tamanho<input id="eTam" placeholder="500 ml, 2 L, 4 un." maxlength="30"></label>
       </div>
       <div class="two">
@@ -640,26 +647,42 @@ async function loadData(){
 // ===== Lista =====
 const RAW=`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/fotos/`;
 const photoSrc=f=>pending["fotos/"+f]?pending["fotos/"+f].url:RAW+encodeURIComponent(f)+"?v="+Date.now().toString(36).slice(0,-3);
+const CAT_PADRAO=["Cozinha","Roupas","Desinfecção","Pisos e banheiro","Utensílios","Kits"];
+let catF="Todos";
+const allCats=()=>{const s=[...CAT_PADRAO];items.forEach(i=>{if(i.cat&&!s.includes(i.cat))s.push(i.cat);});return s;};
 function render(){
   const q=norm($("#q").value);
-  const vis=items.map((it,i)=>({it,i})).filter(({it})=>!q||norm(it.nome+" "+it.cat).includes(q));
+  const cats=allCats(), semCat=items.filter(i=>!i.cat).length;
+  if(catF!=="Todos"&&catF!=="__sem"&&!cats.includes(catF)) catF="Todos";
+  if(catF==="__sem"&&!semCat) catF="Todos";
+  $("#pcats").innerHTML=[["Todos",items.length],...cats.map(c=>[c,items.filter(i=>i.cat===c).length]),...(semCat?[["__sem",semCat]]:[])]
+    .map(([c,n])=>`<button type="button" class="pcat" data-pcat="${esc(c)}" aria-pressed="${catF===c}">${c==="__sem"?"Sem categoria":esc(c)}<span>${n}</span></button>`).join("");
+  const filt=q||catF!=="Todos";
+  const vis=items.map((it,i)=>({it,i})).filter(({it})=>(!q||norm(it.nome+" "+it.cat).includes(q))&&(catF==="Todos"||(catF==="__sem"?!it.cat:it.cat===catF)));
   $("#count").textContent=`${items.length} produtos · ${items.filter(i=>i.ativo).length} na loja`;
   $("#list").innerHTML=vis.length?vis.map(({it,i})=>`
     <div class="row${it.ativo?"":" off"}">
       <div class="thumb">${it.foto?`<img src="${esc(photoSrc(it.foto))}" alt="" loading="lazy" onerror="this.replaceWith('Foto não encontrada')">`:"Sem foto"}</div>
-      <div class="info"><b>${esc(it.nome)}</b><span>${esc([it.tam,it.cat].filter(Boolean).join(" · "))}</span>
-        <div class="chips">${it.ativo?"":'<span class="chip off">Fora da loja</span>'}${it.selo?`<span class="chip sel">${esc(it.selo)}</span>`:""}${it.foto&&pending["fotos/"+it.foto]?'<span class="chip new">Foto nova</span>':""}</div></div>
+      <div class="info"><b>${esc(it.nome)}</b><span>${esc(it.tam||"")}</span>
+        <div class="chips"><span class="chip ${it.cat?"cat":"off"}">${it.cat?esc(it.cat):"Sem categoria"}</span>${it.ativo?"":'<span class="chip off">Fora da loja</span>'}${it.selo?`<span class="chip sel">${esc(it.selo)}</span>`:""}${it.foto&&pending["fotos/"+it.foto]?'<span class="chip new">Foto nova</span>':""}</div></div>
       <div class="price">${brl(it.preco)}${it.antigo?`<s>${brl(it.antigo)}</s>`:""}</div>
       <div class="acts">
-        <button class="ic" type="button" data-up="${i}" aria-label="Subir" ${i===0||q?"disabled":""}>↑</button>
-        <button class="ic" type="button" data-down="${i}" aria-label="Descer" ${i===items.length-1||q?"disabled":""}>↓</button>
+        <button class="ic" type="button" data-up="${i}" aria-label="Subir" ${i===0||filt?"disabled":""}>↑</button>
+        <button class="ic" type="button" data-down="${i}" aria-label="Descer" ${i===items.length-1||filt?"disabled":""}>↓</button>
         <button class="btn ghost" type="button" data-edit="${i}">Editar</button>
       </div>
-    </div>`).join(""):`<div class="empty">${items.length?"Nenhum produto encontrado.":"Nenhum produto ainda. Clique em “+ Novo produto”."}</div>`;
+    </div>`).join(""):`<div class="empty">${items.length?(catF!=="Todos"&&!q?"Nenhum produto nesta categoria. Clique em “+ Novo produto” para cadastrar.":"Nenhum produto encontrado."):"Nenhum produto ainda. Clique em “+ Novo produto”."}</div>`;
   $("#cats").innerHTML=[...new Set(items.map(i=>i.cat).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join("");
   updatePub();
 }
 $("#q").addEventListener("input",render);
+$("#pcats").addEventListener("click",e=>{const b=e.target.closest("[data-pcat]");if(!b)return;catF=b.dataset.pcat;render();});
+function fillCatSel(cur){
+  const cats=allCats(); const sel=$("#eCatSel");
+  sel.innerHTML=`<option value="">Sem categoria</option>${cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("")}<option value="__nova">+ Nova categoria…</option>`;
+  sel.value=cats.includes(cur)?cur:""; $("#eCat").hidden=true; $("#eCat").value="";
+}
+$("#eCatSel").addEventListener("change",()=>{const nova=$("#eCatSel").value==="__nova"; $("#eCat").hidden=!nova; if(nova) setTimeout(()=>$("#eCat").focus(),20);});
 $("#list").addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;
   if(b.dataset.edit!==undefined) openEditor(+b.dataset.edit);
@@ -674,7 +697,7 @@ function openEditor(i){
   editIdx=i; editPhoto=undefined;
   const it=i>=0?items[i]:{ativo:true,nome:"",cat:"",tam:"",preco:0,antigo:0,selo:"",foto:""};
   $("#edTitle").textContent=i>=0?"Editar produto":"Novo produto";
-  $("#eAtivo").checked=it.ativo; $("#eNome").value=it.nome; $("#eCat").value=it.cat; $("#eTam").value=it.tam;
+  $("#eAtivo").checked=it.ativo; $("#eNome").value=it.nome; fillCatSel(it.cat||(i<0&&catF!=="Todos"&&catF!=="__sem"?catF:"")); $("#eTam").value=it.tam;
   $("#ePreco").value=fmtNum(it.preco); $("#eAntigo").value=fmtNum(it.antigo); $("#eSelo").value=it.selo;
   setPv(it.foto?photoSrc(it.foto):""); $("#eErr").hidden=true; $("#delBox").hidden=true; $("#eDel").hidden=i<0;
   $("#shade").hidden=false; $("#editor").hidden=false; setTimeout(()=>$("#eNome").focus(),50);
@@ -708,10 +731,11 @@ $("#eSave").addEventListener("click",()=>{
   const nome=$("#eNome").value.trim(), preco=num($("#ePreco").value), antigo=num($("#eAntigo").value);
   if(!nome){er.textContent="Preencha o nome do produto.";er.hidden=false;return;}
   if(!(preco>0)){er.textContent="Preencha um preço válido, por exemplo 9,90.";er.hidden=false;return;}
+  if($("#eCatSel").value==="__nova"){ const nc=$("#eCat").value.trim(); if(!nc){er.textContent="Digite o nome da nova categoria.";er.hidden=false;return;} const ex=allCats().find(c=>norm(c)===norm(nc)); if(ex){ $("#eCatSel").value=ex; $("#eCat").hidden=true; } }
   if(items.some((it,j)=>j!==editIdx&&norm(it.nome)===norm(nome))){er.textContent="Já existe um produto com esse nome.";er.hidden=false;return;}
   const it=editIdx>=0?items[editIdx]:{foto:""};
   const oldName=editIdx>=0?it.nome:null;
-  Object.assign(it,{ativo:$("#eAtivo").checked,nome,cat:$("#eCat").value.trim(),tam:$("#eTam").value.trim(),preco,antigo:antigo>preco?antigo:0,selo:$("#eSelo").value.trim()});
+  Object.assign(it,{ativo:$("#eAtivo").checked,nome,cat:($("#eCatSel").value==="__nova"?$("#eCat").value.trim().replace(/\s+/g," "):$("#eCatSel").value),tam:$("#eTam").value.trim(),preco,antigo:antigo>preco?antigo:0,selo:$("#eSelo").value.trim()});
   if(editPhoto===null){ if(it.foto&&pending["fotos/"+it.foto]) delete pending["fotos/"+it.foto]; it.foto=""; }
   else if(editPhoto){
     if(it.foto&&pending["fotos/"+it.foto]) delete pending["fotos/"+it.foto];
