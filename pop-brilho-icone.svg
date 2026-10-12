@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs>
+<linearGradient id="gPop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD21F"/><stop offset="1" stop-color="#FF8A00"/></linearGradient>
+<linearGradient id="gBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0D47B8"/><stop offset=".6" stop-color="#1565D8"/><stop offset="1" stop-color="#29A8F0"/></linearGradient>
+<linearGradient id="gBub" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FD3FF"/><stop offset="1" stop-color="#1565D8"/></linearGradient>
+<linearGradient id='gBub2' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#BFE6FF'/><stop offset='1' stop-color='#7FD3FF'/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#gBlue)"/><g transform="translate(96,58)"><g transform="translate(0,0) scale(1.75)">
+      <path d="M44,58 L44,44 Q44,30 58,30 L146,30 Q160,30 160,42 L160,54 Q160,60 154,60 L120,60 L112,78 L74,78 L70,60 Z" fill="#ffffff"/>
+      <rect x="150" y="38" width="16" height="14" rx="4" fill="#ffffff"/>
+      <path d="M96,60 L118,60 L100,102 Q96,110 90,104 Z" fill="#29A8F0"/>
+      <rect x="66" y="76" width="50" height="22" rx="6" fill="#ffffff"/>
+      <rect x="40" y="96" width="102" height="120" rx="26" fill="url(#gBub2)"/>
+      <path d="M58,118 Q56,108 66,106" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" opacity=".85"/>
+      <path d="M58,132 L58,190" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".55"/>
+      <g transform="translate(98,160) scale(26)" fill="#fff"><path d="M0,-1 C0.12,-0.12 0.12,-0.12 1,0 C0.12,0.12 0.12,0.12 0,1 C-0.12,0.12 -0.12,0.12 -1,0 C-0.12,-0.12 -0.12,-0.12 0,-1Z"/></g>
+      <g transform="translate(186,32) scale(15)" fill="#FFB000"><path d="M0,-1 C0.12,-0.12 0.12,-0.12 1,0 C0.12,0.12 0.12,0.12 0,1 C-0.12,0.12 -0.12,0.12 -1,0 C-0.12,-0.12 -0.12,-0.12 0,-1Z"/></g><g transform="translate(186,64) scale(9)" fill="#FFD21F"><path d="M0,-1 C0.12,-0.12 0.12,-0.12 1,0 C0.12,0.12 0.12,0.12 0,1 C-0.12,0.12 -0.12,0.12 -1,0 C-0.12,-0.12 -0.12,-0.12 0,-1Z"/></g><g transform="translate(204,46) scale(6)" fill="#FF8A00"><path d="M0,-1 C0.12,-0.12 0.12,-0.12 1,0 C0.12,0.12 0.12,0.12 0,1 C-0.12,0.12 -0.12,0.12 -1,0 C-0.12,-0.12 -0.12,-0.12 0,-1Z"/></g>
+    </g></g></svg>
