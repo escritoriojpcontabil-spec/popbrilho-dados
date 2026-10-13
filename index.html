@@ -212,6 +212,12 @@ dialog.rq::backdrop{background:rgba(5,10,25,.55)}
 .track{height:6px;background:var(--line);border-radius:6px;margin-top:6px;overflow:hidden}
 .track i{display:block;height:100%;background:var(--cobalt);border-radius:6px;transition:width .3s}
 .f{display:flex;flex-direction:column;gap:8px}
+.modo{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--soft);border-radius:14px;padding:4px}
+.modo button{border:0;background:transparent;color:var(--ink);border-radius:10px;padding:9px 6px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;line-height:1.2}
+.modo button small{display:block;font-weight:600;font-size:11px;color:var(--muted)}
+.modo button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 4px rgba(13,27,61,.15);color:var(--cobalt)}
+.retira{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.45}
+.retira b{display:block;font-size:14px}
 .f label{font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:4px}
 .f input,.f textarea{font:inherit;padding:9px 11px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
 .f select{width:100%;background:var(--bg)}
@@ -372,11 +378,16 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <aside class="cart" id="cart" aria-label="Sacola de compras">
         <h3 class="c-h">Sua sacola <button class="x" id="closeCart" type="button" aria-label="Fechar sacola">×</button></h3>
         <div class="items" id="items"></div>
+        <div class="modo" role="group" aria-label="Como receber o pedido">
+          <button type="button" data-modo="entrega" aria-pressed="true">Entrega<small>no seu endereço</small></button>
+          <button type="button" data-modo="retirada" aria-pressed="false">Retirar na loja<small>sem frete</small></button>
+        </div>
         <div class="free" id="free"></div>
         <div class="sum" id="sum"></div>
         <form class="f" id="form" novalidate>
           <label for="nome">Nome<input id="nome" autocomplete="name" placeholder="Seu nome"></label>
-          <label for="end">Endereço de entrega<textarea id="end" rows="2" placeholder="Rua, número, bairro, cidade"></textarea></label>
+          <label for="end" id="endLbl">Endereço de entrega<textarea id="end" rows="2" placeholder="Rua, número, bairro, cidade"></textarea></label>
+          <div class="retira" id="retiraBox" hidden><b>Retire na loja sem pagar frete</b><span id="retiraEnd"></span><br>Segunda a sábado, das 8h às 17h. Avisamos pelo WhatsApp quando o pedido estiver separado.</div>
           <label for="pag">Forma de pagamento
             <select id="pag"><option>Pix</option><option>Cartão na entrega</option><option>Dinheiro</option></select>
           </label>
@@ -450,7 +461,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     <h2>Seu pedido em três passos.</h2>
     <div class="steps">
       <div class="step"><h3>Escolha os produtos</h3><p>Entre na loja, filtre por categoria e coloque na sacola o que precisa.</p></div>
-      <div class="step"><h3>Envie pelo WhatsApp</h3><p>Informe nome e endereço. O pedido abre pronto no nosso WhatsApp, é só enviar.</p></div>
+      <div class="step"><h3>Envie pelo WhatsApp</h3><p>Informe nome e endereço, ou escolha retirar na loja sem frete. O pedido abre pronto no nosso WhatsApp, é só enviar.</p></div>
       <div class="step"><h3>Receba em casa</h3><p>Confirmamos o pedido e entregamos. Pague com Pix, cartão ou dinheiro.</p></div>
     </div>
   </div>
@@ -624,10 +635,11 @@ function renderGrid(){
      <button type="button" class="add" data-id="${esc(p.id)}">Adicionar</button>
    </article>`).join(""):`<div class="empty">${P.length?"Nenhum produto encontrado para essa busca.":"Produtos sendo cadastrados. Fale com a gente pelo WhatsApp para fazer seu pedido."}</div>`;
 }
+let MODO="entrega";
 function totals(){
   let sub=0,n=0;
   for(const id in cart){const p=P.find(x=>x.id==id); sub+=p.p*cart[id]; n+=cart[id];}
-  const frete=sub===0||sub>=FRETE_GRATIS?0:FRETE;
+  const frete=MODO==="retirada"||sub===0||sub>=FRETE_GRATIS?0:FRETE;
   return {sub,n,frete,tot:sub+frete};
 }
 function renderCart(){
@@ -637,8 +649,9 @@ function renderCart(){
     <div class="it"><span class="nm">${esc(p.n)}${p.v?` <span class="meta">(${esc(p.v)})</span>`:""}</span><span class="sub">${brl(p.p*cart[id])}</span>
     <div class="qty"><button type="button" data-d="-1" data-id="${esc(id)}" aria-label="Diminuir">−</button><span>${cart[id]}</span><button type="button" data-d="1" data-id="${esc(id)}" aria-label="Aumentar">+</button></div>
     <button type="button" class="rm" data-rm="${esc(id)}">Remover</button></div>`}).join(""):`<p class="meta" style="margin:0">Sua sacola está vazia. Toque em "Adicionar" nos produtos para começar.</p>`;
+  $("#free").hidden=MODO==="retirada";
   $("#free").innerHTML=(t.sub>=FRETE_GRATIS?"<b>Você ganhou frete grátis!</b>":`Faltam <b>${brl(FRETE_GRATIS-t.sub)}</b> para frete grátis`)+`<div class="track"><i style="width:${Math.min(100,t.sub/FRETE_GRATIS*100)}%"></i></div>`;
-  $("#sum").innerHTML=`<span>Subtotal</span><span>${brl(t.sub)}</span><span>Entrega</span><span>${t.frete?brl(t.frete):"Grátis"}</span><span class="tot">Total</span><span class="tot">${brl(t.tot)}</span>`;
+  $("#sum").innerHTML=`<span>Subtotal</span><span>${brl(t.sub)}</span><span>${MODO==="retirada"?"Retirada na loja":"Entrega"}</span><span>${MODO==="retirada"?"Sem frete":t.frete?brl(t.frete):"Grátis"}</span><span class="tot">Total</span><span class="tot">${brl(t.tot)}</span>`;
   updateLink();
 }
 // ===== Pix (BR Code do Banco Central) e link de pagamento =====
@@ -649,8 +662,8 @@ function pixKey(){const k=String(PIX.chave||"").trim(); if(PIX.tipo==="cel"){con
 function pixPayload(valor){const s=emv("00","01")+emv("26",emv("00","br.gov.bcb.pix")+emv("01",pixKey()))+emv("52","0000")+emv("53","986")+(valor>0?emv("54",valor.toFixed(2)):"")+emv("58","BR")+emv("59",ascii(PIX.nome,25)||"POP BRILHO")+emv("60",ascii(PIX.cidade,15)||"PAULISTA")+emv("62",emv("05","SITE"))+"6304";return s+crc16(s);}
 const LINKOPT="Cartão pelo link de pagamento";
 function setupPag(){
-  const sel=$("#pag"), cur=sel.value, ops=["Pix",...(LINKPAG?[LINKOPT]:[]),"Cartão na entrega","Dinheiro"];
-  sel.innerHTML=ops.map(o=>`<option>${o}</option>`).join(""); sel.value=ops.includes(cur)?cur:"Pix"; updateLink();
+  const sel=$("#pag"), cur=sel.value, ops=["Pix",...(LINKPAG?[LINKOPT]:[]),MODO==="retirada"?"Cartão na retirada":"Cartão na entrega","Dinheiro"];
+  sel.innerHTML=ops.map(o=>`<option>${o}</option>`).join(""); sel.value=ops.includes(cur)?cur:/^Cartão na/.test(cur)?ops[ops.length-2]:"Pix"; updateLink();
 }
 let lastPix="";
 function updatePayBox(t){
@@ -664,11 +677,11 @@ $("#pixCopy").addEventListener("click",async()=>{const b=$("#pixCopy"),t=$("#pix
 function updateLink(){
   const t=totals(), nome=$("#nome").value.trim(), end=$("#end").value.trim(), go=$("#go");
   updatePayBox(t);
-  const ok=t.n>0&&nome&&end;
+  const ret=MODO==="retirada", ok=t.n>0&&nome&&(ret||end);
   go.setAttribute("aria-disabled",ok?"false":"true");
   if(!ok){go.href="#";return;}
   const lines=Object.keys(cart).map(id=>{const p=P.find(x=>x.id==id);return `• ${cart[id]}x ${p.n}${p.v?` (${p.v})`:""} — ${brl(p.p*cart[id])}`});
-  const msg=`*Pedido POP BRILHO*\n\n${lines.join("\n")}\n\nSubtotal: ${brl(t.sub)}\nEntrega: ${t.frete?brl(t.frete):"Grátis"}\n*Total: ${brl(t.tot)}*\n\nNome: ${nome}\nEndereço: ${end}\nPagamento: ${$("#pag").value}`+
+  const msg=`*Pedido POP BRILHO*\n\n${lines.join("\n")}\n\nSubtotal: ${brl(t.sub)}\n${ret?"Frete: sem frete (retirada na loja)":"Entrega: "+(t.frete?brl(t.frete):"Grátis")}\n*Total: ${brl(t.tot)}*\n\nNome: ${nome}\n${ret?"*Vou retirar na loja:* "+ENDERECO:"Endereço: "+end}\nPagamento: ${$("#pag").value}`+
     ($("#pag").value==="Pix"&&PIX.chave?`\n\n*Dados do Pix*\nChave: ${PIX.chave}\nFavorecido: ${PIX.nome||"POP BRILHO"}\nValor: ${brl(t.tot)}\n\nPix copia e cola:\n${pixPayload(t.tot)}\n\n_Vou enviar o comprovante por aqui._`:"")+
     ($("#pag").value===LINKOPT&&LINKPAG?`\n\n*Link de pagamento:* ${LINKPAG}\nValor a pagar: ${brl(t.tot)}`:"");
   go.href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
@@ -692,12 +705,18 @@ $("#items").addEventListener("click",e=>{
 });
 ["nome","end","pag"].forEach(id=>$("#"+id).addEventListener("input",()=>{$("#err").hidden=true;updateLink();}));
 $("#pag").addEventListener("change",updateLink);
+document.querySelectorAll("[data-modo]").forEach(b=>b.addEventListener("click",()=>{
+  MODO=b.dataset.modo;
+  document.querySelectorAll("[data-modo]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+  $("#endLbl").hidden=MODO==="retirada"; $("#retiraBox").hidden=MODO!=="retirada"; $("#retiraEnd").textContent=ENDERECO;
+  $("#err").hidden=true; setupPag(); renderCart();
+}));
 $("#form").addEventListener("submit",e=>e.preventDefault());
 $("#go").addEventListener("click",e=>{
   if($("#go").getAttribute("aria-disabled")==="true"){
     e.preventDefault();
     const err=$("#err"); err.hidden=false;
-    err.textContent=totals().n===0?"Adicione pelo menos um produto à sacola.":"Preencha seu nome e o endereço de entrega.";
+    err.textContent=totals().n===0?"Adicione pelo menos um produto à sacola.":MODO==="retirada"?"Preencha seu nome.":"Preencha seu nome e o endereço de entrega.";
   }
 });
 const mobile=()=>matchMedia("(max-width:900px)").matches;
