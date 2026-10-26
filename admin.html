@@ -123,6 +123,14 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
 /* ===== gestão: estoque, compras, vendas ===== */
 .tabs{flex-wrap:wrap}
 .gbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.bipe{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:2px solid var(--cobalt);border-radius:16px;padding:12px;margin-bottom:14px}
+.bipe b{flex-basis:100%;font-size:15px}
+.bipe input{flex:1;min-width:0;padding:12px 14px;font-size:17px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg)}
+.achado{display:flex;gap:14px;align-items:flex-start;background:var(--soft);border-radius:14px;padding:12px}
+.achado img{width:96px;height:96px;object-fit:contain;background:#fff;border-radius:10px;flex:none}
+.achado .t{font-weight:800;font-size:16px;line-height:1.25}
+.links{display:flex;gap:8px;flex-wrap:wrap;font-size:14px}
+.links a{color:var(--cobalt);font-weight:700}
 .gbar input[type=search],.gbar select{padding:9px 14px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}
 .gbar input[type=search]{flex:1;min-width:180px}
 .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
@@ -419,6 +427,12 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
     <section id="tEst" data-panel="est" hidden>
       <div class="msg info gmsg"></div>
       <div class="gbody" hidden>
+        <div class="bipe">
+          <b>Entrada pelo código de barras</b>
+          <input id="bipeIn" inputmode="numeric" maxlength="14" placeholder="Bipe o produto com o leitor ou digite o código" aria-label="Código de barras para entrada no estoque" autocomplete="off">
+          <button class="btn ghost" id="bipeCam" type="button" title="Ler com a câmera"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13 8v8M16 8v8"/></svg> Câmera</button>
+          <span class="sub" style="flex-basis:100%">Produto já cadastrado: informe a quantidade e dê entrada. Produto novo: o painel busca nome, tamanho e foto na internet e abre o cadastro.</span>
+        </div>
         <div class="tiles" id="eTiles"></div>
         <div class="gbar">
           <input id="eq" type="search" placeholder="Buscar produto" aria-label="Buscar no estoque">
@@ -627,7 +641,7 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
         </div>
         <div class="two">
           <label class="field" for="eMin">Estoque mínimo<input id="eMin" inputmode="decimal" placeholder="avisa quando chegar nele"></label>
-          <label class="field" for="eEan">Código de barras<span style="display:flex;gap:6px"><input id="eEan" inputmode="numeric" maxlength="14" placeholder="bipe ou digite" style="flex:1;min-width:0"><button class="btn ghost" id="eEanScan" type="button" title="Ler com a câmera" aria-label="Ler código de barras com a câmera" style="padding:8px 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13 8v8M16 8v8"/></svg></button></span></label>
+          <label class="field" for="eEan">Código de barras<span style="display:flex;gap:6px"><input id="eEan" inputmode="numeric" maxlength="14" placeholder="bipe ou digite" style="flex:1;min-width:0"><button class="btn ghost" id="eEanScan" type="button" title="Ler com a câmera" aria-label="Ler código de barras com a câmera" style="padding:8px 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13 8v8M16 8v8"/></svg></button><button class="btn ghost" id="eEanWeb" type="button" title="Buscar nome e foto na internet pelo código" style="padding:8px 10px">Buscar na internet</button></span></label>
         </div>
         <small style="color:var(--muted);font-size:12px;margin-top:-6px" id="eEstInfo">O estoque é salvo na hora, mesmo antes de publicar no site.</small>
       </div>
@@ -844,8 +858,46 @@ function produtoPorCodigo(code){ if(!G||!G.estoque) return null; const n=Object.
 function abrirPorCodigo(code){
   const i=produtoPorCodigo(code);
   if(i!==null&&i>=0){ openEditor(i); return; }
-  openEditor(-1); $("#eEan").value=code;
-  const er=$("#eErr"); er.className="msg info"; er.textContent=`Código ${code} ainda não cadastrado. Preencha os dados para criar o produto.`; er.hidden=false;
+  openEditor(-1); $("#eEan").value=code; preencherDaInternet(code);
+}
+// ===== Busca do produto na internet pelo código de barras (bases abertas Open Facts) =====
+const eanCache={};
+async function buscarEAN(code){
+  if(eanCache[code]!==undefined) return eanCache[code];
+  const bases=[["Open Products Facts","https://world.openproductsfacts.org"],["Open Beauty Facts","https://world.openbeautyfacts.org"],["Open Food Facts","https://world.openfoodfacts.org"]];
+  const campos="product_name_pt,product_name,generic_name_pt,generic_name,brands,quantity,image_front_url,image_url";
+  const um=async([fonte,url])=>{
+    const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),9000);
+    try{ const r=await fetch(`${url}/api/v2/product/${code}.json?fields=${campos}`,{signal:ctl.signal}); if(!r.ok) throw 0;
+      const j=await r.json(), p=j&&j.status===1&&j.product; if(!p) throw 0;
+      let nome=(p.product_name_pt||p.product_name||p.generic_name_pt||p.generic_name||"").trim().replace(/\s+/g," ");
+      const marca=String(p.brands||"").split(",")[0].trim();
+      if(!nome&&!marca) throw 0;
+      if(marca&&!norm(nome).includes(norm(marca))) nome=(nome+" "+marca).trim();
+      return {nome,marca,tam:String(p.quantity||"").trim().replace(/\s+/g," "),foto:p.image_front_url||p.image_url||"",fonte};
+    } finally{ clearTimeout(t); }
+  };
+  let res=null;
+  try{ res=await Promise.any(bases.map(um)); }catch(_){ res=null; }
+  if(res&&res.nome) res.nome=res.nome.charAt(0).toUpperCase()+res.nome.slice(1);
+  return eanCache[code]=res;
+}
+const linksBusca=code=>`<div class="links"><a href="https://www.google.com/search?q=${code}" target="_blank" rel="noopener">Pesquisar no Google</a><a href="https://cosmos.bluesoft.com.br/produtos/${code}" target="_blank" rel="noopener">Ver no Cosmos</a></div>`;
+async function fotoDaInternet(url){
+  const r=await fetch(url); if(!r.ok) throw 0; const b=await r.blob();
+  return resizeImage(new File([b],"foto.jpg",{type:b.type||"image/jpeg"}));
+}
+async function preencherDaInternet(code,dados){
+  const er=$("#eErr"), sameEd=()=>!$("#editor").hidden&&$("#eEan").value.replace(/\D/g,"")===code;
+  er.className="msg info"; er.innerHTML=`Código ${esc(code)} ainda não cadastrado. Buscando o produto na internet…`; er.hidden=false;
+  const d=dados!==undefined?dados:await buscarEAN(code);
+  if(!sameEd()) return;
+  if(!d){ er.innerHTML=`Não encontrei o código ${esc(code)} nas bases da internet. Preencha os dados à mão ou pesquise:`+linksBusca(code); return; }
+  if(!$("#eNome").value.trim()) $("#eNome").value=d.nome;
+  if(!$("#eTam").value.trim()&&d.tam) $("#eTam").value=d.tam;
+  er.className="msg ok"; er.innerHTML=`Encontrado em ${esc(d.fonte)}: <b>${esc(d.nome)}</b>${d.tam?" · "+esc(d.tam):""}. Confira o nome, coloque o <b>preço</b> e a <b>quantidade</b> e salve.`+linksBusca(code);
+  if(d.foto&&editPhoto===undefined&&!$("#pv img")){ try{ const f=await fotoDaInternet(d.foto); if(sameEd()&&editPhoto===undefined){ editPhoto=f; setPv(f); } }catch(_){} }
+  setTimeout(()=>{ if(sameEd()) $("#ePreco").focus(); },50);
 }
 $("#q").addEventListener("keydown",e=>{ if(e.key==="Enter"&&isCode($("#q").value)){ e.preventDefault(); const c=$("#q").value.trim(); $("#q").value=""; render(); abrirPorCodigo(c); } });
 let zxingP=null;
@@ -883,6 +935,7 @@ async function lerCodigo(cb){
   }catch(e){ msg(e&&e.name==="NotAllowedError"?"A câmera foi bloqueada. Clique no cadeado ao lado do endereço do site, permita a câmera e tente de novo — ou digite o código.":"Não foi possível abrir a câmera. Use o leitor USB ou digite o código."); }
 }
 $("#scanProd").addEventListener("click",()=>lerCodigo(abrirPorCodigo));
+$("#eEanWeb").addEventListener("click",()=>{ const c=$("#eEan").value.replace(/\D/g,""); if(!isCode(c)){ const er=$("#eErr"); er.className="msg bad"; er.textContent="Bipe ou digite o código de barras primeiro (8 a 14 números)."; er.hidden=false; return; } preencherDaInternet(c); });
 $("#eEanScan").addEventListener("click",()=>lerCodigo(c=>{ $("#eEan").value=c; const i=produtoPorCodigo(c); if(i!==null&&i>=0&&i!==editIdx){ const er=$("#eErr"); er.className="msg bad"; er.textContent=`Atenção: esse código já está no produto "${items[i].nome}".`; er.hidden=false; } }));
 $("#pcats").addEventListener("click",e=>{const b=e.target.closest("[data-pcat]");if(!b)return;catF=b.dataset.pcat;render();});
 function fillCatSel(cur){
@@ -1153,6 +1206,52 @@ function renderEst(){
   $("#mBody").innerHTML=G.movimentos.slice(0,40).map(m=>`<tr><td>${new Date(m.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</td><td><span class="pill ${(tl[m.tipo]||["",""])[1]}">${(tl[m.tipo]||[m.tipo])[0]}</span></td><td>${esc(m.produto)}</td><td class="n">${m.qtd>0?"+":""}${qfmt(m.qtd)}</td><td>${esc(m.doc||"")}</td></tr>`).join("")||`<tr><td colspan="5" class="sub" style="padding:24px;text-align:center">Nenhuma movimentação ainda. Importe uma nota de compra ou registre uma venda.</td></tr>`;
 }
 $("#eq").addEventListener("input",renderEst); $("#ef").addEventListener("change",renderEst);
+function nomePorEAN(code){ const n=Object.keys(G.estoque).find(k=>G.estoque[k].ean===code); return n||null; }
+function bipeEntrada(code){
+  const n=nomePorEAN(code); $("#bipeIn").value="";
+  if(n){
+    const e=G.estoque[n], it=items.find(i=>i.nome===n);
+    modal(`<h2>Entrada no estoque <button class="ic" type="button" data-bx="1" aria-label="Fechar">×</button></h2>
+      <div class="achado">${it&&it.foto?`<img src="${esc(photoSrc(it.foto))}" alt="">`:""}<div><div class="t">${esc(n)}</div><div class="sub">Código ${esc(code)} · Em estoque agora: <b>${qfmt(e.qtd)} ${esc(e.un||"UN")}</b></div></div></div>
+      <div class="gform">
+        <label class="field">Quantidade que chegou<input id="bQtd" inputmode="decimal" value="1"></label>
+        <label class="field">Custo unitário (R$)<input id="bCusto" inputmode="decimal" placeholder="${e.custo?e.custo.toFixed(2).replace(".",","):"0,00"}"></label>
+        <label class="field wide">Documento / fornecedor<input id="bDoc" placeholder="Ex.: NF 1234, Distribuidora X" maxlength="80"></label>
+      </div>
+      <div class="msg bad" id="bErr" hidden></div>
+      <div class="inl"><button class="btn pri" type="button" id="bOk">Dar entrada</button><button class="btn ghost" type="button" data-bx="1">Cancelar</button></div>`);
+    const q=$("#bQtd"); setTimeout(()=>{q.focus();q.select();},50);
+    $("#pdvModal").addEventListener("keydown",ev=>{ if(ev.key==="Enter"&&ev.target.tagName==="INPUT"){ ev.preventDefault(); $("#bOk").click(); } });
+    $("#pdvModal").addEventListener("click",async ev=>{
+      if(ev.target.closest("[data-bx]")){ closeModal(); $("#bipeIn").focus(); return; }
+      if(!ev.target.closest("#bOk")) return;
+      const qtd=num(q.value), c=num($("#bCusto").value), er=$("#bErr");
+      if(!(qtd>0)){ er.textContent="Informe a quantidade que chegou."; er.hidden=false; return; }
+      const b=$("#bOk"); b.disabled=true; b.textContent="Salvando…";
+      entrada(n,qtd,c>0?c:(e.custo||0),$("#bDoc").value.trim()||"Entrada pelo código de barras");
+      try{ await gSave("Entrada: "+n); closeModal(); renderEst(); { const m=document.createElement("div"); m.className="msg ok"; m.style.marginBottom="10px"; m.textContent=`Entrada de ${qfmt(qtd)} em ${n}. Estoque agora: ${qfmt(G.estoque[n].qtd)}.`; $("#tEst .bipe").after(m); setTimeout(()=>m.remove(),6000); } }
+      catch(x){ er.textContent=gSaveErr(x); er.hidden=false; b.disabled=false; b.textContent="Dar entrada"; }
+      $("#bipeIn").focus();
+    });
+    return;
+  }
+  modal(`<h2>Produto novo <button class="ic" type="button" data-bx="1" aria-label="Fechar">×</button></h2>
+    <p class="sub" style="margin:0">O código <b>${esc(code)}</b> ainda não está cadastrado na loja.</p>
+    <div id="bRes" class="msg info">Buscando o produto na internet…</div>
+    <div class="inl"><button class="btn pri" type="button" id="bCad">Cadastrar produto</button><button class="btn ghost" type="button" data-bx="1">Cancelar</button></div>`);
+  let dados;
+  buscarEAN(code).then(d=>{ dados=d; const r=$("#bRes"); if(!r) return;
+    if(d){ r.className="achado"; r.innerHTML=`${d.foto?`<img src="${esc(d.foto)}" alt="" referrerpolicy="no-referrer">`:""}<div><div class="t">${esc(d.nome)}</div><div class="sub">${d.tam?esc(d.tam)+" · ":""}fonte: ${esc(d.fonte)}</div>${linksBusca(code)}</div>`; }
+    else { r.className="msg info"; r.innerHTML=`Não encontrei esse código nas bases da internet. Você pode cadastrar à mão ou pesquisar:`+linksBusca(code); }
+  });
+  $("#pdvModal").addEventListener("click",ev=>{
+    if(ev.target.closest("[data-bx]")){ closeModal(); $("#bipeIn").focus(); return; }
+    if(!ev.target.closest("#bCad")) return;
+    closeModal(); openEditor(-1); $("#eEan").value=code; preencherDaInternet(code,dados);
+  });
+}
+$("#bipeIn").addEventListener("keydown",e=>{ if(e.key!=="Enter") return; e.preventDefault(); const c=$("#bipeIn").value.replace(/\D/g,""); if(isCode(c)) bipeEntrada(c); else if(c) { $("#bipeIn").select(); } });
+$("#bipeCam").addEventListener("click",()=>lerCodigo(bipeEntrada));
 $("#eBody").addEventListener("click",async e=>{
   const b=e.target.closest("button"); if(!b) return;
   if(b.dataset.adj!==undefined){ eOpen=eOpen===b.dataset.adj?null:b.dataset.adj; renderEst(); return; }
