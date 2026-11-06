@@ -123,6 +123,14 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
 /* ===== gestão: estoque, compras, vendas ===== */
 .tabs{flex-wrap:wrap}
 .gbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.ntab td.cp,.ntab .cp{cursor:copy}
+.ntab td.cp:hover,.ncp:hover{background:var(--soft);outline:1px dashed var(--cobalt)}
+.ncp{cursor:copy;border-radius:6px;padding:0 4px}
+.cpok{background:var(--ok-bg)!important;outline:none!important}
+.nhead{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.nhead div{background:var(--soft);border-radius:10px;padding:8px 10px;font-size:14px}
+.nhead small{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.mbox.wide{width:min(900px,100%)}
 .bipe{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:2px solid var(--cobalt);border-radius:16px;padding:12px;margin-bottom:14px}
 .bipe b{flex-basis:100%;font-size:15px}
 .bipe input{flex:1;min-width:0;padding:12px 14px;font-size:17px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg)}
@@ -482,9 +490,13 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
           </div>
           <div class="msg bad gerr" id="vErr" hidden></div>
           <div class="inl"><button class="btn pri" id="vSave" type="button">Registrar venda e dar baixa no estoque</button></div>
-          <p class="sub" style="margin:0">A emissão da NF-e/NFC-e pelo painel depende da contratação de um emissor autorizado. Até lá, emita no seu sistema atual e anote o número aqui.</p>
+          <p class="sub" style="margin:0">Emita a nota no emissor do Sebrae usando o botão <b>Dados p/ nota</b> da venda e depois importe o XML.</p>
         </div>
-        <div class="gbar"><input id="vq" type="search" placeholder="Buscar venda por cliente ou número" aria-label="Buscar venda"></div>
+        <div class="gbar"><input id="vq" type="search" placeholder="Buscar venda por cliente ou número" aria-label="Buscar venda">
+          <select id="vnf" aria-label="Filtrar por nota"><option value="">Todas as vendas</option><option value="sem">Sem nota fiscal</option><option value="com">Com nota fiscal</option></select>
+          <button class="btn pri" id="vXml" type="button">Importar XML de notas emitidas</button>
+          <input id="vXmlIn" type="file" accept=".xml,text/xml,application/xml" multiple hidden></div>
+        <p class="sub" style="margin:-6px 0 12px">Para emitir no emissor do Sebrae, clique em <b>Dados p/ nota</b> na venda: os dados ficam prontos para copiar. Depois de emitir, importe o XML da nota aqui e ela fica ligada à venda.</p>
         <div class="tblw"><table class="tbl"><thead><tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Itens</th><th class="n">Total</th><th>Pagamento</th><th>NF</th><th></th></tr></thead><tbody id="vBody"></tbody></table></div>
       </div>
     </section>
@@ -563,6 +575,22 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
         <div class="msg bad gerr" id="raErr" hidden></div>
         <div class="inl"><button class="btn pri" type="button" id="raOn">Ativar / trocar senha</button><button class="btn danger" type="button" id="raOff">Desativar</button></div>
         <p class="sub" style="margin:0">Com o acesso ativo, basta abrir <b>popbrilhope.com.br/admin.html</b> em qualquer computador ou celular e digitar a senha. A chave do GitHub fica guardada no site de forma criptografada: sem a senha, ninguém consegue usá-la.</p>
+      </div>
+      <div class="gcard" style="max-width:720px" id="nfCard">
+        <h3>Nota fiscal automática (NFC-e)</h3>
+        <p class="sub" style="margin:0" id="nfStatus">Para emitir a NFC-e direto do PDV, contrate a Focus NFe e crie a ponte (veja o guia). Depois preencha aqui.</p>
+        <div class="gform">
+          <label class="field wide" for="nfUrl">Endereço da ponte NFC-e<input id="nfUrl" placeholder="https://popbrilho-nfce.SEU-USUARIO.workers.dev" inputmode="url"></label>
+          <label class="field" for="nfCfop">CFOP<input id="nfCfop" inputmode="numeric" maxlength="4" placeholder="5102"></label>
+          <label class="field" for="nfCsosn">CSOSN (ICMS)<input id="nfCsosn" inputmode="numeric" maxlength="3" placeholder="102"></label>
+          <label class="field" for="nfOrig">Origem<input id="nfOrig" inputmode="numeric" maxlength="1" placeholder="0"></label>
+          <label class="field" for="nfPis">CST PIS / COFINS<input id="nfPis" inputmode="numeric" maxlength="2" placeholder="49"></label>
+          <label class="field wide" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="nfEan" style="width:auto"> Enviar o código de barras (GTIN) na nota</label>
+          <label class="field wide" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="nfAuto" style="width:auto"> Emitir a NFC-e automaticamente ao finalizar cada venda no PDV</label>
+        </div>
+        <div class="msg bad gerr" id="nfErr" hidden></div>
+        <div class="inl"><button class="btn pri" type="button" id="nfSave">Salvar configuração</button><button class="btn ghost" type="button" id="nfTest">Testar ponte</button></div>
+        <p class="sub" style="margin:0">Os códigos fiscais valem para todos os produtos (padrão do Simples Nacional: CFOP 5102, CSOSN 102, origem 0). Confirme com a contabilidade. O NCM vem do cadastro de cada produto.</p>
       </div>
       <div class="cfg">
         <label class="field" for="cZap">WhatsApp da loja
@@ -1041,7 +1069,7 @@ $("#cPixTipo").addEventListener("change",()=>$("#cPixTipo").dispatchEvent(new Ev
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
   document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
   document.querySelectorAll("[data-panel]").forEach(sec=>sec.hidden=sec.dataset.panel!==t.dataset.tab);
-  if(["pdv","est","cmp","ven","fia","cli","fin"].includes(t.dataset.tab)){ if(window.gEnsure) gEnsure(); if(window.gRenderAll) gRenderAll(); if(t.dataset.tab==="pdv"&&window.cx&&cx()) setTimeout(()=>$("#pdvQ").focus(),50); }
+  if(["pdv","est","cmp","ven","fia","cli","fin","cfg"].includes(t.dataset.tab)){ if(window.gEnsure) gEnsure(); if(window.gRenderAll) gRenderAll(); if(t.dataset.tab==="pdv"&&window.cx&&cx()) setTimeout(()=>$("#pdvQ").focus(),50); }
 }));
 
 // ===== Publicar =====
@@ -1438,23 +1466,261 @@ $("#vSave").addEventListener("click",async()=>{
 let vCancel=null;
 function renderVen(){
   const q=norm($("#vq").value);
-  const vis=G.vendas.filter(v=>!q||norm(v.cliente+" "+v.numero+" "+(v.nf||"")).includes(q));
+  const fnf=$("#vnf").value;
+  const vis=G.vendas.filter(v=>(!q||norm(v.cliente+" "+v.numero+" "+(v.nf||"")+" "+(v.nota?.chave||"")).includes(q))&&(!fnf||(fnf==="com"?!!v.nf:(!v.nf&&v.status!=="cancelada"))));
   $("#vBody").innerHTML=vis.slice(0,200).map(v=>{
     const canc=v.status==="cancelada";
     return `<tr${canc?' style="opacity:.55"':""}><td><b>${v.numero}</b></td><td>${dfmt(v.data)}</td><td>${esc(v.cliente||"Consumidor")}${v.doc?`<div class="sub">${esc(v.doc)}</div>`:""}</td><td>${v.itens.map(i=>`${qfmt(i.qtd)}× ${esc(i.produto)}`).join("<br>")}</td><td class="n">${brl(v.total)}</td><td>${esc(v.pagamento)}${v.fiado&&!canc?(fSaldo(v.fiado)>0?' <span class="pill warn">a receber</span>':' <span class="pill ok">quitado</span>'):""}</td>
-    <td>${canc?'<span class="pill bad">Cancelada</span>':v.nf?`<span class="pill ok">NF ${esc(v.nf)}</span>`:`<span class="inl"><input data-nf="${v.id}" placeholder="nº NF" style="width:90px"><button class="btn ghost" type="button" data-nfsave="${v.id}">OK</button></span>`}</td>
-    <td class="n">${canc?"":vCancel===v.id?`<span class="inl"><button class="btn danger" type="button" data-vcy="${v.id}" style="background:var(--bad);color:#fff">Confirmar</button><button class="btn ghost" type="button" data-vcn="1">Não</button></span>`:`<button class="btn danger" type="button" data-vc="${v.id}">Cancelar</button>`}</td></tr>`;
+    <td>${canc?'<span class="pill bad">Cancelada</span>':v.nf?`<span class="pill ok" title="${esc(v.nota?.chave?"Chave "+v.nota.chave:"")}">${v.nota?.modelo==="65"?"NFC-e":"NF"} ${esc(v.nf)}</span>${v.nota?.chave?`<div class="sub">${v.nota.auto?"emitida pelo painel":"XML importado"}</div>`:""}`:`${v.notaTeste&&!v.notaTeste.cancelada?`<span class="pill warn">NFC-e teste ${esc(v.notaTeste.numero)}</span>`:""}<span class="inl"><input data-nf="${v.id}" placeholder="nº NF" style="width:80px"><button class="btn ghost" type="button" data-nfsave="${v.id}">OK</button></span>`}</td>
+    <td class="n">${canc?"":vCancel===v.id?`<span class="inl"><button class="btn danger" type="button" data-vcy="${v.id}" style="background:var(--bad);color:#fff">Confirmar</button><button class="btn ghost" type="button" data-vcn="1">Não</button></span>`:`<span class="inl" style="justify-content:flex-end"><button class="btn ghost" type="button" data-vnota="${v.id}">Dados p/ nota</button><button class="btn danger" type="button" data-vc="${v.id}">Cancelar</button></span>`}</td></tr>`;
   }).join("")||`<tr><td colspan="8" class="sub" style="padding:24px;text-align:center">Nenhuma venda registrada ainda.</td></tr>`;
 }
-$("#vq").addEventListener("input",renderVen);
+$("#vq").addEventListener("input",renderVen); $("#vnf").addEventListener("change",renderVen);
+// ===== Dados para emitir a nota no emissor do Sebrae =====
+const n2=v=>(+v).toFixed(2).replace(".",",");
+const q3=v=>String(+(+v).toFixed(3)).replace(".",",");
+function notaDados(v){
+  const sub=v.subtotal||r2(v.itens.reduce((s,i)=>s+i.qtd*i.preco,0)), desc=v.desconto||r2(Math.max(0,sub-v.total));
+  let resto=desc;
+  const its=v.itens.map((i,k)=>{ const e=G.estoque[i.produto]||{}, it=items.find(x=>x.nome===i.produto)||{}, tot=r2(i.qtd*i.preco);
+    let d=0; if(desc>0){ d=k===v.itens.length-1?r2(resto):r2(desc*tot/sub); resto=r2(resto-d); }
+    return {nome:i.produto+(it.tam&&!norm(i.produto).includes(norm(it.tam))?" "+it.tam:""),ean:e.ean||"",ncm:e.ncm||"",un:(e.un||"UN").toUpperCase(),qtd:i.qtd,vun:i.preco,tot,desc:d}; });
+  const pags=(v.pagamentos&&v.pagamentos.length)?v.pagamentos.map(l=>({forma:(typeof FORMAS!=="undefined"&&FORMAS[l.forma])||l.forma,valor:l.valor,parcelas:l.parcelas||1})):[{forma:v.pagamento,valor:v.total,parcelas:1}];
+  return {sub,desc,its,pags,troco:v.troco||0};
+}
+function notaTexto(v,d){
+  const L=[`VENDA Nº ${v.numero} - ${dfmt(v.data)}`, `Cliente: ${v.cliente||"Consumidor final"}${v.doc?" - CPF/CNPJ "+v.doc:""}`,"",
+    ["Item","Produto","Cód. barras","NCM","Un","Qtd","Valor unit.","Total","Desconto"].join("\t"),
+    ...d.its.map((i,k)=>[k+1,i.nome,i.ean||"SEM GTIN",i.ncm,i.un,q3(i.qtd),n2(i.vun),n2(i.tot),n2(i.desc)].join("\t")),"",
+    `Total dos produtos: ${n2(d.sub)}`,`Desconto: ${n2(d.desc)}`,`TOTAL DA NOTA: ${n2(v.total)}`,"",
+    "Pagamento:",...d.pags.map(p=>`${p.forma}${p.parcelas>1?" "+p.parcelas+"x":""}: ${n2(p.valor)}`),...(d.troco>0?[`Troco: ${n2(d.troco)}`]:[])];
+  return L.join("\n");
+}
+async function copiar(t,el){ try{ await navigator.clipboard.writeText(t); }catch(_){ const a=document.createElement("textarea"); a.value=t; document.body.appendChild(a); a.select(); try{document.execCommand("copy");}catch(__){} a.remove(); } if(el){ el.classList.add("cpok"); setTimeout(()=>el.classList.remove("cpok"),700); } }
+function notaModal(id){
+  const v=G.vendas.find(x=>x.id===id); if(!v) return; const d=notaDados(v);
+  const semNcm=d.its.filter(i=>!/^\d{8}$/.test(i.ncm));
+  const cp=(t,show)=>`<span class="ncp" data-cp="${esc(t)}">${esc(show!==undefined?show:t)}</span>`;
+  const m=modal(`<h2>Dados para a nota · Venda ${v.numero} <button class="ic" type="button" data-nx="1" aria-label="Fechar">×</button></h2>
+    <p class="sub" style="margin:0">Clique em qualquer valor para copiar e cole no emissor do Sebrae. Ou use <b>Copiar tudo</b>.</p>
+    <div class="nhead"><div><small>Data</small>${dfmt(v.data)}${v.hora?" "+new Date(v.hora).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):""}</div>
+      <div><small>Cliente</small>${v.cliente?cp(v.cliente):"Consumidor final"}</div><div><small>CPF/CNPJ</small>${v.doc?cp(v.doc.replace(/\D/g,""),v.doc):"Não informado"}</div>
+      <div><small>Total da nota</small><b style="font-size:18px">${cp(n2(v.total),brl(v.total))}</b></div></div>
+    ${semNcm.length?`<div class="msg bad">Sem NCM: ${semNcm.map(i=>esc(i.nome)).join(", ")}. O emissor exige o NCM. Cadastre na aba Estoque (Ajustar) ou peça ao escritório.</div>`:""}
+    <div class="tblw"><table class="tbl ntab"><thead><tr><th>#</th><th>Produto</th><th>Cód. barras</th><th>NCM</th><th>Un</th><th class="n">Qtd</th><th class="n">Valor unit.</th><th class="n">Total</th>${d.desc?'<th class="n">Desconto</th>':""}</tr></thead><tbody>
+    ${d.its.map((i,k)=>`<tr><td>${k+1}</td><td class="cp" data-cp="${esc(i.nome)}">${esc(i.nome)}</td><td class="cp" data-cp="${esc(i.ean||"SEM GTIN")}">${esc(i.ean||"SEM GTIN")}</td><td class="cp" data-cp="${esc(i.ncm)}">${esc(i.ncm||"–")}</td><td class="cp" data-cp="${esc(i.un)}">${esc(i.un)}</td><td class="n cp" data-cp="${q3(i.qtd)}">${q3(i.qtd)}</td><td class="n cp" data-cp="${n2(i.vun)}">${n2(i.vun)}</td><td class="n cp" data-cp="${n2(i.tot)}">${n2(i.tot)}</td>${d.desc?`<td class="n cp" data-cp="${n2(i.desc)}">${n2(i.desc)}</td>`:""}</tr>`).join("")}
+    </tbody></table></div>
+    <div class="nhead"><div><small>Total dos produtos</small>${cp(n2(d.sub))}</div><div><small>Desconto</small>${cp(n2(d.desc))}</div>
+      <div><small>Pagamento</small>${d.pags.map(p=>`${esc(p.forma)}${p.parcelas>1?" "+p.parcelas+"x":""}: ${cp(n2(p.valor))}`).join("<br>")}${d.troco>0?`<br>Troco: ${cp(n2(d.troco))}`:""}</div></div>
+    <div class="inl"><button class="btn pri" type="button" id="nAll">Copiar tudo</button><span class="sub" id="nMsg"></span></div>
+    ${nfOn()?`<div class="gcard" style="margin:0;padding:12px;border-color:var(--cobalt)" id="nfBox"></div>`:""}
+    <div class="gcard" style="margin:0;padding:12px"><b>${nfOn()?"Emitiu no emissor do Sebrae?":"Depois de emitir"}</b>
+      <div class="inl" style="margin-top:8px"><input id="nNum" placeholder="Nº da nota" value="${esc(v.nf||"")}" maxlength="20" style="width:130px;padding:9px 10px;border:1.5px solid var(--line);border-radius:10px"><button class="btn ghost" type="button" id="nSave">Salvar número</button><span class="sub">ou</span><button class="btn ghost" type="button" id="nXml">Importar XML desta nota</button><input id="nXmlIn" type="file" accept=".xml,text/xml,application/xml" hidden></div>
+      <div class="sub" id="nSt" style="margin-top:6px">${v.nota?.chave?"XML importado · chave "+esc(v.nota.chave):""}</div></div>`);
+  m.querySelector(".mbox").classList.add("wide");
+  const nfBox=()=>{ const bx=$("#nfBox"); if(!bx) return; const vv=G.vendas.find(x=>x.id===id), n=vv.nota&&vv.nota.auto?vv.nota:vv.notaTeste, ativa=n&&!n.cancelada;
+    bx.innerHTML=`<b>NFC-e automática</b><div class="sub" id="nfSt" style="margin:6px 0">${ativa?`NFC-e nº ${esc(n.numero)} série ${esc(n.serie)} autorizada${n.ambiente!=="producao"?" <span class='pill warn'>teste</span>":""}.`:n&&n.cancelada?`NFC-e nº ${esc(n.numero)} cancelada.`:"Emite a nota direto na SEFAZ, sem digitar nada."}</div>
+      <div class="inl">${ativa?`<button class="btn pri" type="button" id="nfDanfe">Imprimir DANFE NFC-e</button><button class="btn ghost" type="button" id="nfCanc">Cancelar NFC-e</button>`:`<button class="btn pri" type="button" id="nfEmit">Emitir NFC-e agora</button>`}</div>
+      <div id="nfCancBox" hidden style="margin-top:8px"><input id="nfJust" placeholder="Motivo do cancelamento (mín. 15 letras)" maxlength="255" style="width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:10px"><div class="inl" style="margin-top:6px"><button class="btn danger" type="button" id="nfCancOk" style="background:var(--bad);color:#fff">Confirmar cancelamento</button><span class="sub">A NFC-e só pode ser cancelada até 30 minutos depois da emissão.</span></div></div>`; };
+  nfBox();
+  const nfUi=(h,cls)=>{ const st=$("#nfSt"); if(st) st.innerHTML=cls?`<span class="msg ${cls}" style="display:block">${h}</span>`:h; };
+  m.addEventListener("click",async e=>{
+    if(e.target.closest("[data-nx]")){ closeModal(); return; }
+    if(e.target.closest("#nfEmit")){ const b=e.target.closest("#nfEmit"); b.disabled=true; const n=await emitirNFCe(id,nfUi); if(n){ if($("#nfSt")){ const msg=$("#nfSt").innerHTML; nfBox(); $("#nfSt").innerHTML=msg; } renderVen(); } else b.disabled=false; return; }
+    if(e.target.closest("#nfDanfe")){ const vv=G.vendas.find(x=>x.id===id); abrirDanfe(vv.nota&&vv.nota.auto?vv.nota:vv.notaTeste); return; }
+    if(e.target.closest("#nfCanc")){ $("#nfCancBox").hidden=false; $("#nfJust").focus(); return; }
+    if(e.target.closest("#nfCancOk")){ const j=$("#nfJust").value.trim(); if(j.length<15){ nfUi("Escreva o motivo com pelo menos 15 letras.","bad"); return; } const b=e.target.closest("#nfCancOk"); b.disabled=true; const ok=await cancelarNFCe(id,j,nfUi); if(ok){ if($("#nfSt")){ const msg=$("#nfSt").innerHTML; nfBox(); $("#nfSt").innerHTML=msg; } renderVen(); } else b.disabled=false; return; }
+    const c=e.target.closest("[data-cp]"); if(c){ copiar(c.dataset.cp,c); $("#nMsg").textContent=`Copiado: ${c.dataset.cp}`; return; }
+    if(e.target.closest("#nAll")){ await copiar(notaTexto(v,d)); $("#nMsg").textContent="Tudo copiado. Cole num bloco de notas ou planilha para consultar."; return; }
+    if(e.target.closest("#nXml")){ $("#nXmlIn").click(); return; }
+    if(e.target.closest("#nSave")){ const val=$("#nNum").value.trim(); if(!val) return; const bk=JSON.stringify(G); v.nf=val; try{ await gSave(`NF ${val} na venda ${v.numero}`); $("#nSt").textContent="Número salvo."; renderVen(); }catch(x){ G=JSON.parse(bk); $("#nSt").textContent=gSaveErr(x); } }
+  });
+  $("#nXmlIn").addEventListener("change",async e=>{ const f=e.target.files[0]; if(!f) return; const st=$("#nSt");
+    try{ const n=parseNotaVenda(await f.text()); const av=avisosNota(n,v); await ligarNota(G.vendas.find(x=>x.id===id),n); st.innerHTML=`<span class="msg ok" style="display:block">Nota ${esc(n.numero)} ligada à venda ${v.numero}.${av?" "+esc(av):""}</span>`; $("#nNum").value=n.numero; renderVen(); }
+    catch(x){ st.innerHTML=`<span class="msg bad" style="display:block">${esc(x.message||gSaveErr(x))}</span>`; } });
+}
+// ===== NFC-e automática (Focus NFe, pela ponte) =====
+const NFDEF={url:"",cfop:"5102",csosn:"102",origem:"0",pis:"49",ean:true,auto:false};
+const nfCfg=()=>Object.assign({},NFDEF,(G&&G.nfce)||{});
+const nfOn=()=>!!(G&&G.nfce&&/^https:\/\//.test(G.nfce.url||""));
+function renderNfCfg(){
+  const c=nfCfg(); if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#nfCard")) return;
+  $("#nfUrl").value=c.url; $("#nfCfop").value=c.cfop; $("#nfCsosn").value=c.csosn; $("#nfOrig").value=c.origem; $("#nfPis").value=c.pis; $("#nfEan").checked=!!c.ean; $("#nfAuto").checked=!!c.auto;
+  if(nfOn()&&!$("#nfStatus").dataset.testado) $("#nfStatus").textContent="Ponte configurada. Clique em Testar ponte para conferir a conexão.";
+}
+async function nfFetch(path,opt={}){
+  const c=nfCfg(); if(!nfOn()) throw new Error("A NFC-e automática não está configurada (Dados da loja).");
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),opt.timeout||90000);
+  let r; try{ r=await fetch(c.url.replace(/\/+$/,"")+path,{method:opt.method||"GET",body:opt.body,signal:ctl.signal,headers:{"Authorization":"Bearer "+TOKEN,...(opt.body?{"Content-Type":"application/json"}:{})}}); }
+  catch(e){ const x=new Error(e.name==="AbortError"?"A ponte demorou para responder.":"Não consegui falar com a ponte NFC-e. Verifique a internet e o endereço da ponte."); x.rede=true; throw x; }
+  finally{ clearTimeout(t); }
+  let o={}; try{ o=await r.json(); }catch(_){}
+  o._http=r.status; return o;
+}
+$("#nfSave").addEventListener("click",async()=>{
+  const er=$("#nfErr"); er.hidden=true; er.className="msg bad gerr";
+  const url=$("#nfUrl").value.trim().replace(/\/+$/,"");
+  if(url&&!/^https:\/\/[^\s/]+\.[^\s]+$/.test(url)){ er.textContent="O endereço da ponte deve começar com https://"; er.hidden=false; return; }
+  const v={url,cfop:$("#nfCfop").value.replace(/\D/g,"")||"5102",csosn:$("#nfCsosn").value.replace(/\D/g,"")||"102",origem:$("#nfOrig").value.replace(/\D/g,"")||"0",pis:$("#nfPis").value.replace(/\D/g,"").padStart(2,"0")||"49",ean:$("#nfEan").checked,auto:$("#nfAuto").checked&&!!url};
+  if(!/^[5-6]\d{3}$/.test(v.cfop)){ er.textContent="CFOP inválido para venda dentro do estado (ex.: 5102, 5405)."; er.hidden=false; return; }
+  const bk=JSON.stringify(G); G.nfce=v; const b=$("#nfSave"); b.disabled=true;
+  try{ await gSave("Configuração NFC-e"); er.className="msg ok gerr"; er.textContent="Configuração salva."; er.hidden=false; document.activeElement.blur(); renderNfCfg(); }
+  catch(x){ G=JSON.parse(bk); er.textContent=gSaveErr(x); er.hidden=false; } finally{ b.disabled=false; }
+});
+$("#nfTest").addEventListener("click",async()=>{
+  const st=$("#nfStatus"); st.dataset.testado="1";
+  if(!nfOn()){ st.textContent="Salve o endereço da ponte primeiro."; return; }
+  st.textContent="Testando…";
+  try{ const o=await nfFetch("/status",{timeout:20000});
+    if(o._http===200&&o.ok){ st.innerHTML=`<span class="pill ok">Ponte funcionando</span> Ambiente: <b>${o.ambiente==="producao"?"PRODUÇÃO (notas valem de verdade)":"HOMOLOGAÇÃO (notas de teste, sem valor fiscal)"}</b>${o.cnpj?" · CNPJ "+esc(o.cnpj):""}`; }
+    else st.innerHTML=`<span class="pill bad">Erro</span> ${esc(o.mensagem||o.erro||("HTTP "+o._http))}`; }
+  catch(x){ st.innerHTML=`<span class="pill bad">Erro</span> ${esc(x.message)}`; }
+});
+function gtinOk(c){ if(!/^(\d{8}|\d{12,14})$/.test(c)) return false; const d=c.split("").map(Number), chk=d.pop(); let s=0; d.reverse().forEach((x,i)=>s+=x*(i%2?1:3)); return (10-s%10)%10===chk; }
+const dec=(v,n=2)=>(+v).toFixed(n);
+function dataLocal(){ const d=new Date(), o=-d.getTimezoneOffset(), p=n=>String(Math.floor(Math.abs(n))).padStart(2,"0"); const l=new Date(d.getTime()+o*60000).toISOString().slice(0,19); return `${l}${o>=0?"+":"-"}${p(o/60)}:${p(o%60)}`; }
+function formaCod(f){ const t=norm(f); if(/dinheiro/.test(t)) return "01"; if(/pix/.test(t)) return "17"; if(/debito/.test(t)) return "04"; if(/credito/.test(t)&&/cart/.test(t)) return "03"; if(/boleto/.test(t)) return "15"; if(/fiado|loja/.test(t)) return "05"; return "99"; }
+function montarNFCe(v){
+  const c=nfCfg(), d=notaDados(v), docN=(v.doc||"").replace(/\D/g,"");
+  const semNcm=d.its.filter(i=>!/^\d{8}$/.test(i.ncm)); if(semNcm.length) throw new Error("Produto sem NCM: "+semNcm.map(i=>i.nome).join(", ")+". Cadastre o NCM na aba Estoque (Ajustar).");
+  const nota={natureza_operacao:"VENDA AO CONSUMIDOR",data_emissao:dataLocal(),presenca_comprador:"1",modalidade_frete:"9",local_destino:"1",
+    items:d.its.map((i,k)=>{ const it={numero_item:String(k+1),codigo_produto:(i.ean||("PB"+(k+1)+"-"+norm(i.nome).replace(/[^a-z0-9]+/g,"").slice(0,40)||"ITEM")).slice(0,60),descricao:i.nome.slice(0,120),codigo_ncm:i.ncm,cfop:c.cfop,
+      unidade_comercial:i.un,unidade_tributavel:i.un,quantidade_comercial:dec(i.qtd,4),quantidade_tributavel:dec(i.qtd,4),valor_unitario_comercial:dec(i.vun,4),valor_unitario_tributavel:dec(i.vun,4),valor_bruto:dec(i.tot),
+      icms_origem:c.origem,icms_situacao_tributaria:c.csosn,pis_situacao_tributaria:c.pis,cofins_situacao_tributaria:c.pis};
+      if(i.desc>0) it.valor_desconto=dec(i.desc);
+      if(c.ean&&gtinOk(i.ean)){ it.codigo_barras_comercial=i.ean; it.codigo_barras_tributavel=i.ean; }
+      return it; }),
+    formas_pagamento:d.pags.map(p=>{ const f={forma_pagamento:formaCod(p.forma),valor_pagamento:dec(p.valor)}; if(f.forma_pagamento==="03"||f.forma_pagamento==="04") f.tipo_integracao="2"; return f; })};
+  if(d.troco>0) nota.valor_troco=dec(d.troco);
+  if(docN.length===11) nota.cpf_destinatario=docN; else if(docN.length===14) nota.cnpj_destinatario=docN;
+  if(docN&&v.cliente){ nota.nome_destinatario=v.cliente.slice(0,60); nota.indicador_inscricao_estadual_destinatario="9"; }
+  return nota;
+}
+const nfMsg=o=>[o.mensagem_sefaz,o.mensagem,...(o.erros||[]).map(e=>e.mensagem+(e.campo?` (${e.campo})`:""))].filter(Boolean).join(" · ")||o.erro||("Erro HTTP "+o._http);
+async function nfGuardar(v,o){
+  const teste=o.ambiente!=="producao", chave=String(o.chave_nfe||"").replace(/^NFe/,"");
+  const nota={modelo:"65",numero:String(o.numero||""),serie:String(o.serie||""),chave,emissao:new Date().toISOString(),valor:v.total,status:String(o.status_sefaz||"100"),ref:o.ref||v.nfce.ref,auto:true,ambiente:o.ambiente,
+    danfe:o.danfe_url||"",qrcode:o.qrcode_url||"",consulta:o.url_consulta_nf||"",contingencia:!!o.contingencia_offline&&!o.contingencia_offline_efetivada,arquivo:o.xml?`notas-venda/${teste?"teste-":""}${chave||v.id}.xml`:""};
+  if(teste) v.notaTeste=nota; else { v.nota=nota; v.nf=nota.numero; }
+  v.nfce.ultimo="autorizado";
+  await gSave(`NFC-e ${nota.numero} venda ${v.numero}${teste?" (teste)":""}`,o.xml?[{path:nota.arquivo,b64:enc64(o.xml)}]:[]);
+  return nota;
+}
+async function emitirNFCe(id,ui){
+  const say=(h,cls)=>{ if(ui) ui(h,cls); };
+  const v=G.vendas.find(x=>x.id===id); if(!v) return null;
+  if(v.status==="cancelada"){ say("Venda cancelada não pode ter nota.","bad"); return null; }
+  if(v.nota&&v.nota.auto&&!v.nota.cancelada){ say(`Esta venda já tem a NFC-e nº ${esc(v.nota.numero)}.`,"ok"); return v.nota; }
+  let nota; try{ nota=montarNFCe(v); }catch(x){ say(esc(x.message),"bad"); return null; }
+  v.nfce=v.nfce||{tent:0,refs:[]};
+  try{
+    // se a última tentativa ficou sem resposta, consulta antes de mandar de novo (evita nota em dobro)
+    const ult=v.nfce.refs[v.nfce.refs.length-1];
+    if(ult&&v.nfce.ultimo!=="erro"){
+      say("Conferindo a tentativa anterior…");
+      const o=await nfFetch(`/nfce/${ult}?xml=1`);
+      if(o.status==="autorizado"){ const n=await nfGuardar(v,o); say(`NFC-e nº ${esc(n.numero)} autorizada.`,"ok"); return n; }
+      if(o.status==="processando_autorizacao"){ say("A SEFAZ ainda está processando a nota anterior. Tente de novo em 1 minuto.","bad"); return null; }
+    }
+    v.nfce.tent++; const ref=`pb${v.id}${v.nfce.tent>1?"t"+v.nfce.tent:""}`.replace(/[^A-Za-z0-9_-]/g,"").slice(0,60);
+    v.nfce.refs.push(ref); v.nfce.ref=ref; v.nfce.ultimo="enviando";
+    say("Emitindo NFC-e na SEFAZ…");
+    let o=await nfFetch(`/nfce?ref=${ref}`,{method:"POST",body:JSON.stringify(nota)});
+    for(let k=0;k<5&&o.status==="processando_autorizacao";k++){ await new Promise(r=>setTimeout(r,3000)); o=await nfFetch(`/nfce/${ref}?xml=1`); }
+    if(o.status==="autorizado"){ const n=await nfGuardar(v,o); say(`NFC-e nº ${esc(n.numero)} autorizada${n.ambiente!=="producao"?" (HOMOLOGAÇÃO, sem valor fiscal)":""}.${n.contingencia?" Emitida em contingência: a Focus envia para a SEFAZ quando ela voltar.":""}`,"ok"); return n; }
+    v.nfce.ultimo=o.status==="processando_autorizacao"?"processando":"erro";
+    try{ await gSave(`Tentativa NFC-e venda ${v.numero}`); }catch(_){}
+    say(`Nota não autorizada: ${esc(nfMsg(o))}`,"bad"); return null;
+  }catch(x){
+    if(v.nfce) v.nfce.ultimo=x.rede?"sem_resposta":"erro";
+    try{ await gSave(`Tentativa NFC-e venda ${v.numero}`); }catch(_){}
+    say(esc(x.message||gSaveErr(x)),"bad"); return null;
+  }
+}
+async function cancelarNFCe(id,just,ui){
+  const v=G.vendas.find(x=>x.id===id), n=v&&(v.nota&&v.nota.auto?v.nota:v.notaTeste); if(!n) return false;
+  ui("Cancelando a NFC-e na SEFAZ…");
+  try{
+    const o=await nfFetch(`/nfce/${n.ref}`,{method:"DELETE",body:JSON.stringify({justificativa:just})});
+    if(o.status!=="cancelado"){ ui(`Não foi cancelada: ${esc(nfMsg(o))}`,"bad"); return false; }
+    n.cancelada={em:new Date().toISOString(),protocolo:o.numero_protocolo||"",justificativa:just};
+    if(n===v.nota) v.nf="";
+    const files=o.xml_cancelamento?[{path:`notas-venda/${n.ambiente!=="producao"?"teste-":""}${n.chave||v.id}-cancelamento.xml`,b64:enc64(o.xml_cancelamento)}]:[];
+    await gSave(`Cancela NFC-e ${n.numero} venda ${v.numero}`,files); ui(`NFC-e nº ${esc(n.numero)} cancelada.`,"ok"); return true;
+  }catch(x){ ui(esc(x.message||gSaveErr(x)),"bad"); return false; }
+}
+function abrirDanfe(n){ if(n&&n.danfe) window.open(n.danfe,"_blank","noopener"); }
+// ===== Importar XML das notas de venda emitidas =====
+function parseNotaVenda(text){
+  const doc=new DOMParser().parseFromString(text,"application/xml");
+  if(doc.getElementsByTagName("parsererror").length) throw new Error("O arquivo não é um XML válido.");
+  const inf=tg(doc,"infNFe"); if(!inf) throw new Error("Este XML não é de uma NF-e/NFC-e.");
+  const ide=tg(inf,"ide"), emit=tg(inf,"emit"), dest=tg(inf,"dest"), tot=tg(inf,"ICMSTot"), prot=tg(doc,"infProt");
+  return {chave:(inf.getAttribute("Id")||"").replace(/^NFe/,"")||tv(doc,"chNFe"),modelo:tv(ide,"mod"),numero:tv(ide,"nNF"),serie:tv(ide,"serie"),
+    emissao:tv(ide,"dhEmi")||tv(ide,"dEmi"),data:(tv(ide,"dhEmi")||tv(ide,"dEmi")).slice(0,10),emitente:(tv(emit,"CNPJ")||tv(emit,"CPF")),
+    dest:{doc:tv(dest,"CNPJ")||tv(dest,"CPF"),nome:tv(dest,"xNome")},valor:num(tv(tot,"vNF")),status:prot?tv(prot,"cStat"):"",protocolo:prot?tv(prot,"nProt"):"",
+    itens:[...inf.getElementsByTagNameNS("*","det")].map(d=>({nome:tv(tg(d,"prod"),"xProd"),qtd:num(tv(tg(d,"prod"),"qCom"))})),xml:text};
+}
+const CNPJ_LOJA="67905362000100";
+function avisosNota(n,v){
+  const a=[];
+  if(n.emitente&&n.emitente!==CNPJ_LOJA) throw new Error(`Esta nota foi emitida pelo CNPJ ${n.emitente}, não pela POP BRILHO. Para notas de compra use a aba Notas de compra.`);
+  if(n.status&&n.status!=="100") a.push(`Atenção: a situação da nota na SEFAZ é ${n.status} (não é "autorizada").`);
+  if(v&&Math.abs(n.valor-v.total)>0.009) a.push(`O valor da nota (${brl(n.valor)}) é diferente do total da venda (${brl(v.total)}).`);
+  return a.join(" ");
+}
+async function ligarNota(v,n){
+  const dup=G.vendas.find(x=>x.id!==v.id&&x.nota&&x.nota.chave===n.chave); if(dup) throw new Error(`Esta nota já está ligada à venda ${dup.numero}.`);
+  const bk=JSON.stringify(G);
+  v.nf=n.numero; v.nota={modelo:n.modelo,numero:n.numero,serie:n.serie,chave:n.chave,emissao:n.emissao,valor:n.valor,status:n.status,protocolo:n.protocolo,arquivo:`notas-venda/${n.chave||uid()}.xml`};
+  try{ await gSave(`NF ${n.numero} na venda ${v.numero}`,[{path:v.nota.arquivo,b64:enc64(n.xml)}]); }catch(x){ G=JSON.parse(bk); throw x; }
+}
+function candidatas(n){
+  const dia=t=>new Date(t+"T12:00:00").getTime();
+  return G.vendas.filter(v=>v.status!=="cancelada"&&!(v.nota&&v.nota.chave))
+    .map(v=>({v,dd:Math.abs(dia(v.data)-dia(n.data))/864e5,dv:Math.abs(v.total-n.valor)}))
+    .filter(x=>x.dd<=10).sort((a,b)=>(a.dv>0.009)-(b.dv>0.009)||a.dd-b.dd||b.v.numero-a.v.numero);
+}
+$("#vXml").addEventListener("click",()=>$("#vXmlIn").click());
+$("#vXmlIn").addEventListener("change",async e=>{
+  const files=[...e.target.files]; e.target.value=""; if(!files.length) return;
+  const notas=[], erros=[];
+  for(const f of files){ try{ const n=parseNotaVenda(await f.text()); avisosNota(n); if(G.vendas.some(v=>v.nota&&v.nota.chave===n.chave)) erros.push(`${f.name}: nota ${n.numero} já importada.`); else notas.push(n); }catch(x){ erros.push(`${f.name}: ${x.message}`); } }
+  const sel=notas.map(n=>{ const c=candidatas(n), exatas=c.filter(x=>x.dv<=0.009&&x.dd<1); return {n,c,escolha:exatas.length===1?exatas[0].v.id:(c[0]&&c[0].dv<=0.009?c[0].v.id:"")}; });
+  const m=modal(`<h2>Ligar notas às vendas <button class="ic" type="button" data-nx="1" aria-label="Fechar">×</button></h2>
+    ${erros.length?`<div class="msg bad">${erros.map(esc).join("<br>")}</div>`:""}
+    ${sel.length?`<p class="sub" style="margin:0">O painel sugeriu a venda com o mesmo valor e data. Confira e troque se precisar.</p>
+    <div class="tblw"><table class="tbl"><thead><tr><th>Nota</th><th>Emissão</th><th class="n">Valor</th><th>Venda</th></tr></thead><tbody>
+    ${sel.map((s,k)=>`<tr><td><b>${s.n.modelo==="65"?"NFC-e":"NF-e"} ${esc(s.n.numero)}</b><div class="sub">${s.n.dest.nome?esc(s.n.dest.nome):"Consumidor"}${s.n.status&&s.n.status!=="100"?` · <span style="color:var(--bad)">situação ${esc(s.n.status)}</span>`:""}</div></td><td>${dfmt(s.n.data)}</td><td class="n">${brl(s.n.valor)}</td>
+      <td><select data-ns="${k}" style="max-width:280px;padding:8px;border:1.5px solid var(--line);border-radius:10px"><option value="">Não ligar</option>${s.c.slice(0,30).map(x=>`<option value="${x.v.id}"${x.v.id===s.escolha?" selected":""}>Venda ${x.v.numero} · ${dfmt(x.v.data)} · ${brl(x.v.total)}${x.dv<=0.009?" ✓":""}${x.v.cliente?" · "+esc(x.v.cliente):""}</option>`).join("")}</select></td></tr>`).join("")}
+    </tbody></table></div>
+    <div class="msg bad" id="nlErr" hidden></div>
+    <div class="inl"><button class="btn pri" type="button" id="nlOk">Ligar notas selecionadas</button><button class="btn ghost" type="button" data-nx="1">Cancelar</button></div>`:`<div class="inl"><button class="btn ghost" type="button" data-nx="1">Fechar</button></div>`}`);
+  m.querySelector(".mbox").classList.add("wide");
+  m.addEventListener("click",async ev=>{
+    if(ev.target.closest("[data-nx]")){ closeModal(); return; }
+    if(!ev.target.closest("#nlOk")) return;
+    const esc2=[...m.querySelectorAll("[data-ns]")].map(x=>({s:sel[+x.dataset.ns],id:x.value})).filter(x=>x.id);
+    const ids=esc2.map(x=>x.id); if(new Set(ids).size!==ids.length){ $("#nlErr").textContent="Duas notas estão apontando para a mesma venda."; $("#nlErr").hidden=false; return; }
+    if(!esc2.length){ closeModal(); return; }
+    const b=$("#nlOk"); b.disabled=true; b.textContent="Salvando…"; const ok=[], av=[];
+    try{ for(const x of esc2){ const v=G.vendas.find(y=>y.id===x.id); const a=avisosNota(x.s.n,v); await ligarNota(v,x.s.n); ok.push(`NF ${x.s.n.numero} → venda ${v.numero}`); if(a) av.push(`Venda ${v.numero}: ${a}`); } }
+    catch(x){ $("#nlErr").textContent=(x.message&&!x.status?x.message:gSaveErr(x)); $("#nlErr").hidden=false; b.disabled=false; b.textContent="Ligar notas selecionadas"; renderVen(); return; }
+    closeModal(); renderVen();
+    const msg=document.createElement("div"); msg.className="msg ok"; msg.style.marginBottom="10px"; msg.innerHTML=esc(ok.join(" · "))+(av.length?"<br>"+av.map(esc).join("<br>"):""); $("#tVen .gbody").prepend(msg); setTimeout(()=>msg.remove(),9000);
+  });
+});
 $("#vBody").addEventListener("click",async e=>{
   const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.vnota){ notaModal(b.dataset.vnota); return; }
   if(b.dataset.vc){ vCancel=b.dataset.vc; renderVen(); return; }
   if(b.dataset.vcn){ vCancel=null; renderVen(); return; }
   const backup=JSON.stringify(G);
   try{
     if(b.dataset.vcy){
-      const v=G.vendas.find(x=>x.id===b.dataset.vcy); v.status="cancelada"; v.canceladaEm=new Date().toISOString();
+      const v=G.vendas.find(x=>x.id===b.dataset.vcy);
+      if(v.nota&&v.nota.auto&&!v.nota.cancelada){ vCancel=null; renderVen(); alertRow(`A venda ${v.numero} tem a NFC-e nº ${v.nota.numero} autorizada. Cancele a nota primeiro em "Dados p/ nota" (até 30 minutos após a emissão).`); return; }
+      v.status="cancelada"; v.canceladaEm=new Date().toISOString();
       v.itens.forEach(i=>{const e2=est(i.produto); e2.qtd=+(e2.qtd+i.qtd).toFixed(3); mov("estorno",i.produto,i.qtd,`Cancelamento venda ${v.numero}`);});
       b.disabled=true; await gSave(`Cancela venda ${v.numero}`); vCancel=null; gRenderAll();
     }else if(b.dataset.nfsave){
@@ -1465,7 +1731,7 @@ $("#vBody").addEventListener("click",async e=>{
 });
 function alertRow(t){ const m=document.createElement("div"); m.className="msg bad"; m.style.marginBottom="10px"; m.textContent=t; $("#tVen .gbody").prepend(m); setTimeout(()=>m.remove(),8000); }
 
-function gRenderAll(){ if(!G) return; render(); ensureClientes(); renderCli(); renderPdv(); renderFia(); renderFin(); renderEst(); renderCmp(); renderVen(); if(!vRows.length){ $("#vData").value=today(); vNewRow(); } else renderVForm(); }
+function gRenderAll(){ if(!G) return; renderNfCfg(); render(); ensureClientes(); renderCli(); renderPdv(); renderFia(); renderFin(); renderEst(); renderCmp(); renderVen(); if(!vRows.length){ $("#vData").value=today(); vNewRow(); } else renderVForm(); }
 window.gRename=(oldN,newN)=>{
   if(!G||!G.estoque[oldN]||G.estoque[newN]) return;
   G.estoque[newN]=G.estoque[oldN]; delete G.estoque[oldN];
@@ -1646,11 +1912,19 @@ async function finishSale(){
   G.vendas.unshift(venda);
   pay.done=true;
   modal(`<div class="done"><div class="ok">✓</div><h2 style="justify-content:center">Venda ${numero} concluída</h2>${troco>0?`<div><small class="sub">Troco</small><div class="troco" style="font-size:40px">${brl(troco)}</div></div>`:""}<div class="sub" id="saveSt">Salvando…</div>
-    <div class="inl" style="justify-content:center"><button class="btn ghost" type="button" id="dPrint">Imprimir cupom</button><button class="btn lime" type="button" id="dNew" style="font-size:17px">Nova venda <span class="kbd">Enter</span></button></div></div>`);
+    <div class="inl" style="justify-content:center"><button class="btn ghost" type="button" id="dPrint">Imprimir cupom</button><button class="btn ghost" type="button" id="dNota">Dados para a nota</button><button class="btn lime" type="button" id="dNew" style="font-size:17px">Nova venda <span class="kbd">Enter</span></button></div></div>`);
   fillCupom(venda);
   $("#dPrint").addEventListener("click",()=>window.print());
   $("#dNew").addEventListener("click",newSale); setTimeout(()=>$("#dNew").focus(),50);
-  try{ await gSave(`PDV venda ${numero}`); $("#saveSt").textContent="Venda salva e estoque atualizado."; }
+  $("#dNota").addEventListener("click",async()=>{ await gQueue.catch(()=>{}); if(!G.vendas.some(x=>x.id===venda.id)) return; newSale(); notaModal(venda.id); });
+  try{ await gSave(`PDV venda ${numero}`); $("#saveSt").textContent="Venda salva e estoque atualizado.";
+    if(nfOn()){ const box=document.createElement("div"); box.id="pdvNf"; box.style.cssText="display:flex;flex-direction:column;gap:8px;align-items:center;width:100%"; $("#saveSt").after(box);
+      const ui=(h,cls)=>{ const el=$("#pdvNfSt"); if(el) el.innerHTML=cls?`<span class="msg ${cls==="ok"?"":cls}" style="display:block${cls==="ok"?";background:var(--ok-bg);color:var(--ok)":""}">${h}</span>`:h; };
+      const desenha=n=>{ box.innerHTML=`<div class="sub" id="pdvNfSt" style="width:100%"></div><div class="inl" style="justify-content:center">${n?`<button class="btn pri" type="button" id="pdvDanfe">Imprimir DANFE NFC-e</button>`:`<button class="btn pri" type="button" id="pdvEmit">Emitir NFC-e</button>`}</div>`;
+        if(n) $("#pdvDanfe").onclick=()=>abrirDanfe(n); else $("#pdvEmit").onclick=async()=>{ $("#pdvEmit").disabled=true; const r=await emitirNFCe(venda.id,ui); if(!box.isConnected) return; const t=$("#pdvNfSt").innerHTML; desenha(r); $("#pdvNfSt").innerHTML=t; $("#dNew")&&$("#dNew").focus(); }; };
+      desenha(null);
+      if(nfCfg().auto){ $("#pdvEmit").disabled=true; const r=await emitirNFCe(venda.id,ui); if(!box.isConnected) return; const t=$("#pdvNfSt").innerHTML; desenha(r); $("#pdvNfSt").innerHTML=t; $("#dNew")&&$("#dNew").focus(); }
+    } }
   catch(x){ G=JSON.parse(backup); pay.done=false; $("#saveSt").innerHTML=`<span class="msg bad" style="display:block">${esc(gSaveErr(x))} A venda NÃO foi registrada.</span>`; $("#dNew").textContent="Voltar"; $("#dNew").onclick=()=>{closeModal();}; return; }
 }
 function newSale(){ if(!pay||!pay.done) return; pay=null; cart=[]; $("#pdvDesc").value=""; closeModal(); renderPdv(); gRenderAll(); $("#pdvQ").focus(); }
