@@ -131,6 +131,18 @@ details.help ol{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
 .nhead div{background:var(--soft);border-radius:10px;padding:8px 10px;font-size:14px}
 .nhead small{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .mbox.wide{width:min(900px,100%)}
+.fcli{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.fcli h3{text-align:center;font-size:17px;letter-spacing:.02em;text-transform:uppercase;margin:0}
+.fcli .fmeta{text-align:center;font-size:13px;color:var(--muted);margin:4px 0 10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center}
+.ftab{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.ftab th{background:var(--cobalt);color:#fff;font-weight:700;padding:7px 8px;text-align:center;font-size:13px}
+.ftab td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center}
+.ftab td.p{text-align:left}
+.ftab tr.aj td{color:var(--muted);font-style:italic}
+.ftab tr.ft td{font-weight:800;border-bottom:0;background:var(--soft)}
+.ftab tr.ft.sd td{background:var(--warn-bg,#fff3cd);font-size:16px}
+.fact{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
+.frec{background:var(--soft);border-radius:14px;padding:12px;margin-top:12px}
 .bipe{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:2px solid var(--cobalt);border-radius:16px;padding:12px;margin-bottom:14px}
 .bipe b{flex-basis:100%;font-size:15px}
 .bipe input{flex:1;min-width:0;padding:12px 14px;font-size:17px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg)}
@@ -557,10 +569,12 @@ body{background:radial-gradient(1200px 500px at 85% -10%,#d6ebff 0%,transparent 
         <div class="gbar">
           <input id="fq" type="search" placeholder="Buscar pelo nome do cliente" aria-label="Buscar cliente">
           <select id="ff" aria-label="Filtrar fiado"><option value="aberto">Em aberto</option><option value="vencido">Vencidos</option><option value="quitado">Quitados</option><option value="">Todos</option></select>
+          <button class="btn pri" id="fNova" type="button">+ Lançar compra fiado</button>
+          <button class="btn ghost" id="fPrintAll" type="button">Imprimir lista</button>
           <button class="btn ghost" id="fXls" type="button">Baixar planilha</button>
         </div>
-        <div class="tblw"><table class="tbl"><thead><tr><th>Cliente</th><th>Data da compra</th><th>Produtos</th><th class="n">Valor</th><th>Vencimento</th><th class="n">Saldo</th><th>Pagamento / quitação</th><th></th></tr></thead><tbody id="fBody"></tbody></table></div>
-        <p class="sub">Para vender fiado, escolha <b>Fiado</b> no pagamento do PDV ou na aba Vendas. O cliente aparece aqui até quitar.</p>
+        <div id="fBody"></div>
+        <p class="sub">Compras fiado entram pelo botão <b>Lançar compra fiado</b>, pelo PDV (pagamento <b>Fiado</b>) ou pela aba Vendas. O estoque baixa na hora e o cliente aparece aqui até quitar.</p>
       </div>
     </section>
 
@@ -2047,7 +2061,7 @@ const telOf=n=>{const c=cliByName(n);return c?c.tel:"";};
 function fFields(prefix,valor){
   return `<label class="field wide" for="${prefix}Cli">Nome do cliente *<input id="${prefix}Cli" list="fCliList" maxlength="60" placeholder="Nome de quem vai pagar depois"></label>
    <label class="field" for="${prefix}Tel">WhatsApp<input id="${prefix}Tel" inputmode="tel" maxlength="16" placeholder="(81) 9…"></label>
-   <label class="field" for="${prefix}Venc">Pagar até<input id="${prefix}Venc" type="date" value="${addDays(today(),30)}"></label>
+   <label class="field" for="${prefix}Venc">Dia de Pagamento<input id="${prefix}Venc" type="date" value="${addDays(today(),30)}"></label>
    <datalist id="fCliList">${fClientes().map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
    <div class="sub" id="${prefix}Info" style="grid-column:1/-1"></div>`;
 }
@@ -2061,55 +2075,112 @@ function fBind(prefix){ const c=$("#"+prefix+"Cli"); if(!c) return;
   c.addEventListener("change",upd); c.addEventListener("input",upd); upd(); }
 function fRead(prefix){ return {cliente:$("#"+prefix+"Cli").value.trim(),tel:$("#"+prefix+"Tel").value.replace(/\D/g,""),venc:$("#"+prefix+"Venc").value||addDays(today(),30)}; }
 let fOpen=null;
+// Linhas no formato da planilha de fiado: Dia de Compras | Dia de Pagamento | Nome do Produto | Quant. | Valor | Total
+function fLinhas(v){
+  const F=v.fiado, it=v.itens.map(i=>{ const p=items.find(x=>x.nome===i.produto); return {compra:v.data,pag:F.venc,nome:i.produto+(p&&p.tam&&!norm(i.produto).includes(norm(p.tam))?" - "+p.tam:""),qtd:i.qtd,valor:i.preco,total:r2(i.qtd*i.preco)}; });
+  const soma=r2(it.reduce((s,l)=>s+l.total,0)), dif=r2(F.valor-soma);
+  if(Math.abs(dif)>0.004) it.push({compra:v.data,pag:F.venc,nome:dif<0?(F.valor<v.total-0.004?"Pago no ato da compra / desconto":"Desconto"):"Acréscimo",qtd:"",valor:"",total:dif,aj:true});
+  return it;
+}
+function fGrupos(){
+  const q=norm($("#fq").value), f=$("#ff").value, hoje=today(), g=new Map();
+  fiados().forEach(v=>{ const s=fSaldo(v.fiado);
+    if(f==="aberto"&&s<=0) return; if(f==="quitado"&&s>0) return; if(f==="vencido"&&!(s>0&&v.fiado.venc<hoje)) return;
+    if(q&&!norm(v.fiado.cliente).includes(q)) return;
+    const k=v.fiado.clienteId||norm(v.fiado.cliente); if(!g.has(k)) g.set(k,{id:k,nome:v.fiado.cliente,tel:v.fiado.tel||"",vendas:[]});
+    const G2=g.get(k); G2.vendas.push(v); if(v.fiado.tel) G2.tel=v.fiado.tel; });
+  return [...g.values()].map(c=>{ c.vendas.sort((a,b)=>a.data<b.data?-1:a.data>b.data?1:a.numero-b.numero);
+    c.total=r2(c.vendas.reduce((s,v)=>s+v.fiado.valor,0)); c.pago=r2(c.vendas.reduce((s,v)=>s+fPago(v.fiado),0)); c.saldo=r2(c.vendas.reduce((s,v)=>s+fSaldo(v.fiado),0));
+    c.vencido=c.vendas.some(v=>fSaldo(v.fiado)>0&&v.fiado.venc<hoje); c.cad=c.vendas[0].fiado.clienteId&&(G.clientes||[]).find(x=>x.id===c.vendas[0].fiado.clienteId);
+    return c; }).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+}
+function fCobranca(c){
+  const ab=c.vendas.filter(v=>fSaldo(v.fiado)>0), L=ab.flatMap(fLinhas);
+  return `Olá, ${c.nome}! Aqui é da POP BRILHO. Segue o resumo da sua conta:\n\n`+L.map(l=>l.aj?`${l.nome}: ${brl(l.total)}`:`${dfmt(l.compra)} · ${qfmt(l.qtd)}× ${l.nome} · ${brl(l.total)}`).join("\n")
+    +`\n\n*Total a pagar: ${brl(c.saldo)}*`+(c.pago>0?` (já descontado ${brl(c.pago)} pago)`:"")+`\nDia de pagamento: ${[...new Set(ab.map(v=>dfmt(v.fiado.venc)))].join(", ")}\n\nPode pagar por Pix ou na loja. Obrigado!`;
+}
+function fTabela(c){
+  const L=c.vendas.flatMap(fLinhas);
+  const recs=c.vendas.flatMap(v=>(v.fiado.recebimentos||[])).sort((a,b)=>a.data<b.data?-1:1);
+  return `<table class="ftab"><thead><tr><th>Dia de Compras</th><th>Dia de Pagamento</th><th>Nome do Produto</th><th>Quant.</th><th>Valor</th><th>Total</th></tr></thead><tbody>
+    ${L.map(l=>`<tr${l.aj?' class="aj"':""}><td>${dfmt(l.compra)}</td><td>${dfmt(l.pag)}</td><td class="p">${esc(l.nome)}</td><td>${l.qtd===""?"":qfmt(l.qtd)}</td><td>${l.valor===""?"":brl(l.valor)}</td><td>${brl(l.total)}</td></tr>`).join("")}
+    <tr class="ft"><td colspan="5" style="text-align:right">Total</td><td>${brl(c.total)}</td></tr>
+    ${recs.map(r=>`<tr class="aj"><td>${dfmt(r.data)}</td><td></td><td class="p">Pagamento · ${esc(FORMAS[r.forma]||r.forma)}</td><td></td><td></td><td>− ${brl(r.valor)}</td></tr>`).join("")}
+    ${c.pago>0?`<tr class="ft sd"><td colspan="5" style="text-align:right">${c.saldo>0?"Saldo a pagar":"Quitado"}</td><td>${brl(c.saldo)}</td></tr>`:""}
+    </tbody></table>`;
+}
 function renderFia(){
   if(!G) return;
   const all=fiados(), hoje=today();
   const aberto=all.filter(v=>fSaldo(v.fiado)>0), venc=aberto.filter(v=>v.fiado.venc&&v.fiado.venc<hoje);
-  $("#fTiles").innerHTML=`<div class="tile"><small>Total a receber</small><b>${brl(aberto.reduce((s,v)=>s+fSaldo(v.fiado),0))}</b></div><div class="tile"><small>Clientes devendo</small><b>${new Set(aberto.map(v=>v.fiado.cliente)).size}</b></div><div class="tile bad"><small>Vencidos</small><b>${brl(venc.reduce((s,v)=>s+fSaldo(v.fiado),0))}</b></div><div class="tile"><small>Recebido este mês</small><b>${brl(all.flatMap(v=>v.fiado.recebimentos||[]).filter(r=>r.data.slice(0,7)===hoje.slice(0,7)).reduce((s,r)=>s+r.valor,0))}</b></div>`;
-  const q=norm($("#fq").value), f=$("#ff").value;
-  const vis=all.filter(v=>(!q||norm(v.fiado.cliente).includes(q))&&(f===""||(f==="quitado"?fSaldo(v.fiado)<=0:f==="vencido"?(fSaldo(v.fiado)>0&&v.fiado.venc<hoje):fSaldo(v.fiado)>0)))
-    .sort((a,b)=>(a.fiado.cliente.localeCompare(b.fiado.cliente,"pt-BR"))||(a.data<b.data?-1:1));
-  $("#fBody").innerHTML=vis.map(v=>{
-    const F=v.fiado, s=fSaldo(F), late=s>0&&F.venc<hoje;
-    const recs=(F.recebimentos||[]).map(r=>`${dfmt(r.data)} · ${esc(FORMAS[r.forma]||r.forma)} · ${brl(r.valor)}`).join("<br>");
-    const zap=F.tel?`https://wa.me/55${F.tel.replace(/^55/,"")}?text=${encodeURIComponent(`Olá, ${F.cliente}! Aqui é da POP BRILHO. Passando para lembrar da compra de ${dfmt(v.data)} no valor de ${brl(s)}, com vencimento em ${dfmt(F.venc)}. Pode pagar por Pix ou na loja. Obrigado!`)}`:"";
-    const row=`<tr><td><b>${esc(F.cliente)}</b>${F.tel?`<div class="sub">${esc(F.tel)}</div>`:""}<div class="sub">Venda ${v.numero}</div></td><td>${dfmt(v.data)}</td>
-      <td>${v.itens.map(i=>`${qfmt(i.qtd)}× ${esc(i.produto)}`).join("<br>")}</td><td class="n">${brl(F.valor)}</td>
-      <td>${dfmt(F.venc)}${late?' <span class="pill bad">vencido</span>':""}</td><td class="n"><b>${s>0?brl(s):"–"}</b></td>
-      <td>${s<=0?`<span class="pill ok">Quitado em ${dfmt(F.quitadoEm)}</span><div class="sub">${recs}</div>`:recs?`<div class="sub">${recs}</div>`:'<span class="pill warn">Em aberto</span>'}</td>
-      <td class="n">${s>0?`<span class="inl" style="justify-content:flex-end"><button class="btn pri" type="button" data-frec="${v.id}">Receber</button>${zap?`<a class="btn ghost" href="${zap}" target="_blank" rel="noopener">Cobrar</a>`:""}</span>`:""}</td></tr>`;
-    if(fOpen!==v.id) return row;
-    return row+`<tr><td colspan="8" style="background:var(--soft)"><div class="gform">
-      <label class="field" for="frVal">Valor recebido (R$)<input id="frVal" inputmode="decimal" value="${s.toFixed(2).replace(".",",")}"></label>
-      <label class="field" for="frForma">Forma de pagamento<select id="frForma">${["dinheiro","pix","debito","credito"].map(k=>`<option value="${k}">${FORMAS[k]}</option>`).join("")}</select></label>
-      <label class="field" for="frData">Data do pagamento<input id="frData" type="date" value="${today()}"></label>
-      <div class="field"><span>&nbsp;</span><span class="sub">Saldo: ${brl(s)}${cx()?" · entra no caixa aberto":""}</span></div></div>
-      <div class="inl" style="margin-top:10px"><button class="btn pri" type="button" data-frok="${v.id}">Confirmar recebimento</button><button class="btn ghost" type="button" data-frx="1">Cancelar</button><span class="sub" id="frMsg"></span></div></td></tr>`;
-  }).join("")||`<tr><td colspan="8" class="sub" style="padding:24px;text-align:center">${f==="aberto"?"Ninguém devendo no momento.":"Nenhum registro neste filtro."}</td></tr>`;
+  $("#fTiles").innerHTML=`<div class="tile"><small>Total a receber</small><b>${brl(aberto.reduce((s,v)=>s+fSaldo(v.fiado),0))}</b></div><div class="tile"><small>Clientes devendo</small><b>${new Set(aberto.map(v=>v.fiado.clienteId||norm(v.fiado.cliente))).size}</b></div><div class="tile bad"><small>Vencidos</small><b>${brl(venc.reduce((s,v)=>s+fSaldo(v.fiado),0))}</b></div><div class="tile"><small>Recebido este mês</small><b>${brl(all.flatMap(v=>v.fiado.recebimentos||[]).filter(r=>r.data.slice(0,7)===hoje.slice(0,7)).reduce((s,r)=>s+r.valor,0))}</b></div>`;
+  const gs=fGrupos(), f=$("#ff").value;
+  $("#fBody").innerHTML=gs.map(c=>{
+    const tel=c.tel||(c.cad&&c.cad.tel)||"", zap=tel&&c.saldo>0?`https://wa.me/55${digits(tel).replace(/^55/,"")}?text=${encodeURIComponent(fCobranca(c))}`:"";
+    const st=c.saldo<=0?'<span class="pill ok">Quitado</span>':c.vencido?'<span class="pill bad">Vencido</span>':'<span class="pill warn">Em aberto</span>';
+    return `<div class="fcli"><h3>${esc(c.nome)}</h3>
+      <div class="fmeta">${st}${tel?`<span>WhatsApp ${esc(telFmt(tel))}</span>`:""}${c.cad&&c.cad.fiador&&c.cad.fiador.nome?`<span>Fiador: ${esc(c.cad.fiador.nome)}</span>`:""}</div>
+      <div class="tblw">${fTabela(c)}</div>
+      ${fOpen===c.id?`<div class="frec"><div class="gform">
+        <label class="field" for="frVal">Valor recebido (R$)<input id="frVal" inputmode="decimal" value="${c.saldo.toFixed(2).replace(".",",")}"></label>
+        <label class="field" for="frForma">Forma de pagamento<select id="frForma">${["dinheiro","pix","debito","credito"].map(k=>`<option value="${k}">${FORMAS[k]}</option>`).join("")}</select></label>
+        <label class="field" for="frData">Data do pagamento<input id="frData" type="date" value="${today()}"></label>
+        <div class="field"><span>&nbsp;</span><span class="sub">Saldo: ${brl(c.saldo)}${cx()?" · entra no caixa aberto":""}. Pagamento parcial abate primeiro as compras mais antigas.</span></div></div>
+        <div class="inl" style="margin-top:10px"><button class="btn pri" type="button" data-frok="${esc(c.id)}">Confirmar recebimento</button><button class="btn ghost" type="button" data-frx="1">Cancelar</button><span class="sub" id="frMsg"></span></div></div>`:""}
+      <div class="fact">${c.saldo>0?`<button class="btn pri" type="button" data-frec="${esc(c.id)}">Receber</button>`:""}${zap?`<a class="btn ghost" href="${zap}" target="_blank" rel="noopener">Cobrar no WhatsApp</a>`:""}<button class="btn ghost" type="button" data-fnova="${esc(c.nome)}">Nova compra</button><button class="btn ghost" type="button" data-fprint="${esc(c.id)}">Imprimir</button></div></div>`;
+  }).join("")||`<div class="gcard sub" style="text-align:center">${f==="aberto"?"Ninguém devendo no momento.":"Nenhum registro neste filtro."}</div>`;
+}
+function fNovaCompra(nome){
+  document.querySelector('[data-tab="ven"]').click();
+  $("#vPag").value="Fiado (pagar depois)"; vFiadoToggle(); $("#vData").value=$("#vData").value||today();
+  if(nome){ $("#vCli").value=nome; $("#vfCli").value=nome; $("#vfCli").dispatchEvent(new Event("input")); }
+  if(!document.querySelector("#vItems .vrow")) $("#vAdd").click();
+  $("#tVen .gcard").scrollIntoView({behavior:"smooth",block:"start"}); setTimeout(()=>(nome?document.querySelector("#vItems input, #vItems select"):$("#vfCli"))?.focus(),300);
+}
+function fImprimir(gs){
+  const w=window.open("","_blank"); if(!w){ alert("Libere as janelas pop-up do site para imprimir."); return; }
+  const css=`body{font-family:Calibri,Arial,sans-serif;font-size:12px;color:#000;margin:18px}h1{font-size:15px;margin:0 0 2px}p{margin:0 0 14px;color:#444}.c{page-break-inside:avoid;margin-bottom:26px}h2{text-align:center;font-size:13px;margin:0 0 4px}table{width:100%;border-collapse:collapse}th{font-weight:400;padding:2px 4px}td{text-align:center;padding:2px 4px}td.p{text-align:center}tr.ft td{font-weight:700;border-top:1px solid #000}tr.aj td{font-style:italic;color:#444}tr.sd td{font-weight:700}@page{size:A4;margin:12mm}`;
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Fiado POP BRILHO</title><style>${css}</style></head><body><h1>POP BRILHO · Fiado</h1><p>Emitido em ${dfmt(today())}</p>${gs.map(c=>`<div class="c"><h2>${esc(c.nome.toUpperCase())}</h2>${fTabela(c)}</div>`).join("")}</body></html>`);
+  w.document.close(); w.focus(); setTimeout(()=>w.print(),300);
 }
 $("#fq").addEventListener("input",renderFia); $("#ff").addEventListener("change",renderFia);
+$("#fNova").addEventListener("click",()=>fNovaCompra(""));
+$("#fPrintAll").addEventListener("click",()=>{ const gs=fGrupos(); if(gs.length) fImprimir(gs); });
 $("#fBody").addEventListener("click",async e=>{
   const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.fnova!==undefined){ fNovaCompra(b.dataset.fnova); return; }
+  if(b.dataset.fprint){ const c=fGrupos().find(x=>x.id===b.dataset.fprint); if(c) fImprimir([c]); return; }
   if(b.dataset.frec){ fOpen=fOpen===b.dataset.frec?null:b.dataset.frec; renderFia(); setTimeout(()=>$("#frVal")?.select(),30); return; }
   if(b.dataset.frx){ fOpen=null; renderFia(); return; }
   if(!b.dataset.frok) return;
-  const v=G.vendas.find(x=>x.id===b.dataset.frok), F=v.fiado, val=r2(num($("#frVal").value)), s=fSaldo(F), msg=$("#frMsg");
+  const c=fGrupos().find(x=>x.id===b.dataset.frok), msg=$("#frMsg"); if(!c) return;
+  let val=r2(num($("#frVal").value));
   if(!(val>0)){msg.textContent="Informe o valor recebido.";return;}
-  if(val>s+0.001){msg.textContent=`O valor passa do saldo (${brl(s)}).`;return;}
-  const backup=JSON.stringify(G), data=$("#frData").value||today();
-  F.recebimentos=F.recebimentos||[]; F.recebimentos.push({data,forma:$("#frForma").value,valor:val,caixa:G.caixaAberto||null,em:new Date().toISOString()});
-  if(fSaldo(F)<=0) F.quitadoEm=data;
+  if(val>c.saldo+0.001){msg.textContent=`O valor passa do saldo (${brl(c.saldo)}).`;return;}
+  const backup=JSON.stringify(G), data=$("#frData").value||today(), forma=$("#frForma").value;
+  const abertas=c.vendas.filter(v=>fSaldo(v.fiado)>0).sort((a,b)=>(a.fiado.venc||"")<(b.fiado.venc||"")?-1:(a.fiado.venc||"")>(b.fiado.venc||"")?1:(a.data<b.data?-1:1));
+  for(const v of abertas){ if(val<=0) break; const F=v.fiado, parte=r2(Math.min(val,fSaldo(F)));
+    F.recebimentos=F.recebimentos||[]; F.recebimentos.push({data,forma,valor:parte,caixa:G.caixaAberto||null,em:new Date().toISOString()});
+    if(fSaldo(F)<=0) F.quitadoEm=data; val=r2(val-parte); }
   b.disabled=true; msg.textContent="Salvando…";
-  try{ await gSave(`Recebimento fiado ${F.cliente} venda ${v.numero}`); fOpen=null; gRenderAll(); }
+  try{ await gSave(`Recebimento fiado ${c.nome}`); fOpen=null; gRenderAll(); }
   catch(x){ G=JSON.parse(backup); msg.textContent=gSaveErr(x); b.disabled=false; }
 });
 $("#fXls").addEventListener("click",()=>{
   if(!window.XLSX) return;
-  const rows=[["Cliente","WhatsApp","Venda","Data da compra","Quantidade","Produto","Valor da compra","Vencimento","Data do pagamento","Forma de pagamento","Valor pago","Saldo","Situação"]];
-  fiados().forEach(v=>{const F=v.fiado,recs=F.recebimentos||[];
-    v.itens.forEach((i,k)=>{const r=recs[k];rows.push([F.cliente,F.tel||"",v.numero,dfmt(v.data),i.qtd,i.produto,k?"":F.valor,k?"":dfmt(F.venc),r?dfmt(r.data):"",r?(FORMAS[r.forma]||r.forma):"",r?r.valor:"",k?"":fSaldo(F),k?"":(fSaldo(F)<=0?"Quitado em "+dfmt(F.quitadoEm):"Em aberto")]);});
-    recs.slice(v.itens.length).forEach(r=>rows.push([F.cliente,"",v.numero,"","","","","",dfmt(r.data),FORMAS[r.forma]||r.forma,r.valor,"",""]));});
-  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"Fiado"); XLSX.writeFile(wb,`fiado-popbrilho-${today()}.xlsx`);
+  const rows=[], merges=[];
+  fGrupos().forEach(c=>{
+    merges.push({s:{r:rows.length,c:0},e:{r:rows.length,c:5}}); rows.push([c.nome.toUpperCase()]);
+    rows.push(["Dia de Compras","Dia de Pagamento","Nome do Produto","Quant.","Valor","Total"]);
+    c.vendas.flatMap(fLinhas).forEach(l=>rows.push([dfmt(l.compra),dfmt(l.pag),l.nome,l.qtd,l.valor,l.total]));
+    rows.push(["","","","","Total",c.total]);
+    c.vendas.flatMap(v=>v.fiado.recebimentos||[]).forEach(r=>rows.push([dfmt(r.data),"","Pagamento · "+(FORMAS[r.forma]||r.forma),"","",-r.valor]));
+    if(c.pago>0) rows.push(["","","","","Saldo a pagar",c.saldo]);
+    rows.push([],[],[]);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows); ws["!merges"]=merges; ws["!cols"]=[{wch:15},{wch:17},{wch:46},{wch:8},{wch:12},{wch:12}];
+  Object.keys(ws).forEach(k=>{ if(k[0]==="!") return; const cell=ws[k]; if(cell.t==="n"&&/^[EF]/.test(k)) cell.z='"R$" #,##0.00'; });
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Fiado"); XLSX.writeFile(wb,`Produtos_Fiado_${today().slice(5,7)}.${today().slice(0,4)}.xlsx`);
 });
 // Vendas tab: campos do fiado
 function vFiadoToggle(){
