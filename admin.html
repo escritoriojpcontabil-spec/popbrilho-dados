@@ -2071,7 +2071,8 @@ function fBind(prefix){ const c=$("#"+prefix+"Cli"); if(!c) return;
     if(!cl){ info.innerHTML='<span class="pill mute">Cliente novo</span> será cadastrado automaticamente. Complete o cadastro depois na aba Clientes.'; return; }
     if(cl.tel&&!$("#"+prefix+"Tel").value) $("#"+prefix+"Tel").value=telFmt(cl.tel);
     const d=cliDeve(cl), [st,k]=cliSit(cl);
-    info.innerHTML=`<span class="pill ${k}">${st}</span> Deve ${brl(d)}${cl.limite?` · limite ${brl(cl.limite)} · disponível ${brl(Math.max(cl.limite-d,0))}`:" · sem limite definido"}${cl.fiador?.nome?` · fiador: ${esc(cl.fiador.nome)}`:""}`; };
+    info.innerHTML=`<span class="pill ${k}">${st}</span> Deve ${brl(d)}${cl.limite?` · limite ${brl(cl.limite)} · disponível ${brl(Math.max(cl.limite-d,0))}`:" · sem limite definido"}${cl.fiador?.nome&&norm(cl.fiador.nome)!==norm(cl.nome)?` · fiador: ${esc(cl.fiador.nome)}`:""}`;
+    if(prefix==="vf"&&cl.cpf&&!$("#vDoc").value) $("#vDoc").value=cpfFmt(cl.cpf); };
   c.addEventListener("change",upd); c.addEventListener("input",upd); upd(); }
 function fRead(prefix){ return {cliente:$("#"+prefix+"Cli").value.trim(),tel:$("#"+prefix+"Tel").value.replace(/\D/g,""),venc:$("#"+prefix+"Venc").value||addDays(today(),30)}; }
 let fOpen=null;
@@ -2119,7 +2120,7 @@ function renderFia(){
     const tel=c.tel||(c.cad&&c.cad.tel)||"", zap=tel&&c.saldo>0?`https://wa.me/55${digits(tel).replace(/^55/,"")}?text=${encodeURIComponent(fCobranca(c))}`:"";
     const st=c.saldo<=0?'<span class="pill ok">Quitado</span>':c.vencido?'<span class="pill bad">Vencido</span>':'<span class="pill warn">Em aberto</span>';
     return `<div class="fcli"><h3>${esc(c.nome)}</h3>
-      <div class="fmeta">${st}${tel?`<span>WhatsApp ${esc(telFmt(tel))}</span>`:""}${c.cad&&c.cad.fiador&&c.cad.fiador.nome?`<span>Fiador: ${esc(c.cad.fiador.nome)}</span>`:""}</div>
+      <div class="fmeta">${st}${tel?`<span>WhatsApp ${esc(telFmt(tel))}</span>`:""}${c.cad&&c.cad.fiador&&c.cad.fiador.nome&&norm(c.cad.fiador.nome)!==norm(c.nome)?`<span>Fiador: ${esc(c.cad.fiador.nome)}</span>`:""}</div>
       <div class="tblw">${fTabela(c)}</div>
       ${fOpen===c.id?`<div class="frec"><div class="gform">
         <label class="field" for="frVal">Valor recebido (R$)<input id="frVal" inputmode="decimal" value="${c.saldo.toFixed(2).replace(".",",")}"></label>
@@ -2185,8 +2186,12 @@ $("#fXls").addEventListener("click",()=>{
 // Vendas tab: campos do fiado
 function vFiadoToggle(){
   const on=$("#vPag").value==="Fiado (pagar depois)"; let box=$("#vFiaBox");
-  if(on&&!box){ box=document.createElement("div"); box.id="vFiaBox"; box.className="gform"; box.innerHTML=fFields("vf"); $("#vItems").before(box); fBind("vf"); if($("#vCli").value) $("#vfCli").value=$("#vCli").value; }
-  else if(!on&&box) box.remove();
+  const cliLbl=$("#vCli").closest("label");
+  if(on&&!box){ box=document.createElement("div"); box.id="vFiaBox"; box.className="gform"; box.innerHTML=fFields("vf"); $("#vItems").before(box); fBind("vf");
+    if($("#vCli").value){ $("#vfCli").value=$("#vCli").value; $("#vfCli").dispatchEvent(new Event("input")); }
+    $("#vfCli").addEventListener("input",()=>{ $("#vCli").value=$("#vfCli").value; }); }
+  else if(!on&&box){ box.remove(); }
+  cliLbl.hidden=on;
 }
 $("#vPag").addEventListener("change",vFiadoToggle);
 
@@ -2312,7 +2317,7 @@ $("#tCli").addEventListener("click",async e=>{
   if(fcpf&&!cpfOk(fcpf)) probs.push("O CPF do fiador não é válido. Confira os números.");
   const dup=G.clientes.find(x=>x.id!==cliEdit&&(norm(x.nome)===norm(nome)||(cpf&&digits(x.cpf)===cpf)));
   if(dup) probs.push(`Já existe um cliente cadastrado com ${norm(dup.nome)===norm(nome)?"esse nome":"esse CPF"}: ${dup.nome}.`);
-  if(fcpf&&cpf&&fcpf===cpf) probs.push("O fiador precisa ser outra pessoa.");
+  if((fcpf&&cpf&&fcpf===cpf)||(nome&&norm($("#ckFNome").value)===norm(nome))) probs.push("O fiador precisa ser outra pessoa (nome e CPF diferentes do cliente).");
   if(probs.length){ er.textContent=probs.join("\n"); er.hidden=false; return; }
   const backup=JSON.stringify(G);
   const data={nome,cpf,tel:digits($("#ckTel").value),end:$("#ckEnd").value.trim(),nasc:$("#ckNasc").value,obs:$("#ckObs").value.trim(),limite:num($("#ckLim").value),
